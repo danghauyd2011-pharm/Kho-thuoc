@@ -2336,7 +2336,7 @@ function renderA4Preview(which,rows,total,dateFrom,dateTo,isMonthly){
       <div>&nbsp;Hội đồng hủy vỏ gồm:</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Thành Trung&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Chủ tịch HĐ</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phúc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó chủ tịch HĐ</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Trương Phạm Hoàng Quyên&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Bà Trương Phạm Hoàng Quyên&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Hà Giang&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Đăng Hậu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Linh&nbsp;-&nbsp;&nbsp;Thành viên</div>
@@ -2344,9 +2344,9 @@ function renderA4Preview(which,rows,total,dateFrom,dateTo,isMonthly){
     </div>
     <table class="a4-table">
       <thead><tr>
-        <th style="width:8%">STT</th><th style="width:34%">Tên thuốc</th>
-        <th style="width:16%">Số vỏ thực tế</th><th style="width:16%">Số lượng trả</th>
-        <th style="width:16%">Số lượng sử dụng (Trên phiếu)</th><th style="width:10%">Ghi chú</th>
+        <th style="width:10%">STT</th><th style="width:34%">Tên thuốc</th>
+        <th style="width:16%">Số vỏ thực tế</th><th style="width:14%">Số lượng trả</th>
+        <th style="width:14%">Số lượng sử dụng (Trên phiếu)</th><th style="width:12%">Ghi chú</th>
       </tr></thead><tbody>`;
     rows.forEach(r=>{
       html+=`<tr><td class="center">${String(r.stt).padStart(2,'0')}</td><td>${r.drug}</td><td class="center">${bbhv_fmtQty(r.thucTe)}</td><td class="center">${bbhv_fmtQty(r.traPhi)}</td><td class="center">${bbhv_fmtQty(r.xuatPhi)}</td><td></td></tr>`;
