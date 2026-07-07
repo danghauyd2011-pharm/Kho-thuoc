@@ -464,7 +464,8 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
 .a4-empty { min-height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-family:var(--f); color:var(--t3); font-size:12px; }
 .a4-empty-icon { font-size:30px; opacity:.3; }
 .a4-header { display:flex; justify-content:space-between; margin-bottom:4px; font-size:12.5px; }
-.a4-header-left,.a4-header-right { flex:1; text-align:center; }
+.a4-header-left { flex:0 0 34.375%; text-align:center; }
+.a4-header-right { flex:0 0 65.625%; text-align:center; }
 .a4-header-line { display:block; height:1px; background:#000; width:70%; margin:3px auto 0; }
 .a4-title { text-align:center; font-weight:bold; font-size:13.5px; margin:14px 0 2px; text-transform:uppercase; }
 .a4-subtitle { text-align:center; font-weight:bold; font-size:13px; margin-bottom:2px; }
@@ -858,12 +859,6 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       <span>Chưa có dữ liệu. Vui lòng vào <strong>Sổ Trả Vỏ</strong> và xử lý trước.</span>
     </div>
 
-    <!-- Sub-tabs -->
-    <div class="pill-tabs">
-      <button class="pill-tab active" id="sbtab-daily" onclick="switchSubTab('daily')">📝 Hằng Ngày</button>
-      <button class="pill-tab" id="sbtab-monthly" onclick="switchSubTab('monthly')">📅 Cả Tháng</button>
-    </div>
-
     <!-- ── DAILY ── -->
     <div class="pill-panel active" id="sbpanel-daily">
 
@@ -888,10 +883,14 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
             <button class="btn btn-ghost btn-sm" onclick="deselectAllDates()">✕ Bỏ chọn</button>
             <span class="chip-count" id="selected-count"></span>
           </div>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;">
+            <input type="checkbox" id="bb-merge-mode" onchange="onMergeModeChange()">
+            <span>🔗 Gộp các ngày đã chọn thành 1 biên bản</span>
+          </label>
           <div class="chip-bar" id="date-chips"></div>
           <div class="notice n-blue mt-2" style="font-size:11px">
             <span class="n-i">💡</span>
-            <span>Tap chip để chọn · T7+CN tự động gộp · Xem trước tức thì</span>
+            <span id="daily-hint-text">Tap chip để chọn · T7+CN tự động gộp · Xem trước tức thì</span>
           </div>
         </div>
 
@@ -908,46 +907,6 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
             <div class="a4-scaler" id="a4-daily-scaler">
               <div class="a4-page" id="a4-daily-preview">
                 <div class="a4-empty"><div class="a4-empty-icon">📄</div><div>Chọn ngày để xem trước</div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── MONTHLY ── -->
-    <div class="pill-panel" id="sbpanel-monthly">
-
-      <div id="monthly-no-data" class="notice n-orange">
-        <span class="n-i">📭</span><span>Chưa có dữ liệu</span>
-      </div>
-
-      <div id="monthly-content" class="hidden" style="display:flex;flex-direction:column;gap:12px">
-        <div class="card card-p">
-          <div class="date-pair" style="margin-bottom:10px">
-            <div class="field">
-              <label class="field-label">Từ ngày</label>
-              <input type="date" id="bb-month-from" class="input" onchange="onMonthRangeChange()">
-            </div>
-            <div class="field">
-              <label class="field-label">Đến ngày</label>
-              <input type="date" id="bb-month-to" class="input" onchange="onMonthRangeChange()">
-            </div>
-          </div>
-          <div id="monthly-preview"></div>
-        </div>
-
-        <button class="btn btn-orange" onclick="exportMonthlyBB()" id="btn-export-monthly" style="height:50px;font-size:14px">
-          ⬇️ Xuất Biên Bản Cả Tháng (.docx)
-        </button>
-
-        <div class="slabel">Xem trước biên bản</div>
-        <div class="preview-wrap">
-          <div class="preview-header">Biên Bản Cả Tháng</div>
-          <div class="preview-scroll" id="a4-monthly-wrap">
-            <div class="a4-scaler" id="a4-monthly-scaler">
-              <div class="a4-page" id="a4-monthly-preview">
-                <div class="a4-empty"><div class="a4-empty-icon">📅</div><div>Chọn khoảng thời gian để xem trước</div></div>
               </div>
             </div>
           </div>
@@ -1420,33 +1379,8 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
         <input class="input" id="cfg-kho-ten" type="text">
       </div>
       <div class="field">
-        <label class="field-label">Phương pháp huỷ vỏ</label>
+        <label class="field-label">Phương pháp huỷ bao bì</label>
         <textarea class="input" id="cfg-destroy-method" rows="2" style="resize:vertical;font-size:13px"></textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ SECTION 6: Hội đồng Biên Bản Hàng Tháng ═══ -->
-  <div class="card">
-    <div class="card-hdr">
-      <div class="ci ci-blue">👥</div>
-      <div>
-        <div class="c-title">Hội đồng — Biên Bản Tháng</div>
-        <div class="c-sub">Danh sách thành viên ký biên bản tháng</div>
-      </div>
-    </div>
-    <div class="card-p" style="display:flex;flex-direction:column;gap:14px">
-      <div class="notice n-blue"><span class="n-i">ℹ️</span><span>Mỗi dòng một thành viên. Định dạng: <code style="background:#f0f0f0;padding:1px 5px;border-radius:4px">STT|Họ tên|Chức vụ|Vai trò</code><br>VD: <code style="background:#f0f0f0;padding:1px 5px;border-radius:4px">1.|Ông Nguyễn Thành Trung|Phó Giám đốc|Chủ tịch HĐ</code></span></div>
-      <div class="field">
-        <textarea class="input cfg-textarea" id="cfg-council-monthly" rows="12" style="resize:vertical;line-height:1.8;font-size:12px;font-family:monospace"></textarea>
-      </div>
-      <div class="field">
-        <label class="field-label">Chủ tịch HĐ (ký cuối) — Tên hiển thị dưới chữ ký</label>
-        <input class="input" id="cfg-chairman-name" type="text" placeholder="VD: Nguyễn Thành Trung">
-      </div>
-      <div class="field">
-        <label class="field-label">Chức danh Chủ tịch</label>
-        <input class="input" id="cfg-chairman-title" type="text" placeholder="VD: PHÓ GIÁM ĐỐC">
       </div>
     </div>
   </div>
@@ -1566,23 +1500,7 @@ const DEFAULTS = {
   bvShort: 'Bệnh Viện Đà Nẵng',
   bvFull: 'BỆNH VIỆN ĐÀ NẴNG',
   khoTen: 'KHO THUỐC NỘI TRÚ',
-  destroyMethod: 'Đập vỡ vụn từng vỏ, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.',
-  // Hội đồng tháng
-  councilMonthly: [
-    '1.|Ông Nguyễn Thành Trung|Phó Giám đốc|Chủ tịch HĐ',
-    '2.|Bà Nguyễn Thị Phúc|TP. Điều dưỡng|Phó CT HĐ',
-    '3.|Bà Trương Phạm Hoàng Quyên|TP. KHTH|Thư ký',
-    '4.|Ông Thái Bá Sỹ|TP.TCCB, TBTTND|Thành viên',
-    '5.|Ông Huỳnh Đức Phát|TK. PT-GMHS|Thành viên',
-    '6.|Bà Vũ Thị Thu Hiền|TK. KSNK|Thành viên',
-    '7.|Bà Nguyễn Thị Hà Giang|PTK. Dược|Thành viên',
-    '8.|Ông Trần Thanh Liêm|PTP. Điều dưỡng|Thành viên',
-    '9.|Bà Nguyễn Thị Phương Linh|Khoa PT-GMHS|Thành viên',
-    '10.|Ông Nguyễn Đăng Hậu|Khoa Dược|Thành viên',
-    '11.|Bà Lê Nhật Phương|Khoa Dược|Thành viên',
-  ],
-  chairmanName: 'Nguyễn Thành Trung',
-  chairmanTitle: 'PHÓ GIÁM ĐỐC',
+  destroyMethod: 'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.',
   // Hội đồng ngày
   councilDaily: [
     'Ông Nguyễn Thành Trung|Chủ tịch HĐ',
@@ -1670,9 +1588,6 @@ function populateSettingsUI() {
   set('cfg-bv-full', CFG.bvFull);
   set('cfg-kho-ten', CFG.khoTen);
   set('cfg-destroy-method', CFG.destroyMethod);
-  set('cfg-council-monthly', linesToText(CFG.councilMonthly));
-  set('cfg-chairman-name', CFG.chairmanName);
-  set('cfg-chairman-title', CFG.chairmanTitle);
   set('cfg-council-daily', linesToText(CFG.councilDaily));
   updateMapPreview();
 }
@@ -1711,9 +1626,6 @@ function saveSettings() {
     bvFull: get('cfg-bv-full'),
     khoTen: get('cfg-kho-ten'),
     destroyMethod: get('cfg-destroy-method'),
-    councilMonthly: textToLines(get('cfg-council-monthly')),
-    chairmanName: get('cfg-chairman-name'),
-    chairmanTitle: get('cfg-chairman-title'),
     councilDaily: textToLines(get('cfg-council-daily')),
   };
   saveConfig(CFG);
@@ -1754,12 +1666,6 @@ function getCfgBbhvNhapSov() { return CFG.bbhvNhapSov; }
 function getCfgBbhvXuatBb()  { return CFG.bbhvXuatBb; }
 function getCfgBbhvNhapBb()  { return CFG.bbhvNhapBb; }
 function getCfgFixedDisplay(){ return CFG.fixedDisplay; }
-function getCfgCouncilMonthly() {
-  return CFG.councilMonthly.map(line => {
-    const parts = line.split('|');
-    return { stt: parts[0]||'', name: parts[1]||'', chucvu: parts[2]||'', vaitro: parts[3]||'' };
-  });
-}
 function getCfgCouncilDaily() {
   return CFG.councilDaily.map(line => {
     const parts = line.split('|');
@@ -2414,16 +2320,8 @@ function _syncMarkDZ(dzId, fnId, name) {
 
 // ══ BIÊN BẢN JS ══
 
-function switchSubTab(name) {
-  ['daily','monthly'].forEach(n => {
-    document.getElementById('sbtab-'+n).classList.toggle('active', n===name);
-    document.getElementById('sbpanel-'+n).classList.toggle('active', n===name);
-  });
-  setTimeout(scaleA4Pages, 80);
-}
-
 function scaleA4Pages() {
-  [['a4-daily-wrap','a4-daily-scaler','a4-daily-preview'],['a4-monthly-wrap','a4-monthly-scaler','a4-monthly-preview']].forEach(([wrapId,scalerId,pageId]) => {
+  [['a4-daily-wrap','a4-daily-scaler','a4-daily-preview']].forEach(([wrapId,scalerId,pageId]) => {
     const wrap  = document.getElementById(wrapId);
     const scaler= document.getElementById(scalerId);
     const page  = document.getElementById(pageId);
@@ -2446,7 +2344,6 @@ function refreshBienBanTab() {
     sd.className='notice n-orange';
     sd.innerHTML='<span class="n-icon">⚠️</span><span>Chưa có dữ liệu. Vui lòng vào <strong>Sổ Trả Vỏ</strong> và xử lý trước.</span>';
     document.getElementById('daily-no-data').classList.remove('hidden');   document.getElementById('daily-content').classList.add('hidden');
-    document.getElementById('monthly-no-data').classList.remove('hidden'); document.getElementById('monthly-content').classList.add('hidden');
     return;
   }
   const dates = allDatesList;
@@ -2454,16 +2351,23 @@ function refreshBienBanTab() {
   statusDiv2.className='notice n-green';
   statusDiv2.innerHTML=`<span class="n-icon">✅</span><span>Dữ liệu sẵn sàng — <strong>${aggregatedData.length}</strong> bản ghi · <strong>${dates.length}</strong> ngày</span>`;
   document.getElementById('daily-no-data').classList.add('hidden');   document.getElementById('daily-content').classList.remove('hidden');
-  document.getElementById('monthly-no-data').classList.add('hidden'); document.getElementById('monthly-content').classList.remove('hidden');
   if (dates.length > 0) {
     document.getElementById('bb-date-from').value  = dates[0];
     document.getElementById('bb-date-to').value    = dates[dates.length-1];
-    document.getElementById('bb-month-from').value = dates[0];
-    document.getElementById('bb-month-to').value   = dates[dates.length-1];
   }
   refreshDateChips();
-  onMonthRangeChange();
   setTimeout(scaleA4Pages, 120);
+}
+
+// ── Cộng thêm N ngày vào một chuỗi ISO (yyyy-mm-dd) ──
+function addDaysISO(iso, n) {
+  const [y,m,d] = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d));
+  dt.setUTCDate(dt.getUTCDate() + n);
+  const yy = dt.getUTCFullYear();
+  const mm = String(dt.getUTCMonth()+1).padStart(2,'0');
+  const dd = String(dt.getUTCDate()).padStart(2,'0');
+  return `${yy}-${mm}-${dd}`;
 }
 
 // Group Sat+Sun
@@ -2481,6 +2385,10 @@ function groupDates(dates) {
 }
 
 let _currentGroups=[];
+function isMergeMode(){
+  const el=document.getElementById('bb-merge-mode');
+  return !!(el&&el.checked);
+}
 function refreshDateChips(){
   const fv=document.getElementById('bb-date-from').value;
   const tv=document.getElementById('bb-date-to').value;
@@ -2499,17 +2407,7 @@ function refreshDateChips(){
     chip.addEventListener('click',()=>{
       chip.classList.toggle('selected');
       updateSelectedCount();
-      // Preview first selected
-      const first=document.querySelector('.date-chip.selected');
-      if(first){
-        const gi=parseInt(first.dataset.groupIdx);
-        const gr=_currentGroups[gi];
-        const {rows,total}=aggregateForBB(gr);
-        renderA4Preview('daily',rows,total,gr[0],gr[gr.length-1],false);
-      }else{
-        document.getElementById('a4-daily-preview').innerHTML='<div style="text-align:center;color:#94a3b8;font-family:sans-serif;font-size:13px;padding-top:80px;">Chọn ngày để xem trước biên bản</div>';
-      }
-      setTimeout(scaleA4Pages,80);
+      updateDailyPreview();
     });
     cont.appendChild(chip);
   });
@@ -2520,24 +2418,46 @@ function updateSelectedCount(){
   const t=document.querySelectorAll('#app-bbhv .date-chip').length;
   document.getElementById('selected-count').textContent=s>0?`Đã chọn ${s}/${t}`:'';
 }
-function selectAllDates(){document.querySelectorAll('#app-bbhv .date-chip').forEach(c=>c.classList.add('selected'));updateSelectedCount();}
-function deselectAllDates(){document.querySelectorAll('#app-bbhv .date-chip').forEach(c=>c.classList.remove('selected'));updateSelectedCount();}
+function selectAllDates(){document.querySelectorAll('#app-bbhv .date-chip').forEach(c=>c.classList.add('selected'));updateSelectedCount();updateDailyPreview();}
+function deselectAllDates(){document.querySelectorAll('#app-bbhv .date-chip').forEach(c=>c.classList.remove('selected'));updateSelectedCount();updateDailyPreview();}
 
-function onMonthRangeChange(){
-  const fv=document.getElementById('bb-month-from').value;
-  const tv=document.getElementById('bb-month-to').value;
-  let filt=allDatesList;
-  if(fv) filt=filt.filter(d=>d>=fv);
-  if(tv) filt=filt.filter(d=>d<=tv);
-  if(filt.length===0){
-    document.getElementById('monthly-preview').innerHTML='<div class="notice notice-info" style="font-size:12px;">Không có ngày nào trong khoảng này</div>';
-    document.getElementById('a4-monthly-preview').innerHTML='<div style="text-align:center;color:#94a3b8;font-family:sans-serif;font-size:13px;padding-top:80px;">Chọn khoảng thời gian để xem trước</div>';
+function onMergeModeChange(){
+  const hint=document.getElementById('daily-hint-text');
+  if(hint) hint.textContent = isMergeMode()
+    ? 'Tap chip để chọn nhiều ngày · Các ngày đã chọn sẽ được gộp vào 1 biên bản duy nhất'
+    : 'Tap chip để chọn · T7+CN tự động gộp · Xem trước tức thì';
+  updateDailyPreview();
+}
+
+// Lấy danh sách ngày (đã dàn phẳng, sắp xếp) của các chip đang được chọn
+function getSelectedGroups(){
+  return Array.from(document.querySelectorAll('#app-bbhv .date-chip.selected'))
+    .map(c=>_currentGroups[parseInt(c.dataset.groupIdx)])
+    .filter(Boolean);
+}
+function getMergedDatesFromGroups(groups){
+  const dates=[...new Set(groups.flat())].sort();
+  return dates;
+}
+
+// Cập nhật preview: chế độ thường → xem trước biên bản đầu tiên được chọn;
+// chế độ gộp → xem trước biên bản gộp của TẤT CẢ các ngày đã chọn.
+function updateDailyPreview(){
+  const groups=getSelectedGroups();
+  if(groups.length===0){
+    document.getElementById('a4-daily-preview').innerHTML='<div style="text-align:center;color:#94a3b8;font-family:sans-serif;font-size:13px;padding-top:80px;">Chọn ngày để xem trước biên bản</div>';
     setTimeout(scaleA4Pages,80);
     return;
   }
-  const {rows,total}=aggregateForBB(filt);
-  document.getElementById('monthly-preview').innerHTML=`<div class="notice n-green" style="font-size:12px;">📋 Tổng hợp <strong>${filt.length} ngày</strong> · <strong>${rows.length} loại thuốc</strong> · <strong>${total.toLocaleString('vi-VN')} vỏ</strong></div>`;
-  renderA4Preview('monthly',rows,total,filt[0],filt[filt.length-1],true);
+  if(isMergeMode()){
+    const dates=getMergedDatesFromGroups(groups);
+    const {rows,total}=aggregateForBB(dates);
+    renderA4Preview(rows,total,dates[0],dates[dates.length-1]);
+  }else{
+    const gr=groups[0];
+    const {rows,total}=aggregateForBB(gr);
+    renderA4Preview(rows,total,gr[0],gr[gr.length-1]);
+  }
   setTimeout(scaleA4Pages,80);
 }
 
@@ -2618,15 +2538,15 @@ function numberToVietnamese(n){
 }
 
 // ── A4 PREVIEW RENDERER ──
-function renderA4Preview(which,rows,total,dateFrom,dateTo,isMonthly){
+function renderA4Preview(rows,total,dateFrom,dateTo){
   const [fY,fM,fD]=dateFrom.split('-');
   const [tY,tM,tD]=dateTo.split('-');
   const totalWords=numberToVietnamese(total);
-  const signDate=`Ngày ${parseInt(tD)} tháng ${parseInt(tM)} năm ${tY}`;
+  // Ngày huỷ luôn luôn là 1 ngày sau ngày sử dụng cuối cùng trong biên bản
+  const [hY,hM,hD]=addDaysISO(dateTo,1).split('-');
   let html='';
 
-  if(isMonthly){
-    html+=`<div class="a4-header">
+  html+=`<div class="a4-header">
       <div class="a4-header-left">
         <div><strong>${CFG&&CFG.soYte||'SỞ Y TẾ TP ĐÀ NẴNG'}</strong></div>
         <div><strong>${CFG&&CFG.bvFull||'BỆNH VIỆN ĐÀ NẴNG'}</strong></div>
@@ -2638,133 +2558,84 @@ function renderA4Preview(which,rows,total,dateFrom,dateTo,isMonthly){
         <span class="a4-header-line"></span>
       </div>
     </div>
-    <div class="a4-title">BIÊN BẢN HUỶ VỎ</div>
-    <div class="a4-subtitle">THUỐC GÂY NGHIỆN, THUỐC HƯỚNG THẦN VÀ TIỀN CHẤT</div>
-    <div class="a4-subtitle">${CFG&&CFG.khoTen||'KHO THUỐC NỘI TRÚ'}</div>
-    <div class="a4-date-range">Từ ${fD}/${fM}/${fY} đến ${tD}/${tM}/${tY}</div>
+    <div class="a4-title" style="font-size:13px;">BIÊN BẢN HỦY BAO BÌ TIẾP XÚC TRỰC TIẾP VỚI THUỐC GÂY NGHIỆN (TẤT CẢ ĐƯỜNG DÙNG), THUỐC HƯỚNG THẦN, THUỐC TIỀN CHẤT (CHỈ THUỐC ĐƯỜNG TIÊM)</div>
+    <div class="a4-date-range">Vào ngày ${parseInt(hD)} tháng ${parseInt(hM)} năm ${hY}, tại ${(CFG&&CFG.khoTen||'Kho thuốc nội trú').toLowerCase()}</div>
     <div class="a4-council">
-      <div>Hội đồng huỷ vỏ gồm:</div>
-      <div class="a4-council-member">1.&nbsp;&nbsp;Ông Nguyễn Thành Trung&nbsp;&nbsp;&nbsp;&nbsp;- Phó Giám đốc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Chủ tịch HĐ</div>
-      <div class="a4-council-member">2.&nbsp;&nbsp;Bà Nguyễn Thị Phúc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- TP. Điều dưỡng&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Phó CT HĐ</div>
-      <div class="a4-council-member">3.&nbsp;&nbsp;Bà Trương Phạm Hoàng Quyên&nbsp;- TP. KHTH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Thư ký</div>
-      <div class="a4-council-member">4.&nbsp;&nbsp;Ông Thái Bá Sỹ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- TP.TCCB, TBTTND&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div class="a4-council-member">5.&nbsp;&nbsp;Ông Huỳnh Đức Phát&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- TK. PT-GMHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div class="a4-council-member">6.&nbsp;&nbsp;Bà Vũ Thị Thu Hiền&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- TK. KSNK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div class="a4-council-member">7.&nbsp;&nbsp;Bà Nguyễn Thị Hà Giang&nbsp;&nbsp;&nbsp;&nbsp;- PTK. Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div class="a4-council-member">8.&nbsp;&nbsp;Ông Trần Thanh Liêm&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- PTP. Điều dưỡng&nbsp;&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div class="a4-council-member">9.&nbsp;&nbsp;Bà Nguyễn Thị Phương Linh&nbsp;- Khoa PT-GMHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div class="a4-council-member">10. Ông Nguyễn Đăng Hậu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Khoa Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div class="a4-council-member">11. Bà Lê Nhật Phương&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Khoa Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Thành viên</div>
-      <div style="margin-top:8px;">Tiến hành huỷ vỏ thuốc gây nghiện, thuốc hướng thần và tiền chất như sau:</div>
-    </div>
-    <table class="a4-table">
-      <thead><tr>
-        <th style="width:5%">Stt</th><th style="width:30%">Tên thuốc, nồng độ, hàm lượng</th>
-        <th style="width:7%">ĐVT</th><th style="width:13%">Số vỏ thực tế</th>
-        <th style="width:13%">Số lượng trả</th><th style="width:17%">Số lượng sử dụng (Trên phiếu)</th>
-        <th style="width:15%">Ghi chú</th>
-      </tr></thead><tbody>`;
-    rows.forEach(r=>{
-      const tra=r.traPhi>0?String(r.traPhi).padStart(2,'0'):'00';
-      html+=`<tr><td class="center">${String(r.stt).padStart(2,'0')}</td><td>${r.drug}</td><td class="center">vỏ</td><td class="center">${bbhv_fmtQty(r.thucTe)}</td><td class="center">${tra}</td><td class="center">${bbhv_fmtQty(r.xuatPhi)}</td><td></td></tr>`;
-    });
-    html+=`</tbody></table>
-    <div class="a4-footer">
-      <p style="margin-top:8px;">Tổng cộng: ${total.toLocaleString('vi-VN')} vỏ (${totalWords} vỏ).</p>
-      <p style="margin-top:6px;">Phương pháp hủy: ${CFG&&CFG.destroyMethod||'Đập vỡ vụn từng vỏ, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.'}</p>
-      <p style="text-align:right;margin-top:12px;font-style:italic;">${signDate}</p>
-      <div class="a4-sign-row" style="margin-top:16px;">
-        <div class="a4-sign-left"><strong>Thành viên Hội đồng hủy vỏ</strong><br><em>(Ký và ghi họ tên)</em></div>
-        <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong><br><strong>${CFG&&CFG.chairmanTitle||'PHÓ GIÁM ĐỐC'}</strong><br><strong>${CFG&&CFG.chairmanName||'Nguyễn Thành Trung'}</strong></div>
-      </div>
-    </div>`;
-  }else{
-    html+=`<div class="a4-title" style="font-size:13.5px;">BIÊN BẢN HỦY THUỐC GÂY NGHIỆN – HƯỚNG THẦN – TIỀN CHẤT</div>
-    <div class="a4-subtitle">KHO THUỐC GÂY NGHIỆN HƯỚNG THẦN</div>
-    <div class="a4-date-range">Từ ngày ${fD}/${fM}/${fY} đến ${tD}/${tM}/${tY}</div>
-    <div class="a4-council">
-      <div>&nbsp;Hội đồng hủy vỏ gồm:</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Thành Trung&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Chủ tịch HĐ</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phúc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó chủ tịch HĐ</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Trương Phạm Hoàng Quyên&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Hà Giang&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Đăng Hậu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Linh&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div style="margin-top:8px;">Hội đồng tiến hành hủy vỏ thuốc gây nghiện, vỏ thuốc hướng thần và tiền chất đã sử dụng như sau:</div>
+      <div>Hội đồng hủy bao bì gồm:</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Thành Trung&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó Giám đốc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Chủ tịch HĐ</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Trinh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;PTK. Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó CT HĐ</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Đăng Hậu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thư ký</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phúc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TP. Điều dưỡng&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Bà Trương Phạm Hoàng Quyên&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TP. KHTH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Ông Thái Bá Sỹ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TP.TCCB, TBTTND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Ông Huỳnh Đức Phát&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TK. PT-GMHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Bà Vũ Thị Thu Hiền&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TK. KSNK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Linh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa PT-GMHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div class="a4-council-member">-&nbsp;&nbsp;Bà Lê Nhật Phương&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      <div style="margin-top:8px;">Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:</div>
     </div>
     <table class="a4-table">
       <thead><tr>
         <th style="width:6%">STT</th><th style="width:36%">Tên thuốc</th>
-        <th style="width:16%">Số vỏ thực tế</th><th style="width:16%">Số lượng trả</th>
+        <th style="width:16%">Số lượng bao bì thực tế</th><th style="width:16%">Số lượng trả (Trên phiếu)</th>
         <th style="width:18%">Số lượng sử dụng (Trên phiếu)</th><th style="width:8%">Ghi chú</th>
       </tr></thead><tbody>`;
-    rows.forEach(r=>{
-      html+=`<tr><td class="center">${String(r.stt).padStart(2,'0')}</td><td>${r.drug}</td><td class="center">${bbhv_fmtQty(r.thucTe)}</td><td class="center">${bbhv_fmtQty(r.traPhi)}</td><td class="center">${bbhv_fmtQty(r.xuatPhi)}</td><td></td></tr>`;
-    });
-    html+=`</tbody></table>
+  rows.forEach(r=>{
+    html+=`<tr><td class="center">${String(r.stt).padStart(2,'0')}</td><td>${r.drug}</td><td class="center">${bbhv_fmtQty(r.thucTe)}</td><td class="center">${bbhv_fmtQty(r.traPhi)}</td><td class="center">${bbhv_fmtQty(r.xuatPhi)}</td><td></td></tr>`;
+  });
+  html+=`</tbody></table>
     <div class="a4-footer">
-      <p style="margin-top:8px;">&nbsp;Tổng cộng: ${total.toLocaleString('vi-VN')} vỏ${total>0?' ('+totalWords+' vỏ)':''}.</p>
-      <p style="margin-top:6px;">Phương pháp hủy: ${CFG&&CFG.destroyMethod||'Đập vỡ vụn từng vỏ, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.'}</p>
+      <p style="margin-top:8px;">Tổng cộng: ${total.toLocaleString('vi-VN')} bao bì${total>0?' ('+totalWords+' bao bì)':''}.</p>
+      <p style="margin-top:6px;">Phương pháp hủy: ${(CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.')}</p>
       <div class="a4-sign-row" style="margin-top:20px;">
-        <div class="a4-sign-left"><strong>Thành viên Hội đồng hủy vỏ</strong><br><em>(Ký và ghi họ tên)</em></div>
+        <div class="a4-sign-left"><strong>Thành viên Hội đồng hủy bao bì</strong><br><em>(Ký và ghi họ tên)</em></div>
         <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong></div>
       </div>
     </div>`;
-  }
-  document.getElementById(`a4-${which}-preview`).innerHTML=html;
+  document.getElementById('a4-daily-preview').innerHTML=html;
 }
 
 // ── Export Daily ──
 async function exportDailyBB(){
-  const chips=document.querySelectorAll('#app-bbhv .date-chip.selected');
-  if(chips.length===0){showBBError('Vui lòng chọn ít nhất một ngày/nhóm ngày.');return;}
+  const groups=getSelectedGroups();
+  if(groups.length===0){showBBError('Vui lòng chọn ít nhất một ngày/nhóm ngày.');return;}
   const btn=document.getElementById('btn-export-daily'),orig=btn.innerHTML;
   btn.innerHTML='<span class="spinner">⏳</span> Đang tạo file…';btn.disabled=true;
   try{
     const res=document.getElementById('daily-results');res.innerHTML='';res.classList.remove('hidden');
-    for(const chip of chips){
-      const gi=parseInt(chip.dataset.groupIdx),group=_currentGroups[gi];
-      const {rows,total}=aggregateForBB(group);
-      if(rows.length===0)continue;
-      const blob=await createDocxFile(rows,total,group[0],group[group.length-1],false);
-      const fname=buildFilename(group[0],group[group.length-1]);
+    if(isMergeMode()){
+      // Gộp toàn bộ các ngày đã chọn thành 1 biên bản duy nhất
+      const dates=getMergedDatesFromGroups(groups);
+      const {rows,total}=aggregateForBB(dates);
+      if(rows.length===0){showBBError('Không có dữ liệu thuốc trong các ngày đã chọn.');return;}
+      const blob=await createDocxFile(rows,total,dates[0],dates[dates.length-1]);
+      const fname=buildFilename(dates[0],dates[dates.length-1]);
       docxDownload(blob,fname);
       const item=document.createElement('div');item.className='result-item';
-      item.innerHTML=`<div class="result-item-dot"></div><div><div class="result-item-name">✅ ${fname}</div><div class="result-item-meta">${rows.length} loại thuốc · ${total} vỏ</div></div>`;
+      item.innerHTML=`<div class="result-item-dot"></div><div><div class="result-item-name">✅ ${fname}</div><div class="result-item-meta">Gộp ${dates.length} ngày · ${rows.length} loại thuốc · ${total} bao bì</div></div>`;
       res.appendChild(item);
+    }else{
+      // Mỗi nhóm ngày (chip) xuất riêng 1 biên bản như trước
+      for(const group of groups){
+        const {rows,total}=aggregateForBB(group);
+        if(rows.length===0)continue;
+        const blob=await createDocxFile(rows,total,group[0],group[group.length-1]);
+        const fname=buildFilename(group[0],group[group.length-1]);
+        docxDownload(blob,fname);
+        const item=document.createElement('div');item.className='result-item';
+        item.innerHTML=`<div class="result-item-dot"></div><div><div class="result-item-name">✅ ${fname}</div><div class="result-item-meta">${rows.length} loại thuốc · ${total} bao bì</div></div>`;
+        res.appendChild(item);
+      }
     }
-  }catch(e){console.error(e);showBBError('Lỗi tạo file: '+e.message);}
-  finally{btn.innerHTML=orig;btn.disabled=false;}
-}
-
-// ── Export Monthly ──
-async function exportMonthlyBB(){
-  const fv=document.getElementById('bb-month-from').value,tv=document.getElementById('bb-month-to').value;
-  let filt=allDatesList;
-  if(fv)filt=filt.filter(d=>d>=fv);
-  if(tv)filt=filt.filter(d=>d<=tv);
-  if(filt.length===0){showBBError('Không có dữ liệu trong khoảng thời gian đã chọn.');return;}
-  const btn=document.getElementById('btn-export-monthly'),orig=btn.innerHTML;
-  btn.innerHTML='<span class="spinner">⏳</span> Đang tạo file…';btn.disabled=true;
-  try{
-    const {rows,total}=aggregateForBB(filt);
-    if(rows.length===0){showBBError('Không có dữ liệu thuốc.');return;}
-    const blob=await createDocxFile(rows,total,filt[0],filt[filt.length-1],true);
-    docxDownload(blob,buildFilenameMonthly(filt[0],filt[filt.length-1]));
   }catch(e){console.error(e);showBBError('Lỗi tạo file: '+e.message);}
   finally{btn.innerHTML=orig;btn.disabled=false;}
 }
 
 function buildFilename(df,dt){
   const[fy,fm,fd]=df.split('-');
-  if(df===dt)return`BB huy vo_Ngay ${fd}-${fm}-${fy}.docx`;
+  if(df===dt)return`BB huy bao bi_Ngay ${fd}-${fm}-${fy}.docx`;
   const[ty,tm,td]=dt.split('-');
-  return`BB huy vo_Ngay ${fd}-${fm}-${fy} den ${td}-${tm}-${ty}.docx`;
-}
-function buildFilenameMonthly(df,dt){
-  const[fy,fm,fd]=df.split('-'),[ty,tm,td]=dt.split('-');
-  if(fm===tm&&fy===ty)return`BB huy vo_Thang ${fm}-${fy}.docx`;
-  return`BB huy vo_Tu ${fd}-${fm}-${fy} den ${td}-${tm}-${ty}.docx`;
+  return`BB huy bao bi_Ngay ${fd}-${fm}-${fy} den ${td}-${tm}-${ty}.docx`;
 }
 function showBBError(msg){
   document.getElementById('bb-error-text').textContent=msg;
@@ -2773,12 +2644,13 @@ function showBBError(msg){
 }
 
 // ── CREATE DOCX ──
-async function createDocxFile(rows,total,dateFrom,dateTo,isMonthly){
+async function createDocxFile(rows,total,dateFrom,dateTo){
   const D=window.docx;
   if(!D)throw new Error('Thư viện docx chưa tải. Kiểm tra kết nối internet.');
   const [fY,fM,fD]=dateFrom.split('-'),[tY,tM,tD]=dateTo.split('-');
-  const signDate=`Ngày ${parseInt(tD)} tháng ${parseInt(tM)} năm ${tY}`;
   const totalWords=numberToVietnamese(total);
+  // Ngày huỷ luôn luôn là 1 ngày sau ngày sử dụng cuối cùng trong biên bản
+  const [hY,hM,hD]=addDaysISO(dateTo,1).split('-');
   const CM=567,PAGE_W=11906,MARG={top:2*CM,right:2*CM,bottom:2*CM,left:3*CM};
   const CW=PAGE_W-MARG.left-MARG.right;
   const{Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,AlignmentType,BorderStyle,WidthType,VerticalAlign,TableLayoutType,TabStopType}=D;
@@ -2792,113 +2664,55 @@ async function createDocxFile(rows,total,dateFrom,dateTo,isMonthly){
   const TcN=(ch,w,o={})=>new TableCell({borders:nBs,width:{size:w,type:WidthType.DXA},children:ch,...o});
   let children=[];
 
-  if(isMonthly){
-    const hw=Math.round(CW/2);
+  {
+    // Cột "Sở Y tế" thu hẹp về 0–5,5cm; cột "Cộng hoà" mở rộng 5,5–16cm (trên ruler Word)
+    const hw=Math.round(CM*5.5);
     children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:[hw,CW-hw],layout:TableLayoutType.FIXED,rows:[new TableRow({children:[
       TcN([P([T('SỞ Y TẾ TP ĐÀ NẴNG',{bold:true})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:0}}),P([T('BỆNH VIỆN ĐÀ NẴNG',{bold:true})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:0}}),P([T('─────────────────',{size:18})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:0}})],hw),
       TcN([P([T('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM',{bold:true})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:0}}),P([T('Độc lập – Tự do – Hạnh phúc',{bold:true})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:0}}),P([T('─────────────────────────',{size:18})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:0}})],CW-hw),
     ]})]})
     );
-    children.push(P([T('BIÊN BẢN HUỶ VỎ',{bold:true,size:28})],{alignment:AlignmentType.CENTER,spacing:{before:240,after:40}}));
-    children.push(P([T('THUỐC GÂY NGHIỆN, THUỐC HƯỚNG THẦN VÀ TIỀN CHẤT',{bold:true})],{alignment:AlignmentType.CENTER}));
-    children.push(P([T('KHO THUỐC NỘI TRÚ',{bold:true})],{alignment:AlignmentType.CENTER}));
-    children.push(P([T(`Từ ${fD}/${fM}/${fY} đến ${tD}/${tM}/${tY}`,{italics:true})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:160}}));
-    children.push(P([T('Hội đồng huỷ vỏ gồm:')]));
-    // Dùng tab stops 2 cột: số thứ tự + tên | chức vụ | vai trò
-    const mTabW1=Math.round(CW*0.38), mTabW2=Math.round(CW*0.62);
-    const monthlyMembers=[
-      ['1.','Ông Nguyễn Thành Trung',   '- Phó Giám đốc',    '- Chủ tịch HĐ'],
-      ['2.','Bà Nguyễn Thị Phúc',       '- TP. Điều dưỡng',  '- Phó CT HĐ'],
-      ['3.','Bà Trương Phạm Hoàng Quyên','- TP. KHTH',        '- Thư ký'],
-      ['4.','Ông Thái Bá Sỹ',           '- TP.TCCB, TBTTND', '- Thành viên'],
-      ['5.','Ông Huỳnh Đức Phát',       '- TK. PT-GMHS',     '- Thành viên'],
-      ['6.','Bà Vũ Thị Thu Hiền',       '- TK. KSNK',        '- Thành viên'],
-      ['7.','Bà Nguyễn Thị Hà Giang',   '- PTK. Dược',       '- Thành viên'],
-      ['8.','Ông Trần Thanh Liêm',      '- PTP. Điều dưỡng', '- Thành viên'],
-      ['9.','Bà Nguyễn Thị Phương Linh','- Khoa PT-GMHS',    '- Thành viên'],
-      ['10.','Ông Nguyễn Đăng Hậu',     '- Khoa Dược',       '- Thành viên'],
-      ['11.','Bà Lê Nhật Phương',        '- Khoa Dược',       '- Thành viên'],
-    ];
-    monthlyMembers.forEach(([stt,name,chucvu,vaitro])=>{
-      children.push(new Paragraph({
-        tabStops:[{type:TabStopType.LEFT,position:mTabW1},{type:TabStopType.LEFT,position:mTabW2}],
-        children:[
-          T(stt+'  '+name),
-          new TextRun({text:'\t',font:'Times New Roman',size:26}),
-          T(chucvu),
-          new TextRun({text:'\t',font:'Times New Roman',size:26}),
-          T(vaitro),
-        ],
-        spacing:{before:0,after:40,line:276,lineRule:'auto'},
-      }));
-    });
-    children.push(P([T('Tiến hành huỷ vỏ thuốc gây nghiện, thuốc hướng thần và tiền chất như sau:')],{spacing:{before:100,after:80}}));
-    const cw=[450,3100,520,1300,1200,1758,744];
-    children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:cw,layout:TableLayoutType.FIXED,rows:[
-      new TableRow({tableHeader:true,children:[
-        Tc([P([T('STT',{bold:true})],{alignment:AlignmentType.CENTER})],cw[0]),
-        Tc([P([T('Tên thuốc, nồng độ,',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('hàm lượng',{bold:true})],{alignment:AlignmentType.CENTER})],cw[1]),
-        Tc([P([T('ĐVT',{bold:true})],{alignment:AlignmentType.CENTER})],cw[2]),
-        Tc([P([T('Số vỏ thực tế',{bold:true})],{alignment:AlignmentType.CENTER})],cw[3]),
-        Tc([P([T('Số lượng trả',{bold:true})],{alignment:AlignmentType.CENTER})],cw[4]),
-        Tc([P([T('Số lượng sử dụng',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('(Trên phiếu)',{bold:true})],{alignment:AlignmentType.CENTER})],cw[5]),
-        Tc([P([T('Ghi chú',{bold:true})],{alignment:AlignmentType.CENTER})],cw[6]),
-      ]}),
-      ...rows.map(r=>{
-        const fmtN=n=>n===0?'00':(n<10?String(n).padStart(2,'0'):n.toLocaleString('vi-VN'));
-        return new TableRow({children:[
-          Tc([P([T(String(r.stt).padStart(2,'0'))],{alignment:AlignmentType.CENTER})],cw[0]),
-          Tc([P([T(r.drug)])],cw[1]),
-          Tc([P([T('vỏ')],{alignment:AlignmentType.CENTER})],cw[2]),
-          Tc([P([T(fmtN(r.thucTe))],{alignment:AlignmentType.CENTER})],cw[3]),
-          Tc([P([T(fmtN(r.traPhi))],{alignment:AlignmentType.CENTER})],cw[4]),
-          Tc([P([T(fmtN(r.xuatPhi))],{alignment:AlignmentType.CENTER})],cw[5]),
-          Tc([P([T('')])],cw[6]),
-        ]});
-      })
-    ]}));
-    children.push(P([T(`Tổng cộng: ${total.toLocaleString('vi-VN')} vỏ (${totalWords} vỏ).`)],{spacing:{before:120,after:60}}));
-    children.push(P([T('Phương pháp hủy: Đập vỡ vụn từng vỏ, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.')],{spacing:{before:0,after:160}}));
-    children.push(P([T(signDate,{italics:true})],{alignment:AlignmentType.RIGHT,spacing:{before:0,after:160}}));
-    const sw1=Math.round(CW*0.62),sw2=CW-sw1;
-    children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:[sw1,sw2],layout:TableLayoutType.FIXED,rows:[new TableRow({children:[
-      TcN([P([T('Thành viên Hội đồng hủy vỏ',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('(Ký và ghi họ tên)',{italics:true})],{alignment:AlignmentType.CENTER}),P([T('')],{spacing:{before:800,after:0}})],sw1),
-      TcN([P([T('Chủ tịch hội đồng',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('PHÓ GIÁM ĐỐC',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('Nguyễn Thành Trung',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('')],{spacing:{before:800,after:0}})],sw2),
-    ]})]})
-    );
-  }else{
-    children.push(P([T('BIÊN BẢN HỦY THUỐC GÂY NGHIỆN – HƯỚNG THẦN – TIỀN CHẤT',{bold:true,size:26})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:40}}));
-    children.push(P([T('KHO THUỐC GÂY NGHIỆN HƯỚNG THẦN',{bold:true})],{alignment:AlignmentType.CENTER}));
-    children.push(P([T(`Từ ngày ${fD}/${fM}/${fY} đến ${tD}/${tM}/${tY}`,{italics:true})],{alignment:AlignmentType.CENTER,spacing:{before:0,after:140}}));
-    children.push(P([T(' Hội đồng hủy vỏ gồm:')]));
-    // Member list — use proper dash formatting matching the correct reference file
+    children.push(P([T('BIÊN BẢN HỦY BAO BÌ TIẾP XÚC TRỰC TIẾP VỚI THUỐC GÂY NGHIỆN (TẤT CẢ ĐƯỜNG DÙNG), THUỐC HƯỚNG THẦN, THUỐC TIỀN CHẤT (CHỈ THUỐC ĐƯỜNG TIÊM)',{bold:true})],{alignment:AlignmentType.CENTER,spacing:{before:240,after:160}}));
+    children.push(P([T(`Vào ngày ${parseInt(hD)} tháng ${parseInt(hM)} năm ${hY}, tại ${(CFG&&CFG.khoTen||'Kho thuốc nội trú').toLowerCase()}`)],{spacing:{before:0,after:120}}));
+    children.push(P([T('Hội đồng hủy bao bì gồm:')]));
+    // Member list — bullet dash format matching the new reference template
     const memberIndent={indent:{left:200,hanging:0}};
     const members=[
-      ['Ông Nguyễn Thành Trung',   'Chủ tịch HĐ'],
-      ['Bà Nguyễn Thị Phúc',       'Phó chủ tịch HĐ'],
-      ['Bà Trương Phạm Hoàng Quyên','Thành viên'],
-      ['Bà Nguyễn Thị Hà Giang',   'Thành viên'],
-      ['Ông Nguyễn Đăng Hậu',      'Thành viên'],
-      ['Bà Nguyễn Thị Phương Linh','Thành viên'],
+      ['Ông Nguyễn Thành Trung',      'Phó Giám đốc',      'Chủ tịch HĐ'],
+      ['Bà Nguyễn Thị Phương Trinh',  'PTK. Dược',         'Phó CT HĐ'],
+      ['Ông Nguyễn Đăng Hậu',         'Khoa Dược',         'Thư ký'],
+      ['Bà Nguyễn Thị Phúc',          'TP. Điều dưỡng',    'Thành viên'],
+      ['Bà Trương Phạm Hoàng Quyên',  'TP. KHTH',          'Thành viên'],
+      ['Ông Thái Bá Sỹ',              'TP.TCCB, TBTTND',   'Thành viên'],
+      ['Ông Huỳnh Đức Phát',          'TK. PT-GMHS',       'Thành viên'],
+      ['Bà Vũ Thị Thu Hiền',          'TK. KSNK',          'Thành viên'],
+      ['Bà Nguyễn Thị Phương Linh',   'Khoa PT-GMHS',      'Thành viên'],
+      ['Bà Lê Nhật Phương',           'Khoa Dược',         'Thành viên'],
     ];
-    const tabW=Math.round(CW*0.52);
-    members.forEach(([name,role])=>{
+    const tabW1=Math.round(CW*0.42), tabW2=Math.round(CW*0.72);
+    members.forEach(([name,chucvu,vaitro])=>{
       children.push(new Paragraph({
-        tabStops:[{type:TabStopType.LEFT,position:tabW}],
-        children:[T('-  '+name),new TextRun({text:'\t',font:'Times New Roman',size:26}),T('-  '+role)],
+        tabStops:[{type:TabStopType.LEFT,position:tabW1},{type:TabStopType.LEFT,position:tabW2}],
+        children:[
+          T('-  '+name),
+          new TextRun({text:'\t',font:'Times New Roman',size:26}),
+          T('- '+chucvu),
+          new TextRun({text:'\t',font:'Times New Roman',size:26}),
+          T('- '+vaitro),
+        ],
         spacing:{before:0,after:40,line:276,lineRule:'auto'},
         ...memberIndent
       }));
     });
-    children.push(P([T('Hội đồng tiến hành hủy vỏ thuốc gây nghiện, vỏ thuốc hướng thần và tiền chất đã sử dụng như sau:')],{spacing:{before:100,after:80}}));
-    // Column widths matching reference: STT|Tên thuốc|Số vỏ thực tế|Số lượng trả|Số lượng sử dụng (Trên phiếu)|Ghi chú
+    children.push(P([T(`Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:`)],{spacing:{before:100,after:80}}));
+    // Column widths matching new reference: STT|Tên thuốc|Số lượng bao bì thực tế|Số lượng trả (Trên phiếu)|Số lượng sử dụng (Trên phiếu)|Ghi chú
     const cw2=[450,3200,1400,1400,1900,722];
     children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:cw2,layout:TableLayoutType.FIXED,rows:[
       new TableRow({tableHeader:true,children:[
         Tc([P([T('STT',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[0]),
         Tc([P([T('Tên thuốc',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[1]),
-        Tc([P([T('Số vỏ thực tế',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[2]),
-        Tc([P([T('Số lượng trả',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[3]),
+        Tc([P([T('Số lượng bao bì',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('thực tế',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[2]),
+        Tc([P([T('Số lượng trả',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('(Trên phiếu)',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[3]),
         Tc([P([T('Số lượng sử dụng',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('(Trên phiếu)',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[4]),
         Tc([P([T('Ghi chú',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[5]),
       ]}),
@@ -2913,11 +2727,11 @@ async function createDocxFile(rows,total,dateFrom,dateTo,isMonthly){
           Tc([P([T('')])],cw2[5]),
         ]});
       })    ]}));
-    children.push(P([T(` Tổng cộng: ${total.toLocaleString('vi-VN')} vỏ${total>0?' ('+totalWords+' vỏ)':''}.`)],{spacing:{before:120,after:60}}));
-    children.push(P([T('Phương pháp hủy: Đập vỡ vụn từng vỏ, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.')],{spacing:{before:0,after:200}}));
+    children.push(P([T(`Tổng cộng: ${total.toLocaleString('vi-VN')} bao bì${total>0?' ('+totalWords+' bao bì)':''}.`)],{spacing:{before:120,after:60}}));
+    children.push(P([T(`Phương pháp hủy: ${CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.'}`)],{spacing:{before:0,after:200}}));
     const sw1=Math.round(CW*0.62),sw2=CW-sw1;
     children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:[sw1,sw2],layout:TableLayoutType.FIXED,rows:[new TableRow({children:[
-      TcN([P([T('Thành viên Hội đồng hủy vỏ',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('(Ký và ghi họ tên)',{italics:true})],{alignment:AlignmentType.CENTER}),P([T('')],{spacing:{before:800,after:0}})],sw1),
+      TcN([P([T('Thành viên Hội đồng hủy bao bì',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('(Ký và ghi họ tên)',{italics:true})],{alignment:AlignmentType.CENTER}),P([T('')],{spacing:{before:800,after:0}})],sw1),
       TcN([P([T('Chủ tịch hội đồng',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('')],{spacing:{before:800,after:0}})],sw2),
     ]})]})
     );
