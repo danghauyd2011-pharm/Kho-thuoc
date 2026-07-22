@@ -2559,8 +2559,8 @@ function renderA4Preview(rows,total,dateFrom,dateTo){
       </div>
     </div>
     <div class="a4-title" style="font-size:13px;">BIÊN BẢN HỦY BAO BÌ TIẾP XÚC TRỰC TIẾP VỚI THUỐC GÂY NGHIỆN (TẤT CẢ ĐƯỜNG DÙNG), THUỐC HƯỚNG THẦN, THUỐC TIỀN CHẤT (CHỈ THUỐC ĐƯỜNG TIÊM)</div>
-    <div class="a4-date-range">Vào ngày ${parseInt(hD)} tháng ${parseInt(hM)} năm ${hY}, tại ${(CFG&&CFG.khoTen||'Kho thuốc nội trú').toLowerCase()}</div>
-    <div class="a4-council">
+    <div class="a4-date-range" style="margin-bottom:0;">Vào ngày ${parseInt(hD)} tháng ${parseInt(hM)} năm ${hY}, tại ${(CFG&&CFG.khoTen||'Kho thuốc nội trú').toLowerCase()}</div>
+    <div class="a4-council" style="margin-bottom:0;">
       <div>Hội đồng hủy bao bì gồm:</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Thành Trung&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó Giám đốc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Chủ tịch HĐ</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Trinh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;PTK. Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó CT HĐ</div>
@@ -2572,21 +2572,21 @@ function renderA4Preview(rows,total,dateFrom,dateTo){
       <div class="a4-council-member">-&nbsp;&nbsp;Bà Vũ Thị Thu Hiền&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TK. KSNK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Linh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa PT-GMHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
       <div class="a4-council-member">-&nbsp;&nbsp;Bà Lê Nhật Phương&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div style="margin-top:8px;">Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:</div>
+      <div style="margin-top:8px;margin-bottom:0;">Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:</div>
     </div>
     <table class="a4-table">
       <thead><tr>
-        <th style="width:6%">STT</th><th style="width:36%">Tên thuốc</th>
-        <th style="width:16%">Số lượng bao bì thực tế</th><th style="width:16%">Số lượng trả (Trên phiếu)</th>
-        <th style="width:18%">Số lượng sử dụng (Trên phiếu)</th><th style="width:8%">Ghi chú</th>
+        <th style="width:5%">STT</th><th style="width:39%">Tên thuốc</th>
+        <th style="width:11%">Số lượng bao bì thực tế</th><th style="width:17%">Số lượng trả (Trên phiếu)</th>
+        <th style="width:19%">Số lượng sử dụng (Trên phiếu)</th><th style="width:9%">Ghi chú</th>
       </tr></thead><tbody>`;
   rows.forEach(r=>{
     html+=`<tr><td class="center">${String(r.stt).padStart(2,'0')}</td><td>${r.drug}</td><td class="center">${bbhv_fmtQty(r.thucTe)}</td><td class="center">${bbhv_fmtQty(r.traPhi)}</td><td class="center">${bbhv_fmtQty(r.xuatPhi)}</td><td></td></tr>`;
   });
   html+=`</tbody></table>
     <div class="a4-footer">
-      <p style="margin-top:8px;">Tổng cộng: ${total.toLocaleString('vi-VN')} bao bì${total>0?' ('+totalWords+' bao bì)':''}.</p>
-      <p style="margin-top:6px;">Phương pháp hủy: ${(CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.')}</p>
+      <p style="margin-top:8px;margin-bottom:0;">Tổng cộng: ${total.toLocaleString('vi-VN')} bao bì${total>0?' ('+totalWords+' bao bì)':''}.</p>
+      <p style="margin-top:0;margin-bottom:0;">Phương pháp hủy: ${(CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.')}</p>
       <div class="a4-sign-row" style="margin-top:20px;">
         <div class="a4-sign-left"><strong>Thành viên Hội đồng hủy bao bì</strong><br><em>(Ký và ghi họ tên)</em></div>
         <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong></div>
@@ -2673,8 +2673,8 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
     ]})]})
     );
     children.push(P([T('BIÊN BẢN HỦY BAO BÌ TIẾP XÚC TRỰC TIẾP VỚI THUỐC GÂY NGHIỆN (TẤT CẢ ĐƯỜNG DÙNG), THUỐC HƯỚNG THẦN, THUỐC TIỀN CHẤT (CHỈ THUỐC ĐƯỜNG TIÊM)',{bold:true})],{alignment:AlignmentType.CENTER,spacing:{before:240,after:160}}));
-    children.push(P([T(`Vào ngày ${parseInt(hD)} tháng ${parseInt(hM)} năm ${hY}, tại ${(CFG&&CFG.khoTen||'Kho thuốc nội trú').toLowerCase()}`)],{spacing:{before:0,after:120}}));
-    children.push(P([T('Hội đồng hủy bao bì gồm:')]));
+    children.push(P([T(`Vào ngày ${parseInt(hD)} tháng ${parseInt(hM)} năm ${hY}, tại ${(CFG&&CFG.khoTen||'Kho thuốc nội trú').toLowerCase()}`)],{spacing:{before:0,after:0}}));
+    children.push(P([T('Hội đồng hủy bao bì gồm:')],{spacing:{before:0,after:0}}));
     // Member list — bullet dash format matching the new reference template
     const memberIndent={indent:{left:200,hanging:0}};
     const members=[
@@ -2700,13 +2700,13 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
           new TextRun({text:'\t',font:'Times New Roman',size:26}),
           T('- '+vaitro),
         ],
-        spacing:{before:0,after:40,line:276,lineRule:'auto'},
+        spacing:{before:0,after:0,line:276,lineRule:'auto'},
         ...memberIndent
       }));
     });
-    children.push(P([T(`Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:`)],{spacing:{before:100,after:80}}));
-    // Column widths matching new reference: STT|Tên thuốc|Số lượng bao bì thực tế|Số lượng trả (Trên phiếu)|Số lượng sử dụng (Trên phiếu)|Ghi chú
-    const cw2=[450,3200,1400,1400,1900,722];
+    children.push(P([T(`Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:`)],{spacing:{before:100,after:0}}));
+    // Column widths theo ruler Word: Tên thuốc 0-7cm · SL bao bì thực tế 7-8.8cm · SL trả 8.8-11.5cm · SL sử dụng 11.5-14.5cm · Ghi chú 14.5-16cm
+    const cw2=[450,3519,1021,1531,1701,849];
     children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:cw2,layout:TableLayoutType.FIXED,rows:[
       new TableRow({tableHeader:true,children:[
         Tc([P([T('STT',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[0]),
@@ -2727,8 +2727,8 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
           Tc([P([T('')])],cw2[5]),
         ]});
       })    ]}));
-    children.push(P([T(`Tổng cộng: ${total.toLocaleString('vi-VN')} bao bì${total>0?' ('+totalWords+' bao bì)':''}.`)],{spacing:{before:120,after:60}}));
-    children.push(P([T(`Phương pháp hủy: ${CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.'}`)],{spacing:{before:0,after:200}}));
+    children.push(P([T(`Tổng cộng: ${total.toLocaleString('vi-VN')} bao bì${total>0?' ('+totalWords+' bao bì)':''}.`)],{spacing:{before:120,after:0}}));
+    children.push(P([T(`Phương pháp hủy: ${CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.'}`)],{spacing:{before:0,after:0}}));
     const sw1=Math.round(CW*0.62),sw2=CW-sw1;
     children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:[sw1,sw2],layout:TableLayoutType.FIXED,rows:[new TableRow({children:[
       TcN([P([T('Thành viên Hội đồng hủy bao bì',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('(Ký và ghi họ tên)',{italics:true})],{alignment:AlignmentType.CENTER}),P([T('')],{spacing:{before:800,after:0}})],sw1),
