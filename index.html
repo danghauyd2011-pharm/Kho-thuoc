@@ -1399,6 +1399,14 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       <div class="field">
         <textarea class="input cfg-textarea" id="cfg-council-daily" rows="7" style="resize:vertical;line-height:1.8;font-size:12px;font-family:monospace"></textarea>
       </div>
+      <div class="field">
+        <label class="field-label">Chức danh người ký (Chủ tịch HĐ)</label>
+        <input class="input" id="cfg-chairman-title" type="text" placeholder="VD: PHÓ GIÁM ĐỐC">
+      </div>
+      <div class="field">
+        <label class="field-label">Họ tên người ký</label>
+        <input class="input" id="cfg-chairman-name" type="text" placeholder="VD: BSCKII.Nguyễn Thành Trung">
+      </div>
     </div>
   </div>
 
@@ -1510,6 +1518,8 @@ const DEFAULTS = {
     'Ông Nguyễn Đăng Hậu|Thành viên',
     'Bà Nguyễn Thị Phương Linh|Thành viên',
   ],
+  chairmanTitle: 'PHÓ GIÁM ĐỐC',
+  chairmanName: 'BSCKII.Nguyễn Thành Trung',
 };
 
 // ── LIVE CONFIG (applied at runtime) ──
@@ -1589,6 +1599,8 @@ function populateSettingsUI() {
   set('cfg-kho-ten', CFG.khoTen);
   set('cfg-destroy-method', CFG.destroyMethod);
   set('cfg-council-daily', linesToText(CFG.councilDaily));
+  set('cfg-chairman-title', CFG.chairmanTitle);
+  set('cfg-chairman-name', CFG.chairmanName);
   updateMapPreview();
 }
 
@@ -1627,6 +1639,8 @@ function saveSettings() {
     khoTen: get('cfg-kho-ten'),
     destroyMethod: get('cfg-destroy-method'),
     councilDaily: textToLines(get('cfg-council-daily')),
+    chairmanTitle: get('cfg-chairman-title'),
+    chairmanName: get('cfg-chairman-name'),
   };
   saveConfig(CFG);
   applyConfig();
@@ -2589,7 +2603,7 @@ function renderA4Preview(rows,total,dateFrom,dateTo){
       <p style="margin-top:0;margin-bottom:0;">Phương pháp hủy: ${(CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.')}</p>
       <div class="a4-sign-row" style="margin-top:20px;">
         <div class="a4-sign-left"><strong>Thành viên Hội đồng hủy bao bì</strong><br><em>(Ký và ghi họ tên)</em></div>
-        <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong><br><br><br><strong>PHÓ GIÁM ĐỐC</strong><br><strong>BSCKII.Nguyễn Thành Trung</strong></div>
+        <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong><br><br><br><strong>${(CFG&&CFG.chairmanTitle||'PHÓ GIÁM ĐỐC')}</strong><br><strong>${(CFG&&CFG.chairmanName||'BSCKII.Nguyễn Thành Trung')}</strong></div>
       </div>
     </div>`;
   document.getElementById('a4-daily-preview').innerHTML=html;
@@ -2749,14 +2763,14 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
         new TextRun({text:'\t',font:'Times New Roman',size:26}),
         new TextRun({text:'\t',font:'Times New Roman',size:26}),
         new TextRun({text:'\t',font:'Times New Roman',size:26}),
-        T('PHÓ GIÁM ĐỐC',{bold:true}),
+        T(CFG&&CFG.chairmanTitle||'PHÓ GIÁM ĐỐC',{bold:true}),
       ],
     }));
     children.push(new Paragraph({
       indent:{left:5040},
       spacing:{before:0,after:40},
       children:[
-        T('       BSCKII.Nguyễn Thành Trung',{bold:true}),
+        T('       '+(CFG&&CFG.chairmanName||'BSCKII.Nguyễn Thành Trung'),{bold:true}),
       ],
     }));
     children.push(new Paragraph({children:[]}));
