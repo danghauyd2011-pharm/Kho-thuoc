@@ -2576,9 +2576,9 @@ function renderA4Preview(rows,total,dateFrom,dateTo){
     </div>
     <table class="a4-table">
       <thead><tr>
-        <th style="width:5%">STT</th><th style="width:39%">Tên thuốc</th>
-        <th style="width:11%">Số lượng bao bì thực tế</th><th style="width:17%">Số lượng trả (Trên phiếu)</th>
-        <th style="width:19%">Số lượng sử dụng (Trên phiếu)</th><th style="width:9%">Ghi chú</th>
+        <th style="width:5%">STT</th><th style="width:38%">Tên thuốc</th>
+        <th style="width:14%">Số lượng bao bì thực tế</th><th style="width:17%">Số lượng trả (Trên phiếu)</th>
+        <th style="width:18%">Số lượng sử dụng (Trên phiếu)</th><th style="width:8%">Ghi chú</th>
       </tr></thead><tbody>`;
   rows.forEach(r=>{
     html+=`<tr><td class="center">${String(r.stt).padStart(2,'0')}</td><td>${r.drug}</td><td class="center">${bbhv_fmtQty(r.thucTe)}</td><td class="center">${bbhv_fmtQty(r.traPhi)}</td><td class="center">${bbhv_fmtQty(r.xuatPhi)}</td><td></td></tr>`;
@@ -2589,7 +2589,7 @@ function renderA4Preview(rows,total,dateFrom,dateTo){
       <p style="margin-top:0;margin-bottom:0;">Phương pháp hủy: ${(CFG&&CFG.destroyMethod||'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.')}</p>
       <div class="a4-sign-row" style="margin-top:20px;">
         <div class="a4-sign-left"><strong>Thành viên Hội đồng hủy bao bì</strong><br><em>(Ký và ghi họ tên)</em></div>
-        <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong></div>
+        <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong><br><br><br><strong>PHÓ GIÁM ĐỐC</strong><br><strong>BSCKII.Nguyễn Thành Trung</strong></div>
       </div>
     </div>`;
   document.getElementById('a4-daily-preview').innerHTML=html;
@@ -2705,9 +2705,10 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
       }));
     });
     children.push(P([T(`Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:`)],{spacing:{before:100,after:0}}));
-    // Column widths theo ruler Word: Tên thuốc 0-7cm · SL bao bì thực tế 7-8.8cm · SL trả 8.8-11.5cm · SL sử dụng 11.5-14.5cm · Ghi chú 14.5-16cm
-    const cw2=[450,3519,1021,1531,1701,849];
-    children.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:cw2,layout:TableLayoutType.FIXED,rows:[
+    // Độ rộng cột khớp với file chính xác đã được chỉnh sửa thủ công
+    const cw2=[450,3519,1271,1559,1701,709];
+    const tblW2=cw2.reduce((a,b)=>a+b,0);
+    children.push(new Table({width:{size:tblW2,type:WidthType.DXA},columnWidths:cw2,layout:TableLayoutType.FIXED,rows:[
       new TableRow({tableHeader:true,children:[
         Tc([P([T('STT',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[0]),
         Tc([P([T('Tên thuốc',{bold:true})],{alignment:AlignmentType.CENTER})],cw2[1]),
@@ -2735,6 +2736,31 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
       TcN([P([T('Chủ tịch hội đồng',{bold:true})],{alignment:AlignmentType.CENTER}),P([T('')],{spacing:{before:800,after:0}})],sw2),
     ]})]})
     );
+    // Dòng chức danh + tên người ký (Chủ tịch hội đồng), căn theo cột phải bằng tab và thụt lề
+    children.push(new Paragraph({
+      spacing:{before:0,after:40},
+      children:[
+        T('            '),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        new TextRun({text:'\t',font:'Times New Roman',size:26}),
+        T('PHÓ GIÁM ĐỐC',{bold:true}),
+      ],
+    }));
+    children.push(new Paragraph({
+      indent:{left:5040},
+      spacing:{before:0,after:40},
+      children:[
+        T('       BSCKII.Nguyễn Thành Trung',{bold:true}),
+      ],
+    }));
+    children.push(new Paragraph({children:[]}));
   }
   const doc=new Document({sections:[{properties:{page:{size:{width:PAGE_W,height:16838},margin:MARG}},children}]});
   return await Packer.toBlob(doc);
