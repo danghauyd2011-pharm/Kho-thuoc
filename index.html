@@ -1395,9 +1395,9 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       </div>
     </div>
     <div class="card-p" style="display:flex;flex-direction:column;gap:14px">
-      <div class="notice n-blue"><span class="n-i">ℹ️</span><span>Định dạng: <code style="background:#f0f0f0;padding:1px 5px;border-radius:4px">Họ tên|Vai trò</code> (mỗi dòng một người)</span></div>
+      <div class="notice n-blue"><span class="n-i">ℹ️</span><span>Định dạng: <code style="background:#f0f0f0;padding:1px 5px;border-radius:4px">Họ tên|Chức vụ|Vai trò trong HĐ</code> (mỗi dòng một người)<br>VD: <code style="background:#f0f0f0;padding:1px 5px;border-radius:4px">Ông Trần Thanh Liêm|PTP. Điều dưỡng|Thành viên</code></span></div>
       <div class="field">
-        <textarea class="input cfg-textarea" id="cfg-council-daily" rows="7" style="resize:vertical;line-height:1.8;font-size:12px;font-family:monospace"></textarea>
+        <textarea class="input cfg-textarea" id="cfg-council-daily" rows="12" style="resize:vertical;line-height:1.8;font-size:12px;font-family:monospace"></textarea>
       </div>
       <div class="field">
         <label class="field-label">Chức danh người ký (Chủ tịch HĐ)</label>
@@ -1511,12 +1511,17 @@ const DEFAULTS = {
   destroyMethod: 'Đập vỡ vụn từng bao bì, phân loại và xử lý theo quy trình xử lý rác thải y tế của bệnh viện.',
   // Hội đồng ngày
   councilDaily: [
-    'Ông Nguyễn Thành Trung|Chủ tịch HĐ',
-    'Bà Nguyễn Thị Phúc|Phó chủ tịch HĐ',
-    'Bà Trương Phạm Hoàng Quyên|Thành viên',
-    'Bà Nguyễn Thị Hà Giang|Thành viên',
-    'Ông Nguyễn Đăng Hậu|Thành viên',
-    'Bà Nguyễn Thị Phương Linh|Thành viên',
+    'Ông Nguyễn Thành Trung|Phó Giám đốc|Chủ tịch HĐ',
+    'Bà Nguyễn Thị Phương Trinh|PTK. Dược|Phó CT HĐ',
+    'Ông Nguyễn Đăng Hậu|Khoa Dược|Thư ký',
+    'Bà Nguyễn Thị Phúc|TP. Điều dưỡng|Thành viên',
+    'Ông Trần Thanh Liêm|PTP. Điều dưỡng|Thành viên',
+    'Bà Trương Phạm Hoàng Quyên|TP. KHTH|Thành viên',
+    'Ông Thái Bá Sỹ|TP.TCCB, TBTTND|Thành viên',
+    'Ông Huỳnh Đức Phát|TK. PT-GMHS|Thành viên',
+    'Bà Vũ Thị Thu Hiền|TK. KSNK|Thành viên',
+    'Bà Nguyễn Thị Phương Linh|Khoa PT-GMHS|Thành viên',
+    'Bà Lê Nhật Phương|Khoa Dược|Thành viên',
   ],
   chairmanTitle: 'PHÓ GIÁM ĐỐC',
   chairmanName: 'BSCKII.Nguyễn Thành Trung',
@@ -1683,7 +1688,7 @@ function getCfgFixedDisplay(){ return CFG.fixedDisplay; }
 function getCfgCouncilDaily() {
   return CFG.councilDaily.map(line => {
     const parts = line.split('|');
-    return { name: parts[0]||'', vaitro: parts[1]||'' };
+    return { name: parts[0]||'', chucvu: parts[1]||'', vaitro: parts[2]||'' };
   });
 }
 
@@ -2576,16 +2581,7 @@ function renderA4Preview(rows,total,dateFrom,dateTo){
     <div class="a4-date-range" style="margin-bottom:0;">Vào ngày ${parseInt(hD)} tháng ${parseInt(hM)} năm ${hY}, tại ${(CFG&&CFG.khoTen||'Kho thuốc nội trú').toLowerCase()}</div>
     <div class="a4-council" style="margin-bottom:0;">
       <div>Hội đồng hủy bao bì gồm:</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Thành Trung&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó Giám đốc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Chủ tịch HĐ</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Trinh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;PTK. Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Phó CT HĐ</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Ông Nguyễn Đăng Hậu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thư ký</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phúc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TP. Điều dưỡng&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Trương Phạm Hoàng Quyên&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TP. KHTH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Ông Thái Bá Sỹ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TP.TCCB, TBTTND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Ông Huỳnh Đức Phát&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TK. PT-GMHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Vũ Thị Thu Hiền&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;TK. KSNK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Nguyễn Thị Phương Linh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa PT-GMHS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
-      <div class="a4-council-member">-&nbsp;&nbsp;Bà Lê Nhật Phương&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Khoa Dược&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;Thành viên</div>
+      ${getCfgCouncilDaily().map(m=>`<div class="a4-council-member">-&nbsp;&nbsp;${m.name}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;${m.chucvu}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;${m.vaitro}</div>`).join('')}
       <div style="margin-top:8px;margin-bottom:0;">Tiến hành hủy bao bì tiếp xúc trực tiếp với thuốc gây nghiện (tất cả đường dùng), thuốc hướng thần và thuốc tiền chất (chỉ thuốc đường tiêm) đã sử dụng từ ngày ${fD} tháng ${fM} năm ${fY} đến ngày ${tD} tháng ${tM} năm ${tY}, cụ thể như sau:</div>
     </div>
     <table class="a4-table">
@@ -2691,18 +2687,7 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
     children.push(P([T('Hội đồng hủy bao bì gồm:')],{spacing:{before:0,after:0}}));
     // Member list — bullet dash format matching the new reference template
     const memberIndent={indent:{left:200,hanging:0}};
-    const members=[
-      ['Ông Nguyễn Thành Trung',      'Phó Giám đốc',      'Chủ tịch HĐ'],
-      ['Bà Nguyễn Thị Phương Trinh',  'PTK. Dược',         'Phó CT HĐ'],
-      ['Ông Nguyễn Đăng Hậu',         'Khoa Dược',         'Thư ký'],
-      ['Bà Nguyễn Thị Phúc',          'TP. Điều dưỡng',    'Thành viên'],
-      ['Bà Trương Phạm Hoàng Quyên',  'TP. KHTH',          'Thành viên'],
-      ['Ông Thái Bá Sỹ',              'TP.TCCB, TBTTND',   'Thành viên'],
-      ['Ông Huỳnh Đức Phát',          'TK. PT-GMHS',       'Thành viên'],
-      ['Bà Vũ Thị Thu Hiền',          'TK. KSNK',          'Thành viên'],
-      ['Bà Nguyễn Thị Phương Linh',   'Khoa PT-GMHS',      'Thành viên'],
-      ['Bà Lê Nhật Phương',           'Khoa Dược',         'Thành viên'],
-    ];
+    const members=getCfgCouncilDaily().map(m=>[m.name,m.chucvu,m.vaitro]);
     const tabW1=Math.round(CW*0.42), tabW2=Math.round(CW*0.72);
     members.forEach(([name,chucvu,vaitro])=>{
       children.push(new Paragraph({
