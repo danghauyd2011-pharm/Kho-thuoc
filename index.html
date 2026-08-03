@@ -3271,9 +3271,10 @@ function sed_renderA4Preview() {
     <td style="${cellStyle}">${r.drug}</td>
     <td style="${cellStyle};text-align:center;font-weight:700">${r.vo}</td>
     <td style="${cellStyle};text-align:center">${r.tra}</td>
-    <td style="${cellStyle};text-align:center">${r.vo}</td>
+    <td style="${cellStyle};text-align:center">${r.xuat}</td>
   </tr>`).join('');
 
+  const totalXuat = rows.reduce((s,r)=>s+r.xuat,0);
   const totalTra = rows.reduce((s,r)=>s+r.tra,0);
   const totalVo = rows.reduce((s,r)=>s+r.vo,0);
 
@@ -3297,7 +3298,7 @@ function sed_renderA4Preview() {
           <td colspan="3" style="border:1px solid #000;padding:4px 6px;text-align:right">Tổng cộng</td>
           <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalVo}</td>
           <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalTra}</td>
-          <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalVo}</td>
+          <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalXuat}</td>
         </tr>
       </tfoot>
     </table>
@@ -3328,14 +3329,15 @@ function sed_downloadExcel() {
   if (rows.length === 0) { alert('Chưa có dữ liệu!'); return; }
   const info = sed_getPeriodInfo();
 
+  const totalXuat = rows.reduce((s,r)=>s+r.xuat,0);
   const totalTra = rows.reduce((s,r)=>s+r.tra,0);
   const totalVo = rows.reduce((s,r)=>s+r.vo,0);
 
   const aoa = [
     [`BẢNG ĐẾM VỎ THUỐC SEDUXEN — ${info.label.toUpperCase()}`],
     ['Stt','Khoa phòng','Tên thuốc','Số lượng bao bì thực tế','Số lượng trả (Trên phiếu)','Số lượng sử dụng (Trên phiếu)'],
-    ...rows.map((r,i) => [i+1, r.dept, r.drug, r.vo, r.tra, r.vo]),
-    ['', '', 'Tổng cộng', totalVo, totalTra, totalVo],
+    ...rows.map((r,i) => [i+1, r.dept, r.drug, r.vo, r.tra, r.xuat]),
+    ['', '', 'Tổng cộng', totalVo, totalTra, totalXuat],
   ];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:5} }];
@@ -3369,6 +3371,7 @@ function sed_exportPDF() {
   const rows = sed_getFiltered();
   if (rows.length === 0) { alert('Chưa có dữ liệu!'); return; }
   const info = sed_getPeriodInfo();
+  const totalXuat = rows.reduce((s,r)=>s+r.xuat,0);
   const totalTra = rows.reduce((s,r)=>s+r.tra,0);
   const totalVo = rows.reduce((s,r)=>s+r.vo,0);
 
@@ -3378,7 +3381,7 @@ function sed_exportPDF() {
     <td>${r.drug}</td>
     <td style="text-align:center;font-weight:bold">${r.vo}</td>
     <td style="text-align:center">${r.tra}</td>
-    <td style="text-align:center;font-weight:bold">${r.vo}</td>
+    <td style="text-align:center;font-weight:bold">${r.xuat}</td>
   </tr>`).join('');
 
   const today = new Date();
@@ -3433,7 +3436,7 @@ tfoot td{font-weight:bold}
     <td colspan="3" style="text-align:right">Tổng cộng:</td>
     <td style="text-align:center">${totalVo}</td>
     <td style="text-align:center">${totalTra}</td>
-    <td style="text-align:center">${totalVo}</td>
+    <td style="text-align:center">${totalXuat}</td>
   </tr></tfoot>
 </table>
 <div class="date-right">${signDate}</div>
