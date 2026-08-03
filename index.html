@@ -305,6 +305,7 @@ body{
 .inner-tab .it-icon { font-size:15px; }
 .inner-tab.active { color:var(--c1); border-bottom-color:var(--c1); font-weight:800; }
 .inner-tab.tab2.active { color:var(--c2d); border-bottom-color:var(--c2); }
+.inner-tab.tab3.active { color:var(--c3d); border-bottom-color:var(--c3); }
 
 /* ═══════════════════════════════════════════════
    MAIN CONTENT
@@ -609,6 +610,9 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       <button class="dnav-btn" id="sb-bien-ban" onclick="switchTab('tab-bien-ban');closeDrawer()">
         <span class="db-icon">📄</span> Biên Bản
       </button>
+      <button class="dnav-btn" id="sb-seduxen" onclick="switchTab('tab-seduxen');closeDrawer()">
+        <span class="db-icon">🔢</span> Đếm Vỏ Seduxen
+      </button>
     </div>
 
     <div class="dnav-divider"></div>
@@ -698,6 +702,10 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
     <button class="inner-tab tab2" id="nav-bien-ban" onclick="switchTab('tab-bien-ban')">
       <div class="it-icon">📄</div>
       <div class="it-label">Biên Bản</div>
+    </button>
+    <button class="inner-tab tab3" id="nav-seduxen" onclick="switchTab('tab-seduxen')">
+      <div class="it-icon">🔢</div>
+      <div class="it-label">Vỏ Seduxen</div>
     </button>
   </nav>
 
@@ -920,6 +928,138 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
     </div>
 
   </div><!-- /tab-bien-ban -->
+
+  <!-- ════ SCREEN 3: ĐẾM VỎ SEDUXEN ════ -->
+  <div id="tab-seduxen" class="screen">
+
+    <div class="hero hero-3">
+      <div class="hero-eye">Đếm Vỏ Thuốc Seduxen</div>
+      <div class="hero-title">Xuất chuyển kho → Trả theo yêu cầu</div>
+      <div class="hero-sub">Tổng hợp Xuất / Trả / Vỏ theo khoa phòng &amp; theo tháng</div>
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-v" id="sed-ss-month">—</div><div class="hs-l">Tháng</div></div>
+        <div class="hs"><div class="hs-v" id="sed-ss-depts">—</div><div class="hs-l">Khoa phòng</div></div>
+        <div class="hs"><div class="hs-v" id="sed-ss-vo">—</div><div class="hs-l">Tổng vỏ</div></div>
+      </div>
+    </div>
+
+    <!-- Upload files -->
+    <div class="slabel">Chọn file dữ liệu</div>
+    <div class="cat-card">
+      <div class="cat-card-header">
+        <div class="cat-icon ci-blue">📤</div>
+        <div class="cat-title-wrap">
+          <div class="cat-title">File Xuất Kho</div>
+          <div class="cat-sub">Loại chứng từ: Chuyển kho</div>
+        </div>
+      </div>
+      <div style="padding:12px">
+        <div class="upload-zone" id="dz-sed-export" onclick="document.getElementById('fi-sed-export').click()">
+          <input type="file" id="fi-sed-export" accept=".xlsx,.xls">
+          <div class="upload-icon">📂</div>
+          <div class="upload-title">Nhấn hoặc kéo thả file .xls/.xlsx</div>
+          <div class="upload-file hidden" id="fn-sed-export"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cat-card">
+      <div class="cat-card-header">
+        <div class="cat-icon ci-red">📥</div>
+        <div class="cat-title-wrap">
+          <div class="cat-title">File Nhập Trả</div>
+          <div class="cat-sub">Loại chứng từ: Trả thuốc theo yêu cầu</div>
+        </div>
+      </div>
+      <div style="padding:12px">
+        <div class="upload-zone" id="dz-sed-import" onclick="document.getElementById('fi-sed-import').click()">
+          <input type="file" id="fi-sed-import" accept=".xlsx,.xls">
+          <div class="upload-icon">📂</div>
+          <div class="upload-title">Nhấn hoặc kéo thả file .xls/.xlsx</div>
+          <div class="upload-file hidden" id="fn-sed-import"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice n-blue">
+      <span class="n-i">ℹ️</span>
+      <span>Chỉ tính thuốc <strong>Seduxen</strong> · Vỏ = Xuất (Chuyển kho) − Trả (Trả thuốc theo yêu cầu)</span>
+    </div>
+
+    <!-- Filter mode -->
+    <div class="slabel">Chọn kỳ thống kê</div>
+    <div class="card card-p">
+      <div class="flex-row" style="margin-bottom:10px">
+        <button class="btn btn-sm btn-primary" id="sed-mode-month" style="flex:1" onclick="sed_setFilterMode('month')">📅 Theo tháng</button>
+        <button class="btn btn-sm btn-ghost" id="sed-mode-range" style="flex:1" onclick="sed_setFilterMode('range')">🗓️ Khoảng ngày</button>
+      </div>
+      <div id="sed-month-wrap" class="field">
+        <label class="field-label">Tháng thống kê (đầu tháng → cuối tháng)</label>
+        <select id="sed-month" class="input" onchange="sed_onMonthChange()">
+          <option value="">— Tải file để chọn tháng —</option>
+        </select>
+      </div>
+      <div id="sed-range-wrap" class="date-pair hidden">
+        <div class="field">
+          <label class="field-label">Từ ngày</label>
+          <input type="date" id="sed-date-from" class="input" onchange="sed_processAll()">
+        </div>
+        <div class="field">
+          <label class="field-label">Đến ngày</label>
+          <input type="date" id="sed-date-to" class="input" onchange="sed_processAll()">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="sed-process-btn" onclick="sed_processAll()" style="height:52px;font-size:15px;">
+      ⚡ Xử lý dữ liệu
+    </button>
+
+    <div id="sed-error-box" class="notice n-red hidden">
+      <span class="n-i">⚠️</span>
+      <span id="sed-error-text"></span>
+    </div>
+
+    <!-- Result -->
+    <div id="sed-result-section" class="hidden" style="display:flex;flex-direction:column;gap:12px">
+      <div class="stat-grid" id="sed-stats-row"></div>
+
+      <!-- Search / filter by khoa -->
+      <div class="field">
+        <label class="field-label">🔍 Lọc tìm theo khoa phòng</label>
+        <input type="text" id="sed-dept-search" class="input" placeholder="Nhập tên khoa để lọc… (để trống = tất cả)" oninput="sed_renderTable()">
+      </div>
+
+      <div class="flex-row">
+        <button class="btn btn-green" style="flex:1" onclick="sed_downloadExcel()">📊 Xuất Excel</button>
+        <button class="btn btn-orange" style="flex:1" onclick="sed_exportPDF()">🖨️ In / PDF</button>
+      </div>
+
+      <div class="slabel">Bảng tổng hợp Xuất — Trả — Vỏ theo khoa phòng</div>
+      <div class="card">
+        <div style="padding:10px 14px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)">
+          <div class="ci ci-orange" style="width:30px;height:30px;font-size:14px">📊</div>
+          <div class="c-title" id="sed-table-title" style="font-size:12px">Xem trước</div>
+        </div>
+        <div class="table-wrap">
+          <table id="sed-preview-table"></table>
+        </div>
+      </div>
+
+      <div class="slabel">Mô phỏng A4 — Mẫu bảng đếm vỏ Seduxen</div>
+      <div class="prev-wrap">
+        <div class="prev-hdr">Xem trước file xuất ra</div>
+        <div class="prev-scroll" id="sed-preview-wrap">
+          <div class="a4-scaler" id="sed-preview-scaler">
+            <div class="a4-page" style="padding:20px 24px;min-height:200px" id="sed-preview-page">
+              <div class="a4-empty"><div class="a4-empty-icon">🔢</div><div>Dữ liệu hiển thị sau khi xử lý</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-seduxen -->
 
 </div><!-- /app-bbhv -->
 
@@ -1826,9 +1966,10 @@ function switchTab(tabId) {
   const _navBtn = document.getElementById('nav-' + tabId.replace('tab-', '')); if(_navBtn) _navBtn.classList.add('active');
   // Update drawer sub-buttons
   document.querySelectorAll('#sb-bbhv-sub .dnav-btn').forEach(b => b.classList.remove('active'));
-  const sbId = tabId === 'tab-so-tra' ? 'sb-so-tra' : 'sb-bien-ban';
+  const sbId = tabId === 'tab-so-tra' ? 'sb-so-tra' : tabId === 'tab-seduxen' ? 'sb-seduxen' : 'sb-bien-ban';
   const sbBtn = document.getElementById(sbId); if(sbBtn) sbBtn.classList.add('active');
   if (tabId === 'tab-bien-ban') refreshBienBanTab();
+  if (tabId === 'tab-seduxen' && typeof sed_onTabOpen === 'function') sed_onTabOpen();
 }
 
 function bbhv_setupDZ(dzId, inputId, type) {
@@ -1857,10 +1998,12 @@ function bbhv_loadFile(file, type) {
       exportWB = wb;
       markLoaded('dz-export','fn-export', file.name);
       syncToTK('xuat', wb, file.name);
+      syncToSeduxen('export', wb, file.name);
     } else {
       importWB = wb;
       markLoaded('dz-import','fn-import', file.name);
       syncToTK('nhap', wb, file.name);
+      syncToSeduxen('import', wb, file.name);
     }
     // ── Auto-xử lý khi đủ 2 file ──
     if (exportWB && importWB) {
@@ -2317,6 +2460,23 @@ function syncToBBHV(type, wb, filename) {
   }
 }
 
+// BBHV / Thẻ Kho → Đếm Vỏ Seduxen
+// kind: 'export' (file Xuất kho, chứa "Chuyển kho") | 'import' (file Nhập/Trả, chứa "Trả thuốc theo yêu cầu")
+function syncToSeduxen(kind, wb, filename) {
+  if (typeof sedExportWB === 'undefined') return; // script Seduxen chưa chạy tới
+  if (kind === 'export') {
+    sedExportWB = wb;
+    _syncMarkLoaded('dz-sed-export', 'fn-sed-export', filename);
+  } else if (kind === 'import') {
+    sedImportWB = wb;
+    _syncMarkLoaded('dz-sed-import', 'fn-sed-import', filename);
+  }
+  if (sedExportWB && sedImportWB) {
+    sed_prepMonths();
+    setTimeout(sed_processAll, 120);
+  }
+}
+
 // Helper: cập nhật UI upload zone BBHV (dùng class 'loaded')
 function _syncMarkLoaded(dzId, fnId, name) {
   const dz = document.getElementById(dzId);
@@ -2765,6 +2925,525 @@ async function createDocxFile(rows,total,dateFrom,dateTo){
 }
 
 
+// ═══════════════════════════════════════════════════════
+// ĐẾM VỎ SEDUXEN — Xuất(Chuyển kho) − Trả(Trả thuốc theo yêu cầu)
+// Tổng hợp theo khoa phòng & theo tháng
+// ═══════════════════════════════════════════════════════
+
+let sedExportWB = null, sedImportWB = null;
+let sedExportRecs = [], sedImportRecs = [];
+let sedAggData = []; // [{dept, drug, xuat, tra, vo}]
+let sedMonthsAvailable = []; // ['2026-07', ...]
+let sedFilterMode = 'month'; // 'month' | 'range'
+
+function sed_setFilterMode(mode) {
+  sedFilterMode = mode;
+  const bMonth = document.getElementById('sed-mode-month');
+  const bRange = document.getElementById('sed-mode-range');
+  const wMonth = document.getElementById('sed-month-wrap');
+  const wRange = document.getElementById('sed-range-wrap');
+  if (!bMonth || !bRange || !wMonth || !wRange) return;
+  if (mode === 'range') {
+    bMonth.className = 'btn btn-sm btn-ghost';
+    bRange.className = 'btn btn-sm btn-primary';
+    wMonth.classList.add('hidden');
+    wRange.classList.remove('hidden');
+  } else {
+    bMonth.className = 'btn btn-sm btn-primary';
+    bRange.className = 'btn btn-sm btn-ghost';
+    wMonth.classList.remove('hidden');
+    wRange.classList.add('hidden');
+  }
+  if (sedExportWB && sedImportWB) sed_processAll();
+}
+
+// Trả về thông tin kỳ đang chọn: nhãn hiển thị + phần tên file, dùng chung
+// cho bảng, Excel, PDF dù đang ở chế độ "theo tháng" hay "khoảng ngày"
+function sed_getPeriodInfo() {
+  if (sedFilterMode === 'range') {
+    const from = document.getElementById('sed-date-from')?.value || '';
+    const to = document.getElementById('sed-date-to')?.value || '';
+    const fmt = d => d ? d.split('-').reverse().join('/') : '…';
+    return {
+      isMonth: false,
+      from, to,
+      label: `Từ ${fmt(from)} đến ${fmt(to)}`,
+      fileTag: `${from ? from.replace(/-/g,'') : 'x'}_${to ? to.replace(/-/g,'') : 'x'}`,
+    };
+  }
+  const monthSel = document.getElementById('sed-month')?.value || '';
+  const [y, mo] = monthSel.split('-');
+  return {
+    isMonth: true, mo, y,
+    label: mo ? `Tháng ${mo}/${y}` : '—',
+    fileTag: `Thang_${mo || ''}_${y || ''}`,
+  };
+}
+
+function sed_setupDZ(dzId, inputId, kind) {
+  const dz = document.getElementById(dzId);
+  const inp = document.getElementById(inputId);
+  if (!dz || !inp) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragging'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragging');
+    const f = e.dataTransfer.files[0];
+    if (f) sed_loadFile(f, kind);
+  });
+  inp.addEventListener('change', e => { if (e.target.files[0]) sed_loadFile(e.target.files[0], kind); });
+}
+sed_setupDZ('dz-sed-export','fi-sed-export','export');
+sed_setupDZ('dz-sed-import','fi-sed-import','import');
+
+function sed_loadFile(file, kind) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, { type: 'array' });
+    if (kind === 'export') {
+      sedExportWB = wb;
+      markLoaded('dz-sed-export','fn-sed-export', file.name);
+      if (typeof syncToTK === 'function') syncToTK('xuat', wb, file.name);
+      if (typeof syncToBBHV === 'function') syncToBBHV('export', wb, file.name);
+    } else {
+      sedImportWB = wb;
+      markLoaded('dz-sed-import','fn-sed-import', file.name);
+      if (typeof syncToTK === 'function') syncToTK('nhap', wb, file.name);
+      if (typeof syncToBBHV === 'function') syncToBBHV('import', wb, file.name);
+    }
+    if (sedExportWB && sedImportWB) {
+      sed_prepMonths();
+      setTimeout(sed_processAll, 120);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function sed_onTabOpen() {
+  // no-op hook, reserved for future lazy-loading
+}
+
+// Parse sheet chỉ lấy Seduxen (bỏ qua excludeKeywords) theo loại chứng từ chỉ định
+function sed_parseSheet(wb, docTypeFilter) {
+  const filterArr = Array.isArray(docTypeFilter) ? docTypeFilter : [docTypeFilter];
+  for (const sname of wb.SheetNames) {
+    const ws = wb.Sheets[sname];
+    const rows = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+
+    let hi = -1;
+    for (let i = 0; i < Math.min(rows.length, 20); i++) {
+      const r = rows[i].map(c => (c||'').toString().toLowerCase().trim());
+      const hasDrug = r.some(c => c === 'tên hàng' || c === 'tên thuốc' || c.includes('tên hàng'));
+      const hasQty  = r.some(c => c === 'số lượng' || c.includes('số lượng'));
+      const hasType = r.some(c => c.includes('loại chứng từ'));
+      if (hasDrug && hasQty && hasType) { hi = i; break; }
+    }
+    if (hi === -1) continue;
+
+    const hdrs = rows[hi].map(h => (h||'').toString().trim().toLowerCase());
+    const ci = name => {
+      const exact = hdrs.findIndex(h => h === name);
+      if (exact !== -1) return exact;
+      return hdrs.findIndex(h => h.includes(name));
+    };
+
+    const dateCol = ci('ngày ct') !== -1 ? ci('ngày ct') : ci('ngày');
+    const drugCol = ci('tên hàng') !== -1 ? ci('tên hàng') : ci('tên thuốc');
+    const qtyCol  = ci('số lượng');
+    const typeCol = ci('loại chứng từ');
+    const deptCol = ci('khoa phòng');
+
+    if ([dateCol, drugCol, qtyCol, typeCol].some(i => i === -1)) continue;
+
+    const records = [];
+    for (let i = hi+1; i < rows.length; i++) {
+      const row = rows[i];
+      const docType = (row[typeCol]||'').toString().trim();
+      if (!filterArr.includes(docType)) continue;
+      const drug = (row[drugCol]||'').toString().trim();
+      if (!drug) continue;
+      if (!drug.toLowerCase().includes('seduxen')) continue; // CHỈ lấy Seduxen
+      const isoDate = excelDateToStr(row[dateCol]);
+      if (!isoDate) continue;
+      const qty = parseFloat(row[qtyCol]) || 0;
+      if (!qty) continue;
+      const dept = deptCol !== -1 ? (row[deptCol]||'').toString().trim() : '';
+      if (!dept) continue; // bảng theo khoa phòng bắt buộc phải có khoa
+      records.push({ date: isoDate, drug, qty, dept, loaiCT: docType });
+    }
+    return records;
+  }
+  return null;
+}
+
+function sed_prepMonths() {
+  const exp = sed_parseSheet(sedExportWB, ['Chuyển kho']) || [];
+  const imp = sed_parseSheet(sedImportWB, ['Trả thuốc theo yêu cầu']) || [];
+  sedExportRecs = exp;
+  sedImportRecs = imp;
+  const monthSet = new Set();
+  [...exp, ...imp].forEach(r => monthSet.add(r.date.slice(0,7)));
+  sedMonthsAvailable = Array.from(monthSet).sort();
+  const sel = document.getElementById('sed-month');
+  if (!sel) return;
+  sel.innerHTML = '';
+  if (sedMonthsAvailable.length === 0) {
+    sel.innerHTML = '<option value="">— Không tìm thấy dữ liệu Seduxen —</option>';
+    return;
+  }
+  sedMonthsAvailable.forEach(m => {
+    const [y,mo] = m.split('-');
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = `Tháng ${mo}/${y}`;
+    sel.appendChild(opt);
+  });
+  sel.value = sedMonthsAvailable[sedMonthsAvailable.length - 1]; // mặc định tháng gần nhất
+}
+
+function sed_onMonthChange() {
+  sed_processAll();
+}
+
+function sed_monthRange(m) {
+  if (!m) return [null, null];
+  const [y, mo] = m.split('-').map(Number);
+  const from = `${y}-${String(mo).padStart(2,'0')}-01`;
+  const lastDay = new Date(y, mo, 0).getDate();
+  const to = `${y}-${String(mo).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+  return [from, to];
+}
+
+function sed_showError(msg) {
+  const box = document.getElementById('sed-error-box');
+  document.getElementById('sed-error-text').textContent = msg;
+  box.classList.remove('hidden');
+}
+
+function sed_processAll() {
+  const errBox = document.getElementById('sed-error-box');
+  errBox.classList.add('hidden');
+  document.getElementById('sed-result-section').classList.add('hidden');
+  if (!sedExportWB) { sed_showError('Vui lòng chọn file xuất kho.'); return; }
+  if (!sedImportWB) { sed_showError('Vui lòng chọn file nhập trả.'); return; }
+
+  const btn = document.getElementById('sed-process-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner">⚡</span> Đang xử lý…';
+
+  setTimeout(() => {
+    try {
+      if (!sedExportRecs.length && !sedImportRecs.length) sed_prepMonths();
+
+      let dateFrom, dateTo;
+      if (sedFilterMode === 'range') {
+        dateFrom = document.getElementById('sed-date-from').value || null;
+        dateTo = document.getElementById('sed-date-to').value || null;
+        if (!dateFrom && !dateTo) {
+          sed_showError('Vui lòng chọn khoảng từ ngày — đến ngày.');
+          return;
+        }
+      } else {
+        const monthSel = document.getElementById('sed-month').value;
+        [dateFrom, dateTo] = sed_monthRange(monthSel);
+      }
+
+      const inRange = r => {
+        if (dateFrom && r.date < dateFrom) return false;
+        if (dateTo && r.date > dateTo) return false;
+        return true;
+      };
+      const expF = sedExportRecs.filter(inRange);
+      const impF = sedImportRecs.filter(inRange);
+
+      if (expF.length === 0 && impF.length === 0) {
+        sed_showError('Không có dữ liệu Seduxen trong kỳ đã chọn.');
+        return;
+      }
+
+      const map = {}; // dept -> {xuat, tra}
+      expF.forEach(r => {
+        if (!map[r.dept]) map[r.dept] = { xuat:0, tra:0 };
+        map[r.dept].xuat += r.qty;
+      });
+      impF.forEach(r => {
+        if (!map[r.dept]) map[r.dept] = { xuat:0, tra:0 };
+        map[r.dept].tra += r.qty;
+      });
+
+      sedAggData = Object.keys(map)
+        .sort((a,b) => a.localeCompare(b, 'vi'))
+        .map(dept => ({
+          dept,
+          drug: 'Seduxen 5mg',
+          xuat: map[dept].xuat,
+          tra: map[dept].tra,
+          vo: map[dept].xuat - map[dept].tra,
+        }));
+
+      document.getElementById('sed-dept-search').value = '';
+      sed_renderStats();
+      sed_renderTable();
+      sed_renderA4Preview();
+      document.getElementById('sed-result-section').classList.remove('hidden');
+
+    } catch (err) {
+      sed_showError('Lỗi xử lý: ' + err.message);
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '⚡ Xử lý dữ liệu';
+    }
+  }, 80);
+}
+
+function sed_renderStats() {
+  const totalVo = sedAggData.reduce((s,r) => s + r.vo, 0);
+  const info = sed_getPeriodInfo();
+  document.getElementById('sed-ss-month').textContent = info.isMonth
+    ? (info.mo ? `${info.mo}/${info.y}` : '—')
+    : info.label.replace('Từ ', '');
+  document.getElementById('sed-ss-depts').textContent = sedAggData.length;
+  document.getElementById('sed-ss-vo').textContent = totalVo.toLocaleString('vi-VN');
+
+  const statsRow = document.getElementById('sed-stats-row');
+  const totalXuat = sedAggData.reduce((s,r) => s + r.xuat, 0);
+  const totalTra = sedAggData.reduce((s,r) => s + r.tra, 0);
+  statsRow.innerHTML = `
+    <div class="stat-tile"><div class="stat-val cv1">${totalXuat.toLocaleString('vi-VN')}</div><div class="stat-lbl">Tổng Xuất</div></div>
+    <div class="stat-tile"><div class="stat-val cv2">${totalTra.toLocaleString('vi-VN')}</div><div class="stat-lbl">Tổng Trả</div></div>
+    <div class="stat-tile"><div class="stat-val cv3">${totalVo.toLocaleString('vi-VN')}</div><div class="stat-lbl">Tổng Vỏ</div></div>
+    <div class="stat-tile"><div class="stat-val cv4">${sedAggData.length}</div><div class="stat-lbl">Khoa phòng</div></div>
+  `;
+}
+
+function sed_getFiltered() {
+  const kw = (document.getElementById('sed-dept-search').value || '').trim().toLowerCase();
+  if (!kw) return sedAggData;
+  return sedAggData.filter(r => r.dept.toLowerCase().includes(kw));
+}
+
+function sed_renderTable() {
+  const rows = sed_getFiltered();
+  const table = document.getElementById('sed-preview-table');
+  const totalXuat = rows.reduce((s,r)=>s+r.xuat,0);
+  const totalTra = rows.reduce((s,r)=>s+r.tra,0);
+  const totalVo = rows.reduce((s,r)=>s+r.vo,0);
+  let html = `<thead><tr>
+    <th style="width:36px">Stt</th>
+    <th>Khoa phòng</th>
+    <th>Tên thuốc</th>
+    <th style="width:60px">Xuất</th>
+    <th style="width:60px">Trả</th>
+    <th style="width:60px">Vỏ</th>
+  </tr></thead><tbody>`;
+  rows.forEach((r,i) => {
+    html += `<tr>
+      <td style="text-align:center">${i+1}</td>
+      <td>${r.dept}</td>
+      <td>${r.drug}</td>
+      <td style="text-align:center">${r.xuat}</td>
+      <td style="text-align:center">${r.tra}</td>
+      <td style="text-align:center;font-weight:800">${r.vo}</td>
+    </tr>`;
+  });
+  html += `<tr style="font-weight:800;background:var(--s2)">
+    <td colspan="3" style="text-align:right">Tổng cộng</td>
+    <td style="text-align:center">${totalXuat}</td>
+    <td style="text-align:center">${totalTra}</td>
+    <td style="text-align:center">${totalVo}</td>
+  </tr>`;
+  html += '</tbody>';
+  table.innerHTML = html;
+  document.getElementById('sed-table-title').textContent = `Xem trước (${rows.length} khoa phòng)`;
+}
+
+// ── A4 preview mẫu (giống ảnh: Stt | Khoa phòng | Tên thuốc | SL bao bì thực tế | SL trả (Trên phiếu) | SL sử dụng (Trên phiếu)) ──
+function sed_renderA4Preview() {
+  const rows = sed_getFiltered();
+  const info = sed_getPeriodInfo();
+
+  const cellStyle = 'border:1px solid #000;padding:4px 6px';
+  const dataRows = rows.map((r,i) => `<tr>
+    <td style="${cellStyle};text-align:center">${i+1}</td>
+    <td style="${cellStyle}">${r.dept}</td>
+    <td style="${cellStyle}">${r.drug}</td>
+    <td style="${cellStyle};text-align:center;font-weight:700">${r.vo}</td>
+    <td style="${cellStyle};text-align:center">${r.tra}</td>
+    <td style="${cellStyle};text-align:center">${r.vo}</td>
+  </tr>`).join('');
+
+  const totalTra = rows.reduce((s,r)=>s+r.tra,0);
+  const totalVo = rows.reduce((s,r)=>s+r.vo,0);
+
+  const html = `<div style="font-family:'Times New Roman',serif">
+    <div style="text-align:center;font-weight:bold;font-size:14px;text-transform:uppercase;margin-bottom:2px">Bảng đếm vỏ thuốc Seduxen</div>
+    <div style="text-align:center;font-style:italic;font-size:12px;margin-bottom:10px">${info.label}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr>
+          <th style="border:1px solid #000;padding:4px 6px;width:6%">Stt</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:20%">Khoa phòng</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:18%">Tên thuốc</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:19%">Số lượng bao bì thực tế</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:18%">Số lượng trả (Trên phiếu)</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:19%">Số lượng sử dụng (Trên phiếu)</th>
+        </tr>
+      </thead>
+      <tbody>${dataRows}</tbody>
+      <tfoot>
+        <tr style="font-weight:bold">
+          <td colspan="3" style="border:1px solid #000;padding:4px 6px;text-align:right">Tổng cộng</td>
+          <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalVo}</td>
+          <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalTra}</td>
+          <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalVo}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>`;
+  const preview = document.getElementById('sed-preview-page');
+  if (preview) {
+    preview.innerHTML = html;
+    setTimeout(sed_scalePreview, 80);
+  }
+}
+
+function sed_scalePreview() {
+  const wrap = document.getElementById('sed-preview-wrap');
+  const scaler = document.getElementById('sed-preview-scaler');
+  const page = document.getElementById('sed-preview-page');
+  if (!wrap || !scaler || !page) return;
+  const avail = wrap.offsetWidth;
+  const scale = avail > 0 ? Math.min(1, (avail - 2) / 794) : 1;
+  scaler.style.transform = `scale(${scale})`;
+  scaler.style.transformOrigin = 'top left';
+  wrap.style.height = '';
+}
+window.addEventListener('resize', sed_scalePreview);
+
+// ── Xuất Excel theo mẫu ──
+function sed_downloadExcel() {
+  const rows = sed_getFiltered();
+  if (rows.length === 0) { alert('Chưa có dữ liệu!'); return; }
+  const info = sed_getPeriodInfo();
+
+  const totalTra = rows.reduce((s,r)=>s+r.tra,0);
+  const totalVo = rows.reduce((s,r)=>s+r.vo,0);
+
+  const aoa = [
+    [`BẢNG ĐẾM VỎ THUỐC SEDUXEN — ${info.label.toUpperCase()}`],
+    ['Stt','Khoa phòng','Tên thuốc','Số lượng bao bì thực tế','Số lượng trả (Trên phiếu)','Số lượng sử dụng (Trên phiếu)'],
+    ...rows.map((r,i) => [i+1, r.dept, r.drug, r.vo, r.tra, r.vo]),
+    ['', '', 'Tổng cộng', totalVo, totalTra, totalVo],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:5} }];
+  ws['!cols'] = [{wch:6},{wch:26},{wch:18},{wch:20},{wch:20},{wch:22}];
+
+  const styleTitle = {font:{bold:true,name:'Times New Roman',sz:14},alignment:{horizontal:'center'}};
+  const styleHdr = {font:{bold:true,name:'Times New Roman',sz:12},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:{top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}}};
+  const styleData = {font:{name:'Times New Roman',sz:12},alignment:{horizontal:'center',vertical:'center'},border:{top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}}};
+  const styleDataLeft = {font:{name:'Times New Roman',sz:12},alignment:{horizontal:'left',vertical:'center'},border:{top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}}};
+
+  if (ws['A1']) ws['A1'].s = styleTitle;
+  for (let c = 0; c <= 5; c++) {
+    const ck = XLSX.utils.encode_cell({r:1,c});
+    if (ws[ck]) ws[ck].s = styleHdr;
+  }
+  for (let r = 2; r < aoa.length; r++) {
+    for (let c = 0; c <= 5; c++) {
+      const ck = XLSX.utils.encode_cell({r,c});
+      if (ws[ck]) ws[ck].s = (c === 1 || c === 2) ? styleDataLeft : styleData;
+    }
+  }
+
+  const wb2 = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb2, ws, 'Vo Seduxen');
+  const fname = `Vo_Seduxen_${info.fileTag}.xlsx`;
+  xlsxDownload(wb2, fname);
+}
+
+// ── Xuất / In PDF theo mẫu ──
+function sed_exportPDF() {
+  const rows = sed_getFiltered();
+  if (rows.length === 0) { alert('Chưa có dữ liệu!'); return; }
+  const info = sed_getPeriodInfo();
+  const totalTra = rows.reduce((s,r)=>s+r.tra,0);
+  const totalVo = rows.reduce((s,r)=>s+r.vo,0);
+
+  const tableRows = rows.map((r,i) => `<tr>
+    <td style="text-align:center">${i+1}</td>
+    <td>${r.dept}</td>
+    <td>${r.drug}</td>
+    <td style="text-align:center;font-weight:bold">${r.vo}</td>
+    <td style="text-align:center">${r.tra}</td>
+    <td style="text-align:center;font-weight:bold">${r.vo}</td>
+  </tr>`).join('');
+
+  const today = new Date();
+  const signDate = info.isMonth
+    ? `Ngày ... tháng ${info.mo} năm ${info.y}`
+    : `Ngày ${String(today.getDate()).padStart(2,'0')} tháng ${String(today.getMonth()+1).padStart(2,'0')} năm ${today.getFullYear()}`;
+
+  mobilePrint(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Vỏ Seduxen ${info.label}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Times New Roman',serif;font-size:13px;color:#000;padding:20mm 20mm 20mm 25mm}
+h2{text-align:center;font-size:14px;text-transform:uppercase;margin-bottom:4px}
+.sub{text-align:center;font-size:13px;font-weight:bold;margin-bottom:2px}
+.period{text-align:center;font-style:italic;font-size:13px;margin-bottom:14px}
+.header-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12.5px}
+.header-col{flex:1;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:8px}
+th,td{border:1px solid #000;padding:4px 7px;vertical-align:middle}
+th{text-align:center;background:#f0f0f0;font-weight:bold}
+tfoot td{font-weight:bold}
+.sign-row{display:flex;justify-content:space-between;margin-top:16px;text-align:center}
+.sign-col{flex:1}
+.date-right{text-align:right;font-style:italic;margin-top:10px}
+@media print{body{padding:10mm 15mm 10mm 20mm}}
+</style></head><body>
+<div class="header-row">
+  <div class="header-col">
+    <div><strong>SỞ Y TẾ TP ĐÀ NẴNG</strong></div>
+    <div><strong>BỆNH VIỆN ĐÀ NẴNG</strong></div>
+    <hr style="width:70%;margin:3px auto">
+  </div>
+  <div class="header-col">
+    <div><strong>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</strong></div>
+    <div><strong>Độc lập – Tự do – Hạnh phúc</strong></div>
+    <hr style="width:80%;margin:3px auto">
+  </div>
+</div>
+<h2>Bảng Đếm Vỏ Thuốc Seduxen</h2>
+<div class="period">${info.label} — theo khoa phòng</div>
+<table>
+  <thead><tr>
+    <th style="width:6%">Stt</th>
+    <th style="width:20%">Khoa phòng</th>
+    <th style="width:16%">Tên thuốc</th>
+    <th style="width:19%">Số lượng bao bì thực tế</th>
+    <th style="width:19%">Số lượng trả (Trên phiếu)</th>
+    <th style="width:20%">Số lượng sử dụng (Trên phiếu)</th>
+  </tr></thead>
+  <tbody>${tableRows}</tbody>
+  <tfoot><tr>
+    <td colspan="3" style="text-align:right">Tổng cộng:</td>
+    <td style="text-align:center">${totalVo}</td>
+    <td style="text-align:center">${totalTra}</td>
+    <td style="text-align:center">${totalVo}</td>
+  </tr></tfoot>
+</table>
+<div class="date-right">${signDate}</div>
+<div class="sign-row">
+  <div class="sign-col"><strong>Người lập bảng</strong><br><em>(Ký và ghi họ tên)</em><br><br><br></div>
+  <div class="sign-col"><strong>Thủ kho</strong><br><em>(Ký và ghi họ tên)</em><br><br><br></div>
+  <div class="sign-col"><strong>Trưởng khoa Dược</strong><br><em>(Ký và ghi họ tên)</em><br><br><br></div>
+</div>
+</body></html>`, `Vỏ Seduxen ${info.fileTag}`);
+}
 
 
 </script>
@@ -2853,10 +3532,14 @@ function loadWB(file, type) {
       xuatWB=wb; markDZ('dz-xuat','fn-xuat',file.name);
       // ── Sync sang BBHV ──
       syncToBBHV('export', wb, file.name);
+      // ── Sync sang Đếm Vỏ Seduxen ──
+      syncToSeduxen('export', wb, file.name);
     } else if(type==='nhap'){
       nhapWB=wb; markDZ('dz-nhap','fn-nhap',file.name);
       // ── Sync sang BBHV ──
       syncToBBHV('import', wb, file.name);
+      // ── Sync sang Đếm Vỏ Seduxen ──
+      syncToSeduxen('import', wb, file.name);
     } else {
       tonWB=wb; markDZ('dz-ton','fn-ton',file.name);
     }
