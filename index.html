@@ -736,7 +736,7 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       </div>
       <div style="padding:12px">
         <div class="upload-zone" id="dz-export" onclick="document.getElementById('fi-export').click()">
-          <input type="file" id="fi-export" accept=".xlsx,.xls">
+          <input type="file" id="fi-export" accept=".xlsx,.xls" multiple>
           <div class="upload-icon">📂</div>
           <div class="upload-title">Nhấn hoặc kéo thả file .xlsx</div>
           <div class="upload-file hidden" id="fn-export"></div>
@@ -754,7 +754,7 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       </div>
       <div style="padding:12px">
         <div class="upload-zone" id="dz-import" onclick="document.getElementById('fi-import').click()">
-          <input type="file" id="fi-import" accept=".xlsx,.xls">
+          <input type="file" id="fi-import" accept=".xlsx,.xls" multiple>
           <div class="upload-icon">📂</div>
           <div class="upload-title">Nhấn hoặc kéo thả file .xlsx</div>
           <div class="upload-file hidden" id="fn-import"></div>
@@ -955,7 +955,7 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       </div>
       <div style="padding:12px">
         <div class="upload-zone" id="dz-sed-export" onclick="document.getElementById('fi-sed-export').click()">
-          <input type="file" id="fi-sed-export" accept=".xlsx,.xls">
+          <input type="file" id="fi-sed-export" accept=".xlsx,.xls" multiple>
           <div class="upload-icon">📂</div>
           <div class="upload-title">Nhấn hoặc kéo thả file .xls/.xlsx</div>
           <div class="upload-file hidden" id="fn-sed-export"></div>
@@ -973,7 +973,7 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       </div>
       <div style="padding:12px">
         <div class="upload-zone" id="dz-sed-import" onclick="document.getElementById('fi-sed-import').click()">
-          <input type="file" id="fi-sed-import" accept=".xlsx,.xls">
+          <input type="file" id="fi-sed-import" accept=".xlsx,.xls" multiple>
           <div class="upload-icon">📂</div>
           <div class="upload-title">Nhấn hoặc kéo thả file .xls/.xlsx</div>
           <div class="upload-file hidden" id="fn-sed-import"></div>
@@ -1094,7 +1094,7 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       </div>
       <div style="padding:10px">
         <div class="upz" id="dz-xuat" onclick="document.getElementById('fi-xuat').click()">
-          <input type="file" id="fi-xuat" accept=".xlsx,.xls">
+          <input type="file" id="fi-xuat" accept=".xlsx,.xls" multiple>
           <div class="upz-icon">📂</div>
           <div class="upz-title">Nhấn hoặc kéo thả file .xlsx</div>
           <div class="upz-fn hidden" id="fn-xuat"></div>
@@ -1112,7 +1112,7 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
       </div>
       <div style="padding:10px">
         <div class="upz" id="dz-nhap" onclick="document.getElementById('fi-nhap').click()">
-          <input type="file" id="fi-nhap" accept=".xlsx,.xls">
+          <input type="file" id="fi-nhap" accept=".xlsx,.xls" multiple>
           <div class="upz-icon">📂</div>
           <div class="upz-title">Nhấn hoặc kéo thả file .xlsx</div>
           <div class="upz-fn hidden" id="fn-nhap"></div>
@@ -1972,6 +1972,70 @@ function switchTab(tabId) {
   if (tabId === 'tab-seduxen' && typeof sed_onTabOpen === 'function') sed_onTabOpen();
 }
 
+// ═══════════════════════════════════════════════════════
+// NẠP NHIỀU FILE CÙNG LÚC (gộp thành 1 workbook ảo)
+// Dùng chung cho cả 3 khu vực: BBHV, Thẻ Kho, Đếm Vỏ Seduxen
+// ═══════════════════════════════════════════════════════
+function _mx_findHeaderRow(rows) {
+  for (let i = 0; i < Math.min(rows.length, 20); i++) {
+    const r = rows[i].map(c => (c||'').toString().toLowerCase().trim());
+    const hasDrug = r.some(c => c === 'tên hàng' || c === 'tên thuốc' || c.includes('tên hàng'));
+    const hasQty  = r.some(c => c === 'số lượng' || c.includes('số lượng'));
+    const hasType = r.some(c => c.includes('loại chứng từ'));
+    if (hasDrug && hasQty && hasType) return i;
+  }
+  return -1;
+}
+
+// Gộp dữ liệu (dòng) từ nhiều workbook đã parse thành 1 workbook duy nhất,
+// để mọi hàm xử lý phía sau (chỉ đọc sheet đầu tiên khớp) không cần sửa gì thêm.
+function _mx_mergeWorkbooks(wbs) {
+  let headerRow = null;
+  const allDataRows = [];
+  for (const wb of wbs) {
+    if (!wb) continue;
+    for (const sname of wb.SheetNames) {
+      const ws = wb.Sheets[sname];
+      const rows = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:'' });
+      const hi = _mx_findHeaderRow(rows);
+      if (hi === -1) continue;
+      if (!headerRow) headerRow = rows[hi];
+      for (let i = hi+1; i < rows.length; i++) allDataRows.push(rows[i]);
+      break; // chỉ lấy sheet đầu tiên khớp trong mỗi file
+    }
+  }
+  if (!headerRow) return wbs.find(Boolean) || null; // không tìm được header → trả về file đầu, để hàm sau tự báo lỗi
+  const ws2 = XLSX.utils.aoa_to_sheet([headerRow, ...allDataRows]);
+  const wb2 = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb2, ws2, 'Merged');
+  return wb2;
+}
+
+// Đọc 1 hoặc nhiều file Excel (FileList / mảng File), gộp lại rồi trả về qua callback(wb, label, count)
+function mx_loadFiles(fileList, onDone) {
+  const files = Array.from(fileList || []).filter(f => f);
+  if (files.length === 0) return;
+  let loaded = 0;
+  const parsed = new Array(files.length);
+  files.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        parsed[idx] = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+      } catch (err) {
+        parsed[idx] = null;
+      }
+      loaded++;
+      if (loaded === files.length) {
+        const merged = files.length === 1 ? parsed[0] : _mx_mergeWorkbooks(parsed);
+        const label = files.length === 1 ? files[0].name : `${files[0].name} (+${files.length - 1} file khác)`;
+        onDone(merged, label, files.length);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
 function bbhv_setupDZ(dzId, inputId, type) {
   const dz = document.getElementById(dzId);
   const inp = document.getElementById(inputId);
@@ -1979,39 +2043,34 @@ function bbhv_setupDZ(dzId, inputId, type) {
   dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
   dz.addEventListener('drop', e => {
     e.preventDefault(); dz.classList.remove('dragging');
-    const f = e.dataTransfer.files[0];
-    if (f) bbhv_loadFile(f, type);
+    if (e.dataTransfer.files.length) bbhv_loadFile(e.dataTransfer.files, type);
   });
-  inp.addEventListener('change', e => { if (e.target.files[0]) bbhv_loadFile(e.target.files[0], type); });
+  inp.addEventListener('change', e => { if (e.target.files.length) bbhv_loadFile(e.target.files, type); });
 }
 bbhv_setupDZ('dz-export','fi-export','export');
 bbhv_setupDZ('dz-import','fi-import','import');
 
 let _autoProcess = false; // flag: processAll tự chuyển tab sau khi xong
 
-function bbhv_loadFile(file, type) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data, { type: 'array' });
+function bbhv_loadFile(fileOrList, type) {
+  mx_loadFiles(fileOrList, (wb, label, count) => {
     if (type === 'export') {
       exportWB = wb;
-      markLoaded('dz-export','fn-export', file.name);
-      syncToTK('xuat', wb, file.name);
-      syncToSeduxen('export', wb, file.name);
+      markLoaded('dz-export','fn-export', label);
+      syncToTK('xuat', wb, label);
+      syncToSeduxen('export', wb, label);
     } else {
       importWB = wb;
-      markLoaded('dz-import','fn-import', file.name);
-      syncToTK('nhap', wb, file.name);
-      syncToSeduxen('import', wb, file.name);
+      markLoaded('dz-import','fn-import', label);
+      syncToTK('nhap', wb, label);
+      syncToSeduxen('import', wb, label);
     }
     // ── Auto-xử lý khi đủ 2 file ──
     if (exportWB && importWB) {
       _autoProcess = true;
       setTimeout(processAll, 120);
     }
-  };
-  reader.readAsArrayBuffer(file);
+  });
 }
 
 function markLoaded(dzId, fnId, name) {
@@ -2988,36 +3047,31 @@ function sed_setupDZ(dzId, inputId, kind) {
   dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
   dz.addEventListener('drop', e => {
     e.preventDefault(); dz.classList.remove('dragging');
-    const f = e.dataTransfer.files[0];
-    if (f) sed_loadFile(f, kind);
+    if (e.dataTransfer.files.length) sed_loadFile(e.dataTransfer.files, kind);
   });
-  inp.addEventListener('change', e => { if (e.target.files[0]) sed_loadFile(e.target.files[0], kind); });
+  inp.addEventListener('change', e => { if (e.target.files.length) sed_loadFile(e.target.files, kind); });
 }
 sed_setupDZ('dz-sed-export','fi-sed-export','export');
 sed_setupDZ('dz-sed-import','fi-sed-import','import');
 
-function sed_loadFile(file, kind) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data, { type: 'array' });
+function sed_loadFile(fileOrList, kind) {
+  mx_loadFiles(fileOrList, (wb, label) => {
     if (kind === 'export') {
       sedExportWB = wb;
-      markLoaded('dz-sed-export','fn-sed-export', file.name);
-      if (typeof syncToTK === 'function') syncToTK('xuat', wb, file.name);
-      if (typeof syncToBBHV === 'function') syncToBBHV('export', wb, file.name);
+      markLoaded('dz-sed-export','fn-sed-export', label);
+      if (typeof syncToTK === 'function') syncToTK('xuat', wb, label);
+      if (typeof syncToBBHV === 'function') syncToBBHV('export', wb, label);
     } else {
       sedImportWB = wb;
-      markLoaded('dz-sed-import','fn-sed-import', file.name);
-      if (typeof syncToTK === 'function') syncToTK('nhap', wb, file.name);
-      if (typeof syncToBBHV === 'function') syncToBBHV('import', wb, file.name);
+      markLoaded('dz-sed-import','fn-sed-import', label);
+      if (typeof syncToTK === 'function') syncToTK('nhap', wb, label);
+      if (typeof syncToBBHV === 'function') syncToBBHV('import', wb, label);
     }
     if (sedExportWB && sedImportWB) {
       sed_prepMonths();
       setTimeout(sed_processAll, 120);
     }
-  };
-  reader.readAsArrayBuffer(file);
+  });
 }
 
 function sed_onTabOpen() {
@@ -3519,35 +3573,40 @@ function tk_setupDZ(dzId, fiId, type) {
   dz.addEventListener('dragleave', ()=>dz.classList.remove('drag'));
   dz.addEventListener('drop', e=>{
     e.preventDefault();dz.classList.remove('drag');
-    const f=e.dataTransfer.files[0];if(f)loadWB(f,type);
+    if(e.dataTransfer.files.length) loadWB(type==='ton' ? e.dataTransfer.files[0] : e.dataTransfer.files, type);
   });
-  fi.addEventListener('change', e=>{if(e.target.files[0])loadWB(e.target.files[0],type);});
+  fi.addEventListener('change', e=>{if(e.target.files.length) loadWB(type==='ton' ? e.target.files[0] : e.target.files, type);});
 }
 tk_setupDZ('dz-xuat','fi-xuat','xuat');
 tk_setupDZ('dz-nhap','fi-nhap','nhap');
 tk_setupDZ('dz-ton','fi-ton','ton');
 
-function loadWB(file, type) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const wb = XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+function loadWB(fileOrList, type) {
+  if (type === 'ton') {
+    const file = fileOrList;
+    const reader = new FileReader();
+    reader.onload = e => {
+      tonWB = XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      markDZ('dz-ton','fn-ton',file.name);
+    };
+    reader.readAsArrayBuffer(file);
+    return;
+  }
+  mx_loadFiles(fileOrList, (wb, label) => {
     if(type==='xuat'){
-      xuatWB=wb; markDZ('dz-xuat','fn-xuat',file.name);
+      xuatWB=wb; markDZ('dz-xuat','fn-xuat',label);
       // ── Sync sang BBHV ──
-      syncToBBHV('export', wb, file.name);
+      syncToBBHV('export', wb, label);
       // ── Sync sang Đếm Vỏ Seduxen ──
-      syncToSeduxen('export', wb, file.name);
+      syncToSeduxen('export', wb, label);
     } else if(type==='nhap'){
-      nhapWB=wb; markDZ('dz-nhap','fn-nhap',file.name);
+      nhapWB=wb; markDZ('dz-nhap','fn-nhap',label);
       // ── Sync sang BBHV ──
-      syncToBBHV('import', wb, file.name);
+      syncToBBHV('import', wb, label);
       // ── Sync sang Đếm Vỏ Seduxen ──
-      syncToSeduxen('import', wb, file.name);
-    } else {
-      tonWB=wb; markDZ('dz-ton','fn-ton',file.name);
+      syncToSeduxen('import', wb, label);
     }
-  };
-  reader.readAsArrayBuffer(file);
+  });
 }
 function markDZ(dzId,fnId,name){
   document.getElementById(dzId).classList.add('ok');
