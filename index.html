@@ -3291,6 +3291,7 @@ function sed_renderTable() {
     <th style="width:60px">Xuất</th>
     <th style="width:60px">Trả</th>
     <th style="width:60px">Vỏ</th>
+    <th style="width:120px">Ghi chú</th>
   </tr></thead><tbody>`;
   rows.forEach((r,i) => {
     html += `<tr>
@@ -3300,6 +3301,7 @@ function sed_renderTable() {
       <td style="text-align:center">${r.xuat}</td>
       <td style="text-align:center">${r.tra}</td>
       <td style="text-align:center;font-weight:800">${r.vo}</td>
+      <td></td>
     </tr>`;
   });
   html += `<tr style="font-weight:800;background:var(--s2)">
@@ -3307,6 +3309,7 @@ function sed_renderTable() {
     <td style="text-align:center">${totalXuat}</td>
     <td style="text-align:center">${totalTra}</td>
     <td style="text-align:center">${totalVo}</td>
+    <td></td>
   </tr>`;
   html += '</tbody>';
   table.innerHTML = html;
@@ -3326,6 +3329,7 @@ function sed_renderA4Preview() {
     <td style="${cellStyle};text-align:center;font-weight:700">${r.vo}</td>
     <td style="${cellStyle};text-align:center">${r.tra}</td>
     <td style="${cellStyle};text-align:center">${r.xuat}</td>
+    <td style="${cellStyle}">&nbsp;</td>
   </tr>`).join('');
 
   const totalXuat = rows.reduce((s,r)=>s+r.xuat,0);
@@ -3338,12 +3342,13 @@ function sed_renderA4Preview() {
     <table style="width:100%;border-collapse:collapse;font-size:12px">
       <thead>
         <tr>
-          <th style="border:1px solid #000;padding:4px 6px;width:6%">Stt</th>
-          <th style="border:1px solid #000;padding:4px 6px;width:20%">Khoa phòng</th>
-          <th style="border:1px solid #000;padding:4px 6px;width:18%">Tên thuốc</th>
-          <th style="border:1px solid #000;padding:4px 6px;width:19%">Số lượng bao bì thực tế</th>
-          <th style="border:1px solid #000;padding:4px 6px;width:18%">Số lượng trả (Trên phiếu)</th>
-          <th style="border:1px solid #000;padding:4px 6px;width:19%">Số lượng sử dụng (Trên phiếu)</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:5%">Stt</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:17%">Khoa phòng</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:15%">Tên thuốc</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:15%">Số lượng bao bì thực tế</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:15%">Số lượng trả (Trên phiếu)</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:15%">Số lượng sử dụng (Trên phiếu)</th>
+          <th style="border:1px solid #000;padding:4px 6px;width:18%">Ghi chú</th>
         </tr>
       </thead>
       <tbody>${dataRows}</tbody>
@@ -3353,6 +3358,7 @@ function sed_renderA4Preview() {
           <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalVo}</td>
           <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalTra}</td>
           <td style="border:1px solid #000;padding:4px 6px;text-align:center">${totalXuat}</td>
+          <td style="border:1px solid #000;padding:4px 6px">&nbsp;</td>
         </tr>
       </tfoot>
     </table>
@@ -3389,13 +3395,13 @@ function sed_downloadExcel() {
 
   const aoa = [
     [`BẢNG ĐẾM VỎ THUỐC SEDUXEN — ${info.label.toUpperCase()}`],
-    ['Stt','Khoa phòng','Tên thuốc','Số lượng bao bì thực tế','Số lượng trả (Trên phiếu)','Số lượng sử dụng (Trên phiếu)'],
-    ...rows.map((r,i) => [i+1, r.dept, r.drug, r.vo, r.tra, r.xuat]),
-    ['', '', 'Tổng cộng', totalVo, totalTra, totalXuat],
+    ['Stt','Khoa phòng','Tên thuốc','Số lượng bao bì thực tế','Số lượng trả (Trên phiếu)','Số lượng sử dụng (Trên phiếu)','Ghi chú'],
+    ...rows.map((r,i) => [i+1, r.dept, r.drug, r.vo, r.tra, r.xuat, '']),
+    ['', '', 'Tổng cộng', totalVo, totalTra, totalXuat, ''],
   ];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
-  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:5} }];
-  ws['!cols'] = [{wch:6},{wch:26},{wch:18},{wch:20},{wch:20},{wch:22}];
+  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:6} }];
+  ws['!cols'] = [{wch:6},{wch:26},{wch:18},{wch:20},{wch:20},{wch:22},{wch:22}];
 
   const styleTitle = {font:{bold:true,name:'Times New Roman',sz:14},alignment:{horizontal:'center'}};
   const styleHdr = {font:{bold:true,name:'Times New Roman',sz:12},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:{top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}}};
@@ -3403,14 +3409,14 @@ function sed_downloadExcel() {
   const styleDataLeft = {font:{name:'Times New Roman',sz:12},alignment:{horizontal:'left',vertical:'center'},border:{top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}}};
 
   if (ws['A1']) ws['A1'].s = styleTitle;
-  for (let c = 0; c <= 5; c++) {
+  for (let c = 0; c <= 6; c++) {
     const ck = XLSX.utils.encode_cell({r:1,c});
     if (ws[ck]) ws[ck].s = styleHdr;
   }
   for (let r = 2; r < aoa.length; r++) {
-    for (let c = 0; c <= 5; c++) {
+    for (let c = 0; c <= 6; c++) {
       const ck = XLSX.utils.encode_cell({r,c});
-      if (ws[ck]) ws[ck].s = (c === 1 || c === 2) ? styleDataLeft : styleData;
+      if (ws[ck]) ws[ck].s = (c === 1 || c === 2 || c === 6) ? styleDataLeft : styleData;
     }
   }
 
@@ -3436,6 +3442,7 @@ function sed_exportPDF() {
     <td style="text-align:center;font-weight:bold">${r.vo}</td>
     <td style="text-align:center">${r.tra}</td>
     <td style="text-align:center;font-weight:bold">${r.xuat}</td>
+    <td>&nbsp;</td>
   </tr>`).join('');
 
   const today = new Date();
@@ -3478,12 +3485,13 @@ tfoot td{font-weight:bold}
 <div class="period">${info.label} — theo khoa phòng</div>
 <table>
   <thead><tr>
-    <th style="width:6%">Stt</th>
-    <th style="width:20%">Khoa phòng</th>
-    <th style="width:16%">Tên thuốc</th>
-    <th style="width:19%">Số lượng bao bì thực tế</th>
-    <th style="width:19%">Số lượng trả (Trên phiếu)</th>
-    <th style="width:20%">Số lượng sử dụng (Trên phiếu)</th>
+    <th style="width:5%">Stt</th>
+    <th style="width:17%">Khoa phòng</th>
+    <th style="width:14%">Tên thuốc</th>
+    <th style="width:16%">Số lượng bao bì thực tế</th>
+    <th style="width:16%">Số lượng trả (Trên phiếu)</th>
+    <th style="width:16%">Số lượng sử dụng (Trên phiếu)</th>
+    <th style="width:16%">Ghi chú</th>
   </tr></thead>
   <tbody>${tableRows}</tbody>
   <tfoot><tr>
@@ -3491,6 +3499,7 @@ tfoot td{font-weight:bold}
     <td style="text-align:center">${totalVo}</td>
     <td style="text-align:center">${totalTra}</td>
     <td style="text-align:center">${totalXuat}</td>
+    <td>&nbsp;</td>
   </tr></tfoot>
 </table>
 <div class="date-right">${signDate}</div>
