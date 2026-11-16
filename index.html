@@ -2124,7 +2124,7 @@ body.home-open #bbhv-inner-nav{display:none!important}
   <div id="sc-ung" class="screen">
     <div style="display:flex;align-items:center;gap:10px;padding:4px 0 0">
       <button class="btn btn-ghost btn-sm" onclick="goScreen('sc-the-kho')">← Quay lại</button>
-      <b style="font-size:15px">📦 Ứng thuốc tủ trực</b>
+      <b style="font-size:15px">📦 Sổ cơ số tủ trực <span style="font-size:11px;font-weight:700;color:#1d4ed8;background:#dbeafe;border-radius:99px;padding:1px 8px">v2</span></b>
     </div>
     <div id="ung-sum" class="ung-sum"></div>
     <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:8px">
@@ -2136,12 +2136,11 @@ body.home-open #bbhv-inner-nav{display:none!important}
         <div class="seg" id="ung-f"></div>
         <span style="flex:1"></span>
         <button class="btn btn-sm btn-ghost" onclick="ung_cfgOpen()">⚙ Sheet</button>
-        <button class="btn btn-sm btn-primary" onclick="ung_save()">☁️ Lưu Sheet</button>
         <label style="font-size:12px;color:#475569;display:flex;align-items:center;gap:4px"><input type="checkbox" id="ung-pb">mỗi khoa 1 trang</label><button class="btn btn-sm btn-ghost" onclick="ung_print()">🖨 In</button><button class="btn btn-sm btn-ghost" onclick="ung_excel()">Excel</button>
       </div>
-      <div class="ung-r"><span style="font-size:12.5px;font-weight:700;color:#475569">Tồn ứng đầu kỳ:</span>
-        <select id="ung-open" class="input" style="flex:1;min-width:150px;height:32px;font-size:12.5px" onchange="ung_setOpen(this.value)"><option value="">Không — tính từ file</option></select>
-        <button class="btn btn-sm btn-ghost" onclick="ung_loadAsofs(true)">🔄</button></div>
+      <div class="ung-r"><span style="font-size:12.5px;font-weight:700;color:#475569">Nguồn:</span><div class="seg" id="ung-src"></div><span style="flex:1"></span>
+        <button class="btn btn-sm btn-primary" onclick="ung_push()">☁️ Cập nhật vào Sheet</button><button class="btn btn-sm btn-ghost" onclick="ung_loadSheet()" title="Tải lại từ Sheet">🔄</button></div>
+      <div class="ung-r"><span style="font-size:12.5px;font-weight:700;color:#475569">Cơ số tính đến ngày:</span><input type="date" id="ung-asof" class="input" style="height:32px;width:150px" onchange="ung_loadSheet()"><button class="btn btn-sm btn-ghost" onclick="document.getElementById('ung-asof').value='';ung_loadSheet()">Hiện tại</button><span style="font-size:11.5px;color:#64748b">(chỉ áp dụng cho nguồn Sheet — tra lại cuối tháng)</span></div>
       <div id="ung-msg" style="font-size:12.5px;font-weight:600"></div>
       <div id="ung-list" class="ung-w"></div>
     </div>
@@ -5000,6 +4999,9 @@ function tk_parseSheet(wb, typeFilter) {
     const hanCol =hdrs.findIndex(h=>h.includes('hạn'));
     const tenCtyCol=hdrs.findIndex(h=>h==='tên'); // nhap: Tên = tên công ty
     const shdCol=hdrs.findIndex(h=>h==='shd'||h.includes('hóa đơn')||h.includes('hoá đơn')); // số hóa đơn
+    const gioCol=hdrs.findIndex(h=>h==='giờ'||h.includes('giờ')||h.includes('thời gian'));
+    const soCol=hdrs.findIndex(h=>h.includes('số chứng từ')||h==='số ct'||h.includes('số phiếu')||h==='số ct.');
+    const parseGio=v=>{ if(typeof v==='number'){const fr=v-Math.floor(v); if(fr>0.00001){const mi=Math.round(fr*1440); return String(Math.floor(mi/60)%24).padStart(2,'0')+':'+String(mi%60).padStart(2,'0');} return '';} const m=String(v==null?'':v).match(/(\d{1,2}):(\d{2})/); return m?m[1].padStart(2,'0')+':'+m[2]:''; };
     if([dateCol,tenCol,slCol,typeCol].some(i=>i===-1)) continue;
     const recs=[];
     for(let i=hi+1;i<rows.length;i++){
@@ -5020,7 +5022,9 @@ function tk_parseSheet(wb, typeFilter) {
       const han=hanCol!==-1?parseDate(row[hanCol]):'';
       const tenCty=tenCtyCol!==-1?(row[tenCtyCol]||'').toString().trim():'';
       const shd=shdCol!==-1?(row[shdCol]||'').toString().trim():'';
-      recs.push({date:iso,ma,ten,hl,loaiCT,sl,khoa,lo,han,tenCty,shd});
+      let gio=parseGio(row[dateCol]); if(!gio&&gioCol!==-1) gio=parseGio(row[gioCol]);
+      const so=soCol!==-1?(row[soCol]||'').toString().trim():'';
+      recs.push({date:iso,ma,ten,hl,loaiCT,sl,khoa,lo,han,tenCty,shd,gio,so});
     }
     return recs;
   }
@@ -7403,7 +7407,7 @@ const HOME = [
     { ic: '📁', t: 'Nhập dữ liệu kho', d: 'Nạp file xuất, nhập, tồn', go: () => { switchApp(2); goScreen('sc-data'); } },
     { ic: '📊', t: 'Thẻ kho', d: 'Xem, in thẻ kho theo mã', go: () => { switchApp(2); goScreen('sc-the-kho'); } },
     { ic: '📝', t: 'Kiểm kê', d: 'Biên bản kiểm kê', go: () => { switchApp(2); goScreen('sc-bbkk'); if (typeof renderBBKK === 'function') renderBBKK(); } },
-    { ic: '📦', t: 'Ứng tủ trực', d: 'Khoa đang ứng bao nhiêu thuốc', go: () => { switchApp(2); goScreen('sc-ung'); ung_open(); } } ] },
+    { ic: '📦', t: 'Cơ số tủ trực', d: 'Khoa đang ứng bao nhiêu · tra ngày giờ', go: () => { switchApp(2); goScreen('sc-ung'); ung_open(); } } ] },
   { sec: 'Khác', bg: '#ede9fe', items: [
     { ic: '📈', t: 'Theo dõi phân bổ', d: 'Phân bổ và nhập kho theo thầu', go: () => switchApp(5) },
     { ic: '🏥', t: 'Thông tư 20', d: 'Điền STT TT20/2022', go: () => switchApp(3) },
@@ -7523,75 +7527,98 @@ function shv_open(ma) {
 }
 shv_mount();
 
-/* ═══ Ứng thuốc tủ trực: tính liên tục theo thời gian (ứng xuất − ứng trả) + lưu Google Sheet ═══ */
-const UNG = { mode: 'khoa', f: 'pos', q: '', open: new Set(), openMap: null, openAsof: '', asofs: null, data: null, meta: null };
+/* ═══ Sổ cơ số tủ trực: lịch sử ứng/trả (có ngày giờ) lưu trên Google Sheet, cơ số = tổng ứng − tổng trả ═══ */
+const UNG = { mode: 'khoa', f: 'pos', q: '', open: new Set(), src: 'sheet', data: null, file: null, sheet: null, sheetErr: '' };
 const ungF = n => Number(n || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
 const ungK = (kh, ma) => String(kh).trim().toLowerCase() + '|' + normMa(ma);
-function ung_compute() {
-  if (typeof xuatWB === 'undefined' || (!xuatWB && !nhapWB)) return { err: 'Chưa có file Xuất / Nhập. Vào “Nhập dữ liệu kho” để nạp (app sẽ nhớ file cho lần sau).' };
+const ungDT = x => { if (!x) return ''; const [d, t] = String(x).split(' '); return sdbDmy(d) + (t ? ' ' + t : ''); };
+// Đọc các lần ứng/trả từ file Xuất + Nhập đang nạp
+function ung_events() {
+  if (typeof xuatWB === 'undefined' || (!xuatWB && !nhapWB)) return { err: 'Chưa có file Xuất / Nhập. Vào “Nhập dữ liệu kho” để nạp (app nhớ file cho lần sau). Có thể nạp nhiều lần, mỗi lần một cặp file.' };
   const U = TU_TRUC_XUAT.map(x => x.toLowerCase()), T = TU_TRUC_NHAP.map(x => x.toLowerCase());
   let recs = [];
   try {
     if (xuatWB) recs = recs.concat(tk_parseSheet(xuatWB, [...XUAT_TYPES, ...TU_TRUC_XUAT, ...TU_TRUC_NHAP]) || []);
     if (nhapWB) recs = recs.concat(tk_parseSheet(nhapWB, [...NHAP_TYPES, ...TU_TRUC_NHAP, ...TU_TRUC_XUAT]) || []);
   } catch (e) { return { err: 'Không đọc được file: ' + e.message }; }
-  const after = UNG.openAsof || '';
-  const ev = [];
-  recs.forEach(r => { const lt = String(r.loaiCT || '').trim().toLowerCase(); const kind = U.includes(lt) ? 'ung' : T.includes(lt) ? 'tra' : ''; if (!kind || (after && r.date <= after)) return; ev.push({ kind, date: r.date, khoa: r.khoa || '(Không rõ khoa)', ma: r.ma || r.ten, ten: r.ten, hl: r.hl, sl: r.sl, loai: r.loaiCT }); });
-  const by = {};
-  ev.forEach(e => { const k = ungK(e.khoa, e.ma); (by[k] = by[k] || { khoa: e.khoa, ma: e.ma, ten: e.ten, hl: e.hl, ev: [] }).ev.push(e); });
-  if (UNG.openMap) Object.keys(UNG.openMap).forEach(k => { if (!by[k]) { const o = UNG.openMap[k]; by[k] = { khoa: o.khoa, ma: o.ma, ten: o.ten, hl: o.hl, ev: [] }; } });
-  const rows = Object.keys(by).map(k => {
-    const g = by[k], open = UNG.openMap && UNG.openMap[k] ? UNG.openMap[k].con : 0;
-    g.ev.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.kind === b.kind ? 0 : a.kind === 'ung' ? -1 : 1));
-    let run = open, ung = 0, tra = 0, min = open;
-    g.ev.forEach(e => { if (e.kind === 'ung') { run += e.sl; ung += e.sl; } else { run -= e.sl; tra += e.sl; } e.run = run; if (run < min) min = run; });
-    return { key: k, khoa: g.khoa, ma: g.ma, ten: g.ten, hl: g.hl, open, ung, tra, con: run, min, ev: g.ev };
+  const cnt = {}, ev = [];
+  recs.forEach(r => {
+    const lt = String(r.loaiCT || '').trim().toLowerCase(), kind = U.includes(lt) ? 'ung' : T.includes(lt) ? 'tra' : ''; if (!kind) return;
+    const khoa = r.khoa || '(Không rõ khoa)', ma = r.ma || r.ten;
+    const base = [r.date, r.gio || '', khoa.toLowerCase(), String(ma).toLowerCase(), lt, r.sl, r.so || ''].join('|');
+    cnt[base] = (cnt[base] || 0) + 1;
+    ev.push({ key: base + '#' + cnt[base], date: r.date, time: r.gio || '', khoa, ma, ten: r.ten, hl: r.hl, kind, loai: r.loaiCT, sl: r.sl, so: r.so || '' });
   });
-  const dates = ev.map(e => e.date).sort();
-  return { rows, from: dates[0] || '', to: dates[dates.length - 1] || '', noKhoa: ev.filter(e => e.khoa === '(Không rõ khoa)').length, nEv: ev.length };
+  return { events: ev };
 }
-function ung_open() { UNG.data = ung_compute(); ung_render(); if (!UNG.asofs && ungCfg().url) ung_loadAsofs(); }
+const ungSort = (a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.time || '') < (b.time || '') ? -1 : (a.time || '') > (b.time || '') ? 1 : (a.kind === b.kind ? 0 : a.kind === 'ung' ? -1 : 1);
+function ung_fromEvents(events) {
+  const by = {};
+  events.forEach(e => { const k = ungK(e.khoa, e.ma); (by[k] = by[k] || { khoa: e.khoa, ma: e.ma, ten: e.ten, hl: e.hl, ev: [] }).ev.push(e); });
+  const rows = Object.keys(by).map(k => {
+    const g = by[k]; g.ev.sort(ungSort);
+    let run = 0, ung = 0, tra = 0, min = 0, lu = '', lt = '';
+    g.ev.forEach(e => { const dt = e.date + (e.time ? ' ' + e.time : ''); if (e.kind === 'ung') { run += e.sl; ung += e.sl; if (dt > lu) lu = dt; } else { run -= e.sl; tra += e.sl; if (dt > lt) lt = dt; } e.run = run; if (run < min) min = run; });
+    return { key: k, khoa: g.khoa, ma: g.ma, ten: g.ten, hl: g.hl, open: 0, ung, tra, con: run, min, ev: g.ev, lastUng: lu, lastTra: lt };
+  });
+  const dates = events.map(e => e.date).sort();
+  return { src: 'file', rows, from: dates[0] || '', to: dates[dates.length - 1] || '', nEv: events.length, noKhoa: rows.filter(r => r.khoa === '(Không rõ khoa)').length, events };
+}
+function ung_open() {
+  const E = ung_events(); UNG.file = E.err ? { err: E.err } : ung_fromEvents(E.events);
+  if (!ungCfg().url) UNG.src = 'file';
+  else if (!UNG.sheet && !UNG.sheetErr) ung_loadSheet();
+  ung_pick();
+}
+function ung_pick() {
+  if (UNG.src === 'sheet') UNG.data = UNG.sheet || { err: UNG.sheetErr ? 'Không tải được Google Sheet: ' + UNG.sheetErr : '⏳ Đang tải cơ số từ Google Sheet…' };
+  else UNG.data = UNG.file;
+  ung_render();
+}
 function ung_btns() {
   document.getElementById('ung-mode').innerHTML = [['khoa', 'Theo khoa'], ['ma', 'Theo thuốc']].map(([k, l]) => '<button class="sdb-pill' + (UNG.mode === k ? ' on' : '') + '" onclick="UNG.mode=\'' + k + '\';ung_render()">' + l + '</button>').join('');
   document.getElementById('ung-f').innerHTML = [['pos', 'Còn ứng'], ['all', 'Tất cả'], ['neg', 'Âm']].map(([k, l]) => '<button class="sdb-pill' + (UNG.f === k ? ' on' : '') + '" onclick="UNG.f=\'' + k + '\';ung_render()">' + l + '</button>').join('');
+  document.getElementById('ung-src').innerHTML = [['sheet', '☁️ Cơ số trên Sheet'], ['file', '👁 Xem trước từ file']].map(([k, l]) => '<button class="sdb-pill' + (UNG.src === k ? ' on' : '') + '" onclick="UNG.src=\'' + k + '\';ung_pick()">' + l + '</button>').join('');
 }
 function ung_render() {
   ung_btns();
   const D = UNG.data, L = document.getElementById('ung-list'), M = document.getElementById('ung-msg'), S = document.getElementById('ung-sum');
   if (!D || D.err) { S.innerHTML = ''; M.textContent = ''; L.innerHTML = '<div class="shv-m">' + shvE(D ? D.err : 'Đang tính…') + '</div>'; return; }
   const all = D.rows, pos = all.filter(r => r.con > 0), neg = all.filter(r => r.con < 0);
-  S.innerHTML = '<div><b style="color:#1d4ed8">' + new Set(pos.map(r => r.khoa)).size + '</b><span>Khoa đang ứng</span></div><div><b>' + new Set(pos.map(r => normMa(r.ma))).size + '</b><span>Mặt hàng</span></div><div><b style="color:#1d4ed8">' + ungF(pos.reduce((a, r) => a + r.con, 0)) + '</b><span>Tổng SL còn ứng</span></div>' + (neg.length ? '<div><b class="ung-neg">' + neg.length + '</b><span>Dòng âm (trả > ứng)</span></div>' : '');
-  let note = '📅 Tính từ ' + sdbDmy(D.from) + ' đến ' + sdbDmy(D.to) + ' · ' + D.nEv + ' lần ứng/trả' + (UNG.openAsof ? ' · đầu kỳ = bản chốt ' + sdbDmy(UNG.openAsof) + ' (chỉ tính sau ngày này)' : '');
+  S.innerHTML = '<div><b style="color:#1d4ed8">' + new Set(pos.map(r => r.khoa)).size + '</b><span>Khoa có cơ số</span></div><div><b>' + new Set(pos.map(r => normMa(r.ma))).size + '</b><span>Mặt hàng</span></div><div><b style="color:#1d4ed8">' + ungF(pos.reduce((a, r) => a + r.con, 0)) + '</b><span>Tổng cơ số</span></div>' + (neg.length ? '<div><b class="ung-neg">' + neg.length + '</b><span>Dòng âm (trả > ứng)</span></div>' : '');
+  let note = D.src === 'sheet' ? '☁️ Cơ số lưu trên Google Sheet · cập nhật ' + (D.updated || '—') + ' · dữ liệu ' + sdbDmy(D.from) + ' → ' + sdbDmy(D.to) + ' · ' + D.nEv + ' lần ứng/trả' + (D.asof ? ' · ⏱ cơ số tính đến ' + sdbDmy(D.asof) : '') : '👁 Xem trước từ file đang nạp (CHƯA lưu) · ' + sdbDmy(D.from) + ' → ' + sdbDmy(D.to) + ' · ' + D.nEv + ' lần ứng/trả. Bấm “☁️ Cập nhật vào Sheet” để nối thêm vào sổ cơ số (không ghi đè dữ liệu cũ).';
   if (D.noKhoa) note += '\n⚠️ ' + D.noKhoa + ' dòng không có cột Khoa phòng trong file nên gom vào “(Không rõ khoa)”.';
-  if (neg.length && !UNG.openAsof) note += '\n⚠️ Dòng âm thường do file không bắt đầu từ lúc mới ứng — chọn “Tồn ứng đầu kỳ” từ bản chốt đã lưu để bù.';
+  if (neg.length) note += '\n⚠️ Dòng âm: trả nhiều hơn ứng — thường do thiếu file ứng cũ hơn. Nạp thêm file cũ rồi cập nhật Sheet để bù.';
   M.style.whiteSpace = 'pre-wrap'; M.style.color = D.noKhoa || neg.length ? '#b45309' : '#475569'; M.textContent = note;
   const q = UNG.q;
-  let rows = all.filter(r => (UNG.f === 'all' || (UNG.f === 'pos' ? r.con > 0 : r.con < 0)) && (!q || (r.khoa + ' ' + r.ma + ' ' + r.ten).toLowerCase().includes(q)));
+  const rows = all.filter(r => (UNG.f === 'all' || (UNG.f === 'pos' ? r.con > 0 : r.con < 0)) && (!q || (r.khoa + ' ' + r.ma + ' ' + r.ten).toLowerCase().includes(q)));
   if (!rows.length) { L.innerHTML = '<div class="shv-m">Không có dòng nào.</div>'; return; }
   const gk = UNG.mode === 'khoa' ? r => r.khoa : r => r.ma, groups = {};
   rows.forEach(r => { (groups[gk(r)] = groups[gk(r)] || []).push(r); });
-  const hasOpen = !!UNG.openMap;
-  const cell = n => '<td class="' + (n > 0 ? 'ung-pos' : n < 0 ? 'ung-neg' : 'ung-zero') + '">' + ungF(n) + '</td>';
-  let h = '<table class="ung-t"><thead><tr><th>' + (UNG.mode === 'khoa' ? 'Khoa phòng / Thuốc' : 'Thuốc / Khoa phòng') + '</th>' + (hasOpen ? '<th>Đầu kỳ</th>' : '') + '<th>Ứng</th><th>Trả</th><th>Còn ứng</th></tr></thead><tbody>';
+  const cls = n => n > 0 ? 'ung-pos' : n < 0 ? 'ung-neg' : 'ung-zero';
+  let h = '<table class="ung-t"><thead><tr><th>' + (UNG.mode === 'khoa' ? 'Khoa phòng / Thuốc' : 'Thuốc / Khoa phòng') + '</th><th>Ứng</th><th>Trả</th><th>Cơ số</th><th>Gần nhất</th></tr></thead><tbody>';
   Object.keys(groups).sort((a, b) => a.localeCompare(b, 'vi')).forEach(g => {
     const rs = groups[g], tot = rs.reduce((a, r) => a + r.con, 0), isOpen = q || UNG.open.has(UNG.mode + '|' + g);
     const label = UNG.mode === 'khoa' ? shvE(g) : shvE(rs[0].ten) + ' <small style="color:#64748b">' + shvE(rs[0].ma) + '</small>';
-    h += '<tr class="ung-g" data-g="' + shvE(UNG.mode + '|' + g) + '"><td>' + (isOpen ? '▾ ' : '▸ ') + label + ' <small style="font-weight:500;color:#64748b">(' + rs.length + ')</small></td>' + (hasOpen ? '<td></td>' : '') + '<td></td><td></td><td class="' + (tot > 0 ? 'ung-pos' : tot < 0 ? 'ung-neg' : 'ung-zero') + '">' + ungF(tot) + '</td></tr>';
+    h += '<tr class="ung-g" data-g="' + shvE(UNG.mode + '|' + g) + '"><td>' + (isOpen ? '▾ ' : '▸ ') + label + ' <small style="font-weight:500;color:#64748b">(' + rs.length + ')</small></td><td></td><td></td><td class="' + cls(tot) + '">' + ungF(tot) + '</td><td></td></tr>';
     if (isOpen) rs.sort((a, b) => b.con - a.con).forEach(r => {
-      const lab = UNG.mode === 'khoa' ? shvE(r.ten) + ' <small>' + shvE(r.hl) + ' · ' + shvE(r.ma) + '</small>' : shvE(r.khoa);
-      h += '<tr class="ung-c" data-k="' + shvE(r.key) + '"><td>' + lab + (r.min < 0 && r.con >= 0 ? ' <small title="Từng âm trong kỳ">⚠</small>' : '') + '</td>' + (hasOpen ? '<td>' + ungF(r.open) + '</td>' : '') + '<td>' + ungF(r.ung) + '</td><td>' + ungF(r.tra) + '</td>' + cell(r.con) + '</tr>';
+      const lab = UNG.mode === 'khoa' ? shvE(r.ten) + ' <small>' + shvE(r.hl) + ' · ' + shvE(r.ma) + '</small>' : shvE(r.khoa), last = (r.lastUng || '') > (r.lastTra || '') ? r.lastUng : r.lastTra;
+      h += '<tr class="ung-c" data-k="' + shvE(r.key) + '"><td>' + lab + '</td><td>' + ungF(r.ung) + '</td><td>' + ungF(r.tra) + '</td><td class="' + cls(r.con) + '">' + ungF(r.con) + '</td><td style="font-size:11px;color:#64748b">' + ungDT(last) + '</td></tr>';
     });
   });
   L.innerHTML = h + '</tbody></table>';
 }
+function ung_popShow(title, html) { document.getElementById('ung-pop-t').textContent = title; document.getElementById('ung-pop-b').innerHTML = html; document.getElementById('ung-pop').classList.add('on'); }
+async function ung_timeline(r) {
+  const draw = ev => { let run = 0; ung_popShow(r.khoa + ' — ' + r.ten, '<table class="ung-t"><thead><tr><th>Ngày giờ</th><th>Loại</th><th>SL</th><th>Số phiếu</th><th>Cơ số</th></tr></thead><tbody>' + (ev.length ? ev.map(e => { run += e.kind === 'ung' ? e.sl : -e.sl; return '<tr><td>' + sdbDmy(e.date) + (e.time ? ' ' + e.time : '') + '</td><td style="white-space:normal;text-align:left">' + shvE(e.loai || (e.kind === 'ung' ? 'Ứng' : 'Trả')) + '</td><td class="' + (e.kind === 'ung' ? 'ung-pos">+' : 'ung-neg">−') + ungF(e.sl) + '</td><td>' + shvE(e.so) + '</td><td>' + ungF(run) + '</td></tr>'; }).join('') : '<tr><td colspan="5">Không có lịch sử.</td></tr>') + '</tbody></table>'); };
+  if (r.ev) { draw(r.ev); return; }
+  ung_popShow(r.khoa + ' — ' + r.ten, '<div class="shv-m">⏳ Đang tải lịch sử từ Google Sheet…</div>');
+  try { const d = await ungApi('history', { khoa: r.khoa, ma: r.ma }); draw(d.events || []); } catch (e) { ung_popShow(r.khoa + ' — ' + r.ten, '<div class="shv-m">⚠️ ' + shvE(e.message) + '</div>'); }
+}
 document.getElementById('ung-list').addEventListener('click', e => {
   const g = e.target.closest('.ung-g'), c = e.target.closest('.ung-c');
   if (g) { const k = g.dataset.g; UNG.open.has(k) ? UNG.open.delete(k) : UNG.open.add(k); ung_render(); }
-  else if (c) { const r = UNG.data.rows.find(x => x.key === c.dataset.k); if (!r) return;
-    document.getElementById('ung-pop-t').textContent = r.khoa + ' — ' + r.ten;
-    document.getElementById('ung-pop-b').innerHTML = '<table class="ung-t"><thead><tr><th>Ngày</th><th>Loại</th><th>SL</th><th>Còn ứng</th></tr></thead><tbody>' + (UNG.openMap ? '<tr><td>Đầu kỳ</td><td></td><td></td><td>' + ungF(r.open) + '</td></tr>' : '') + r.ev.map(e => '<tr><td>' + sdbDmy(e.date) + '</td><td style="white-space:normal">' + shvE(e.loai) + '</td><td class="' + (e.kind === 'ung' ? 'ung-pos">+' : 'ung-neg">−') + ungF(e.sl) + '</td><td>' + ungF(e.run) + '</td></tr>').join('') + '</tbody></table>';
-    document.getElementById('ung-pop').classList.add('on'); }
+  else if (c) { const r = UNG.data.rows.find(x => x.key === c.dataset.k); if (r) ung_timeline(r); }
 });
 /* ── Google Sheet ── */
 const ungCfg = () => ({ url: localStorage.getItem('ung_url') || '', token: localStorage.getItem('ung_token') || '' });
@@ -7599,41 +7626,43 @@ async function ungApi(action, extra) {
   const c = ungCfg(); if (!c.url) throw new Error('Chưa kết nối Google Sheet (bấm ⚙ Sheet).');
   let res; try { res = await fetch(c.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, token: c.token }, extra || {})) }); } catch (e) { throw new Error('Không kết nối được. Kiểm tra URL Web App và quyền “Anyone”.'); }
   let d; try { d = await res.json(); } catch (e) { throw new Error('Phản hồi không hợp lệ. Kiểm tra URL /exec và đã Deploy phiên bản mới.'); }
-  if (!d.ok) throw new Error(d.error || 'Script báo lỗi'); return d;
+  if (!d.ok) throw new Error((d.error || 'Script báo lỗi') + (/không hợp lệ/i.test(d.error || '') ? '\n→ Script trên Google là bản cũ. Dán lại code mới (v2) và Triển khai → Quản lý triển khai → Chỉnh sửa → Phiên bản mới.' : '')); return d;
 }
 function ung_cfgOpen() { const c = ungCfg(); document.getElementById('ung-url').value = c.url; document.getElementById('ung-tok').value = c.token; document.getElementById('ung-cfg-msg').textContent = ''; document.getElementById('ung-cfg').classList.add('on'); }
-function ung_cfgSave() { localStorage.setItem('ung_url', document.getElementById('ung-url').value.trim()); localStorage.setItem('ung_token', document.getElementById('ung-tok').value.trim()); UNG.asofs = null; document.getElementById('ung-cfg').classList.remove('on'); ung_loadAsofs(true); }
+function ung_cfgSave() { localStorage.setItem('ung_url', document.getElementById('ung-url').value.trim()); localStorage.setItem('ung_token', document.getElementById('ung-tok').value.trim()); UNG.sheet = null; UNG.sheetErr = ''; document.getElementById('ung-cfg').classList.remove('on'); UNG.src = 'sheet'; ung_loadSheet(); }
 async function ung_cfgTest() {
   localStorage.setItem('ung_url', document.getElementById('ung-url').value.trim()); localStorage.setItem('ung_token', document.getElementById('ung-tok').value.trim());
   const m = document.getElementById('ung-cfg-msg'); m.className = 'sdb-msg'; m.textContent = 'Đang kiểm tra…';
-  try { const d = await ungApi('ping'); m.className = 'sdb-msg ok'; m.textContent = 'Kết nối OK — sheet “' + d.sheet + '”, ' + d.rows + ' dòng.'; } catch (e) { m.className = 'sdb-msg bad'; m.textContent = e.message; }
+  try { const d = await ungApi('ping'); if ((d.ver || 0) < 2 || !(d.actions || []).includes('merge')) throw new Error('URL này chưa phải script “Sổ cơ số tủ trực v2”' + (d.ver ? ' (đang là v' + d.ver + ')' : '') + '.\n• Dán code từ file UngTuTruc_AppsScript.gs (v2) vào Apps Script,\n• rồi Triển khai → Quản lý triển khai → Chỉnh sửa → Phiên bản mới → Triển khai,\n• và kiểm tra bạn đang dán URL /exec của đúng script này (không phải script Seduxen / Phân bổ).'); m.className = 'sdb-msg ok'; m.textContent = 'Kết nối OK — sheet “' + d.sheet + '”, ' + d.events + ' lần ứng/trả đã lưu.'; } catch (e) { m.className = 'sdb-msg bad'; m.textContent = e.message; }
 }
-async function ung_loadAsofs(force) {
-  const sel = document.getElementById('ung-open'); if (!ungCfg().url) return;
-  try { const d = await ungApi('list'); UNG.asofs = d.asofs || []; const keep = UNG.openAsof;
-    sel.innerHTML = '<option value="">Không — tính từ file</option>' + UNG.asofs.slice().reverse().map(a => '<option value="' + a + '">Bản chốt ' + sdbDmy(a) + '</option>').join(''); sel.value = keep;
-  } catch (e) { if (force) alert(e.message); }
+async function ung_loadSheet() {
+  if (!ungCfg().url) { UNG.src = 'file'; ung_pick(); return; }
+  UNG.sheet = null; UNG.sheetErr = ''; if (UNG.src === 'sheet') ung_pick();
+  try {
+    const asof = (document.getElementById('ung-asof') || {}).value || '', d = await ungApi('coso', asof ? { asof } : {}), mt = d.meta || {};
+    UNG.sheet = { src: 'sheet', rows: (d.rows || []).map(r => ({ key: ungK(r.khoa, r.ma), khoa: r.khoa, ma: r.ma, ten: r.ten, hl: r.hl, open: 0, ung: r.ung, tra: r.tra, con: r.con, min: r.con, ev: null, lastUng: r.lastUng, lastTra: r.lastTra })), from: mt.from || '', to: mt.to || '', nEv: mt.events || 0, updated: mt.updated || '', asof: mt.asof || '', noKhoa: (d.rows || []).filter(r => r.khoa === '(Không rõ khoa)').length };
+  } catch (e) { UNG.sheetErr = e.message; }
+  ung_pick();
 }
-async function ung_setOpen(a) {
-  if (!a) { UNG.openAsof = ''; UNG.openMap = null; ung_open(); return; }
-  try { const d = await ungApi('get', { asof: a }); UNG.openMap = {}; (d.rows || []).forEach(r => { UNG.openMap[ungK(r.khoa, r.ma)] = r; }); UNG.openAsof = a; ung_open(); }
-  catch (e) { alert(e.message); document.getElementById('ung-open').value = UNG.openAsof; }
-}
-async function ung_save() {
-  const D = UNG.data; if (!D || D.err || !D.rows.length) { alert('Chưa có dữ liệu để lưu.'); return; }
+// Gộp các lần ứng/trả của file đang nạp vào sổ trên Sheet (trùng = ghi đè, mới = thêm)
+async function ung_push() {
+  const F = UNG.file; if (!F || F.err || !F.events || !F.events.length) { alert('Chưa có file Xuất/Nhập hoặc không có lần ứng/trả nào trong file.'); return; }
   if (!ungCfg().url) { ung_cfgOpen(); return; }
-  const rows = D.rows.filter(r => r.con !== 0).map(r => ({ khoa: r.khoa, ma: r.ma, ten: r.ten, hl: r.hl, ung: r.ung, tra: r.tra, con: r.con }));
-  if (!confirm('Lưu bản chốt ngày ' + sdbDmy(D.to) + ' lên Google Sheet?\n' + rows.length + ' dòng (khoa × thuốc) còn ứng.\nNếu ngày này đã có bản chốt, sẽ được ghi đè.')) return;
-  try { const r = await ungApi('save', { asof: D.to, rows }); const M = document.getElementById('ung-msg'); M.style.color = '#15803d'; M.textContent = '✅ Đã lưu ' + r.saved + ' dòng, bản chốt ngày ' + sdbDmy(D.to) + '.'; ung_loadAsofs(); }
-  catch (e) { alert('Lưu thất bại: ' + e.message); }
+  if (!confirm('Gửi ' + F.events.length + ' lần ứng/trả (' + sdbDmy(F.from) + ' → ' + sdbDmy(F.to) + ') lên Google Sheet?\n\n• Chỉ THÊM các lần ứng/trả chưa có; dòng đã có được bỏ qua (không ghi đè, không xoá, không cộng đôi).\n• Lịch sử cũ giữ nguyên để tra lại cơ số từng tháng.\n• Cơ số tính lại trên toàn bộ lịch sử.')) return;
+  const M = document.getElementById('ung-msg'); M.style.color = '#475569'; M.textContent = '⏳ Đang gửi lên Google Sheet…';
+  try {
+    const CH = 2500; let add = 0, upd = 0, skp = 0, last = null;
+    for (let i = 0; i < F.events.length; i += CH) { last = await ungApi('merge', { events: F.events.slice(i, i + CH), defer: i + CH < F.events.length }); add += last.added; skp += (last.skipped || 0); }
+    UNG.src = 'sheet'; await ung_loadSheet();
+    M.style.color = '#15803d'; M.textContent = '✅ Đã nối thêm ' + add + ' lần mới, bỏ qua ' + skp + ' lần đã có. Lịch sử hiện có ' + last.events + ' lần ứng/trả, ' + last.coso + ' dòng cơ số.';
+  } catch (e) { M.style.color = '#dc2626'; M.textContent = '⚠️ Cập nhật thất bại: ' + e.message; }
 }
 function ung_excel() {
   const D = UNG.data; if (!D || D.err || !D.rows.length) { alert('Chưa có dữ liệu.'); return; }
-  const aoa = [['Khoa phòng', 'Mã', 'Tên thuốc', 'HL', 'Đầu kỳ', 'Ứng', 'Trả', 'Còn ứng']].concat(D.rows.slice().sort((a, b) => a.khoa.localeCompare(b.khoa, 'vi') || a.ten.localeCompare(b.ten, 'vi')).map(r => [r.khoa, r.ma, r.ten, r.hl, r.open, r.ung, r.tra, r.con]));
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Ung tu truc'); XLSX.writeFile(wb, 'Ung_tu_truc_' + D.to + '.xlsx');
+  const aoa = [['Khoa phòng', 'Mã', 'Tên thuốc', 'HL', 'Ứng', 'Trả', 'Cơ số', 'Ứng gần nhất', 'Trả gần nhất']].concat(D.rows.slice().sort((a, b) => a.khoa.localeCompare(b.khoa, 'vi') || a.ten.localeCompare(b.ten, 'vi')).map(r => [r.khoa, r.ma, r.ten, r.hl, r.ung, r.tra, r.con, r.lastUng || '', r.lastTra || '']));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Co so tu truc'); XLSX.writeFile(wb, 'Co_so_tu_truc_' + (D.to || '') + '.xlsx');
 }
-(function () { const a = document.querySelector('#sc-the-kho > button.btn-green'); if (a && !document.getElementById('ung-go')) a.insertAdjacentHTML('afterend', '<button id="ung-go" class="btn btn-ghost" onclick="goScreen(\'sc-ung\');ung_open()" style="height:42px">📦 Ứng thuốc tủ trực — khoa đang ứng bao nhiêu</button>'); })();
-
+(function () { const a = document.querySelector('#sc-the-kho > button.btn-green'); if (a && !document.getElementById('ung-go')) a.insertAdjacentHTML('afterend', '<button id="ung-go" class="btn btn-ghost" onclick="goScreen(\'sc-ung\');ung_open()" style="height:42px">📦 Sổ cơ số tủ trực — khoa đang ứng bao nhiêu</button>'); })();
 function ung_warnKind(r) { return r.ung > 0 && r.tra > 0 && (r.con < 0 || (r.con > 0 && r.con < r.ung)) ? 'a' : (r.tra > 0 && r.ung === 0 && r.con < 0 ? 'b' : ''); }
 function ung_print() {
   const D = UNG.data; if (!D || D.err || !D.rows.length) { alert('Chưa có dữ liệu để in.'); return; }
@@ -7653,7 +7682,7 @@ function ung_print() {
     blocks += t + '</div>';
   });
   if (!blocks) { alert('Không có thuốc nào còn ứng hoặc cần theo dõi để in.'); return; }
-  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ứng thuốc tủ trực</title><style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Times New Roman",serif;font-size:12.5px;color:#000}h2{text-align:center;font-size:17px;margin:0}p.s{text-align:center;margin:3px 0 10px}h3{font-size:14px;margin:12px 0 4px}h3 span{font-weight:normal;font-size:12px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #000;padding:5px 6px;height:25px;overflow:hidden}th{background:#eee;height:auto}.c{text-align:center}.n{text-align:right}small{font-size:10.5px;color:#444}.w{margin:5px 0 0;border:1px dashed #000;padding:4px 8px;font-size:12px;page-break-inside:avoid}.w ul{margin:2px 0 0;padding-left:18px}.pb{page-break-before:always}</style></head><body><h2>BẢNG THEO DÕI THUỐC ỨNG TỦ TRỰC</h2><p class="s">Dữ liệu từ ' + sdbDmy(D.from) + ' đến ' + sdbDmy(D.to) + (UNG.openAsof ? ' (đầu kỳ: bản chốt ' + sdbDmy(UNG.openAsof) + ')' : '') + ' · chỉ in thuốc còn ứng &gt; 0</p>' + blocks + '</body></html>';
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ứng thuốc tủ trực</title><style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Times New Roman",serif;font-size:12.5px;color:#000}h2{text-align:center;font-size:17px;margin:0}p.s{text-align:center;margin:3px 0 10px}h3{font-size:14px;margin:12px 0 4px}h3 span{font-weight:normal;font-size:12px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #000;padding:5px 6px;height:25px;overflow:hidden}th{background:#eee;height:auto}.c{text-align:center}.n{text-align:right}small{font-size:10.5px;color:#444}.w{margin:5px 0 0;border:1px dashed #000;padding:4px 8px;font-size:12px;page-break-inside:avoid}.w ul{margin:2px 0 0;padding-left:18px}.pb{page-break-before:always}</style></head><body><h2>BẢNG THEO DÕI THUỐC ỨNG TỦ TRỰC</h2><p class="s">Cơ số tính từ ' + sdbDmy(D.from) + ' đến ' + sdbDmy(D.to) + '' + ' · chỉ in thuốc còn ứng &gt; 0</p>' + blocks + '</body></html>';
   mobilePrint(html, 'Ứng thuốc tủ trực');
 }
 </script>
