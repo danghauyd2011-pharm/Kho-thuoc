@@ -1237,6 +1237,89 @@ body.pb-mode .dnav-btn.active{border-left-color:#ffbb00}
 #app-pb .pbd-top .pb-bar{flex:1 1 100%}
 #app-pb .pbx-card{padding:12px 14px}
 #app-pb .pbx-row .t b{font-size:14px}}
+
+/* ═══ Column chooser · sticky header · zebra · sort (dùng chung cho Phân bổ + Vỏ Seduxen) ═══ */
+.cc{padding:6px 2px}
+.cc-btn{border:1.5px solid var(--border,#d8dee8);background:#fff;border-radius:999px;padding:5px 12px;font:700 12.5px var(--f,inherit);cursor:pointer;color:#334155}
+.cc-btn b{color:#dc2626}
+.cc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:10px;background:#fff;border:1px solid var(--border,#e3e8f0);border-radius:12px}
+.cc-chips.hidden{display:none}
+.cc-chip{border:1.5px solid #cbd5e1;background:#f1f5f9;border-radius:999px;padding:4px 11px;font:600 12.5px var(--f,inherit);cursor:pointer;color:#0f2438}
+.cc-chip:before{content:"✅ "}
+.cc-chip.off{background:#fff1f2;border-color:#fecdd3;color:#be123c;text-decoration:line-through}.cc-chip.off:before{content:"🚫 ";text-decoration:none;display:inline-block}
+.cc-all{border:0;background:none;color:#1d4ed8;font:700 12.5px var(--f,inherit);cursor:pointer;padding:4px 6px}
+.cc-host{max-height:68vh;overflow:auto!important}.cc-host .pbd-tw{overflow:visible}
+.cc-host thead th{position:sticky;top:0;z-index:3;background-clip:padding-box}
+.cc-host tbody tr:nth-child(even):where(:not(:hover)) td{background:#f6f8fc}
+.cc-host th.cc-s{cursor:pointer;user-select:none}
+.cc-host th[data-sd="asc"]:after{content:" ▲";font-size:9px}.cc-host th[data-sd="desc"]:after{content:" ▼";font-size:9px}
+
+/* ═══ Trang chủ ═══ */
+#home{position:fixed;left:0;right:0;bottom:0;top:var(--topbar-h);z-index:200;background:var(--bg,#f1f4f9);overflow-y:auto;display:none}
+#home.on{display:block}
+#home-btn{width:40px;height:40px;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+body.home-open #home-btn{display:none}
+.hm-wrap{max-width:980px;margin:0 auto;padding:16px 14px 40px}
+.hm-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.hm-h{font-size:19px;font-weight:800;color:#0f2438}.hm-s{font-size:12.5px;color:var(--t2)}
+.hm-q{max-width:240px;height:36px!important}
+.hm-sec{font-size:11.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#64748b;margin:16px 2px 8px}
+.hm-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.hm-t{background:#fff;border:1px solid #e3e8f0;border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 10px rgba(15,36,56,.05);text-align:left;font-family:inherit;transition:transform .12s,box-shadow .12s;min-height:122px;-webkit-tap-highlight-color:transparent}
+.hm-t:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(15,36,56,.12)}.hm-t:active{transform:scale(.97)}
+.hm-i{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:24px}
+.hm-n{font-size:14.5px;font-weight:800;color:#0f2438;line-height:1.2}.hm-d{font-size:11.5px;color:#64748b;line-height:1.3}
+.hm-b{align-self:flex-start;font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:99px;background:#dcfce7;color:#166534}.hm-b.w{background:#fef3c7;color:#92400e}
+.hm-f{background:#fff;border:1px solid #e3e8f0;border-radius:12px;padding:8px 12px;font-size:12px;color:#475569;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hm-f button{border:0;background:none;color:#dc2626;font:700 12px inherit;cursor:pointer;margin-left:auto}
+
+/* Trang chủ: tự co theo màn hình (cột + chiều cao ô do JS tính) */
+body.home-open #bbhv-inner-nav{display:none!important}
+#home .hm-wrap{padding:10px 12px 14px}
+#home .hm-top{margin-bottom:4px;flex-wrap:nowrap}
+#home .hm-q{flex:1;min-width:0;max-width:260px;height:34px!important}
+#home .hm-sec{margin:8px 2px 5px}
+#home .hm-g{grid-template-columns:repeat(var(--hm-c,2),minmax(0,1fr));gap:8px}
+#home .hm-t{min-height:var(--hm-th,64px);height:var(--hm-th,auto);justify-content:center}
+#home .hm-x{display:flex;flex-direction:column;gap:2px;min-width:0}
+#home.cp .hm-s{display:none}
+#home.cp .hm-h{font-size:16px}
+#home.cp .hm-t{flex-direction:row;align-items:center;gap:10px;padding:6px 10px;border-radius:14px}
+#home.cp .hm-i{width:38px;height:38px;font-size:20px;border-radius:11px;flex:none}
+#home.cp .hm-n{font-size:13.5px}
+#home.cp .hm-d{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#home.cp .hm-b{font-size:10.5px;padding:1px 7px}
+
+/* ═══ Xem dữ liệu Google Sheet trong Thẻ kho / Kiểm kê ═══ */
+.shv{background:#fff;border:1px solid #dbe3ee;border-radius:14px;overflow:hidden}
+.shv-h{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;font-weight:800;font-size:14px;color:#0f2438;background:linear-gradient(135deg,#eff6ff,#f5f3ff)}
+.shv-h span{flex:1}.shv-h i{font-style:normal;color:#64748b;font-size:12px;font-weight:700}
+.shv-b{padding:10px 12px;display:none;flex-direction:column;gap:8px}.shv.on .shv-b{display:flex}
+.shv-r{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.shv-r select,.shv-r input{height:34px;border:1.5px solid #d3dbe7;border-radius:9px;padding:0 9px;font:600 13px inherit;background:#fff;min-width:0}
+.shv-r select{flex:1 1 170px}.shv-r input{flex:1 1 120px}
+.shv-p{border:0;background:#eef2f7;border-radius:8px;padding:6px 11px;font:700 12.5px inherit;color:#475569;cursor:pointer}.shv-p.on{background:#1d4ed8;color:#fff}
+.shv-sum{font-size:12.5px;color:#475569}.shv-sum b{color:#0f2438}
+.shv-w{max-height:320px;overflow:auto;border:1px solid #dfe5ee;border-radius:10px}
+.shv-t{border-collapse:collapse;width:100%;font-size:12.5px}
+.shv-t th{position:sticky;top:0;background:#1e3a8a;color:#fff;text-align:left;padding:6px 8px;white-space:nowrap;z-index:1}
+.shv-t td{padding:5px 8px;border-top:1px solid #eef1f6;white-space:nowrap}.shv-t td.n,.shv-t th.n{text-align:right;font-variant-numeric:tabular-nums}
+.shv-t tbody tr:nth-child(even){background:#f7f9fc}.shv-t tr.go{cursor:pointer}.shv-t tr.go:hover{background:#eaf2ff}
+.shv-t td.nm{white-space:normal;min-width:150px;font-weight:600;color:#1e3a8a}
+.shv-pos{color:#15803d;font-weight:800}.shv-neg{color:#dc2626;font-weight:800}.shv-new{color:#b45309;font-weight:700}
+.shv-m{padding:14px;text-align:center;color:#64748b;font-size:13px}
+
+.ung-sum{display:flex;gap:18px;flex-wrap:wrap;padding:6px 4px}
+.ung-sum div{display:flex;flex-direction:column;line-height:1.15}.ung-sum b{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums}.ung-sum span{font-size:11.5px;color:#475569;font-weight:600}
+.ung-r{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ung-w{max-height:62vh;overflow:auto;border:1px solid #dfe5ee;border-radius:10px;background:#fff}
+.ung-t{border-collapse:collapse;width:100%;font-size:12.5px}
+.ung-t th{position:sticky;top:0;z-index:2;background:#1e3a8a;color:#fff;padding:6px 8px;text-align:right;white-space:nowrap}.ung-t th:first-child{text-align:left}
+.ung-t td{padding:5px 8px;border-top:1px solid #eef1f6;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.ung-t td:first-child{text-align:left;white-space:normal}
+.ung-g td{background:#eef4ff;font-weight:800;color:#0f2438;cursor:pointer;border-top:1px solid #d5e0f2}
+.ung-c{cursor:pointer}.ung-c:hover td{background:#f4f8ff}.ung-c td:first-child{padding-left:22px;color:#334155}
+.ung-c small{color:#64748b;font-weight:500}
+.ung-pos{color:#1d4ed8;font-weight:800}.ung-neg{color:#dc2626;font-weight:800}.ung-zero{color:#94a3b8}
 </style>
 </head>
 <body>
@@ -1343,6 +1426,7 @@ body.pb-mode .dnav-btn.active{border-left-color:#ffbb00}
     <span class="ham-line"></span>
     <span class="ham-line"></span>
   </button>
+  <button id="home-btn" onclick="homeShow()" aria-label="Trang chủ" title="Trang chủ">🏠</button>
   <div class="tb-logo tbl-1" id="u-logo">💊</div>
   <div class="tb-title-wrap">
     <div class="tb-title" id="u-title">Biên Bản Huỷ Vỏ</div>
@@ -1357,6 +1441,16 @@ body.pb-mode .dnav-btn.active{border-left-color:#ffbb00}
     <div class="tb-badge" id="u-badge" style="background:var(--c1l);color:var(--c1)">BBHV</div>
   </div>
 </header>
+
+<!-- ═══ TRANG CHỦ ═══ -->
+<div id="home" class="on">
+  <div class="hm-wrap">
+    <div class="hm-top"><div><div class="hm-h">Biên Bản Huỷ Vỏ · Kho Dược</div><div class="hm-s">Bệnh viện Đà Nẵng · chạm vào chức năng để mở</div></div>
+      <input class="input hm-q" id="hm-q" placeholder="🔍 Tìm chức năng…" oninput="home_render()" autocomplete="off"></div>
+    <div id="hm-files"></div>
+    <div id="hm-grid"></div>
+  </div>
+</div>
 
 <!-- ═══ APP SHELL ═══ -->
 <div class="app-shell">
@@ -2027,6 +2121,37 @@ body.pb-mode .dnav-btn.active{border-left-color:#ffbb00}
   </div>
 
   <!-- ════ BIÊN BẢN KIỂM KÊ CUỐI THÁNG ════ -->
+  <div id="sc-ung" class="screen">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 0 0">
+      <button class="btn btn-ghost btn-sm" onclick="goScreen('sc-the-kho')">← Quay lại</button>
+      <b style="font-size:15px">📦 Ứng thuốc tủ trực</b>
+    </div>
+    <div id="ung-sum" class="ung-sum"></div>
+    <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+      <div class="ung-r">
+        <input class="input" id="ung-q" placeholder="🔍 Tìm khoa, mã, tên thuốc…" oninput="UNG.q=this.value.trim().toLowerCase();ung_render()" autocomplete="off" style="flex:1;min-width:140px;height:34px">
+        <div class="seg" id="ung-mode"></div>
+      </div>
+      <div class="ung-r">
+        <div class="seg" id="ung-f"></div>
+        <span style="flex:1"></span>
+        <button class="btn btn-sm btn-ghost" onclick="ung_cfgOpen()">⚙ Sheet</button>
+        <button class="btn btn-sm btn-primary" onclick="ung_save()">☁️ Lưu Sheet</button>
+        <label style="font-size:12px;color:#475569;display:flex;align-items:center;gap:4px"><input type="checkbox" id="ung-pb">mỗi khoa 1 trang</label><button class="btn btn-sm btn-ghost" onclick="ung_print()">🖨 In</button><button class="btn btn-sm btn-ghost" onclick="ung_excel()">Excel</button>
+      </div>
+      <div class="ung-r"><span style="font-size:12.5px;font-weight:700;color:#475569">Tồn ứng đầu kỳ:</span>
+        <select id="ung-open" class="input" style="flex:1;min-width:150px;height:32px;font-size:12.5px" onchange="ung_setOpen(this.value)"><option value="">Không — tính từ file</option></select>
+        <button class="btn btn-sm btn-ghost" onclick="ung_loadAsofs(true)">🔄</button></div>
+      <div id="ung-msg" style="font-size:12.5px;font-weight:600"></div>
+      <div id="ung-list" class="ung-w"></div>
+    </div>
+    <div id="ung-pop" class="sdb-pop"><div class="box" style="max-height:80vh"><b id="ung-pop-t"></b><div id="ung-pop-b" style="overflow:auto;max-height:55vh"></div><button class="btn btn-sm btn-ghost" onclick="document.getElementById('ung-pop').classList.remove('on')">Đóng</button></div></div>
+    <div id="ung-cfg" class="sdb-pop"><div class="box"><b>Kết nối Google Sheet — Ứng tủ trực</b>
+      <input class="input" id="ung-url" placeholder="URL Web App (/exec)" autocomplete="off"><input class="input" id="ung-tok" type="password" placeholder="Mật khẩu" autocomplete="off">
+      <div style="display:flex;gap:8px"><button class="btn btn-sm btn-ghost" style="flex:1" onclick="ung_cfgTest()">Kiểm tra</button><button class="btn btn-sm btn-primary" style="flex:1" onclick="ung_cfgSave()">Lưu</button></div>
+      <div id="ung-cfg-msg" class="sdb-msg"></div><button class="btn btn-sm btn-ghost" onclick="document.getElementById('ung-cfg').classList.remove('on')">Đóng</button></div></div>
+  </div>
+
   <div id="sc-bbkk" class="screen">
 
     <div style="display:flex;align-items:center;gap:10px;padding:4px 0 0">
@@ -2216,6 +2341,29 @@ body.pb-mode .dnav-btn.active{border-left-color:#ffbb00}
         <textarea class="input cfg-textarea" id="cfg-bbhv-nhap-bb" rows="2" style="resize:vertical;line-height:1.8;font-size:13px"></textarea>
         <div class="upload-hint">Mặc định: Trả thuốc theo yêu cầu</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══ Kết nối Google Sheet + dữ liệu đã nhớ ═══ -->
+  <div class="card">
+    <div class="card-hdr"><div class="c-title">☁️ Kết nối Google Sheet (nhập một lần)</div></div>
+    <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;color:var(--t2)">Mỗi chức năng dùng một Apps Script riêng nên có hai URL. Nhập tại đây, không cần mở từng tab.</div>
+      <b style="font-size:13px">📈 Theo dõi phân bổ</b>
+      <input class="input" id="ss-pb-url" placeholder="URL Web App (/exec)" autocomplete="off"><input class="input" id="ss-pb-tok" type="password" placeholder="Mật khẩu" autocomplete="off">
+      <b style="font-size:13px">✅ Nộp BB Seduxen</b>
+      <input class="input" id="ss-sd-url" placeholder="URL Web App (/exec)" autocomplete="off"><input class="input" id="ss-sd-tok" type="password" placeholder="Mật khẩu" autocomplete="off">
+      <b style="font-size:13px">📦 Ứng thuốc tủ trực</b>
+      <input class="input" id="ss-ung-url" placeholder="URL Web App (/exec)" autocomplete="off"><input class="input" id="ss-ung-tok" type="password" placeholder="Mật khẩu" autocomplete="off">
+      <button class="btn btn-primary" onclick="ss_save()">Lưu kết nối</button>
+      <div id="ss-msg" style="font-size:12.5px;font-weight:600"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div class="c-title">💾 File đã nhớ trên máy này</div></div>
+    <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+      <div id="ss-files" style="font-size:12.5px"></div>
+      <button class="btn btn-ghost" onclick="fsClearAll()">Xóa file đã nhớ</button>
     </div>
   </div>
 
@@ -3414,7 +3562,7 @@ function processAll() {
       // ── Nếu auto-process: chuyển sang tab Biên Bản và chọn tất cả ngày ──
       if (_autoProcess) {
         _autoProcess = false;
-        setTimeout(() => {
+        if (!window._fsRestoring) setTimeout(() => {
           switchTab('tab-bien-ban');
           setTimeout(selectAllDates, 80);
           window.scrollTo(0, 0);
@@ -4393,6 +4541,7 @@ function sed_processAll() {
       sed_renderTable();
       sed_renderA4Preview();
       document.getElementById('sed-result-section').classList.remove('hidden');
+      if (typeof sdb_autoSeed === 'function') sdb_autoSeed();
 
     } catch (err) {
       sed_showError('Lỗi xử lý: ' + err.message);
@@ -4845,7 +4994,8 @@ function tk_parseSheet(wb, typeFilter) {
     const hlCol  =ci('hàm lượng');
     const slCol  =ci('số lượng');
     const typeCol=ci('loại chứng từ');
-    const khoaCol=ci('khoa phòng'); // -1 if absent (nhap file)
+    let khoaCol=ci('khoa phòng'); // -1 if absent (nhap file)
+    if(khoaCol===-1) khoaCol=hdrs.findIndex(h=>h==='khoa'||h.includes('khoa')||h.includes('nơi nhận')||h.includes('đơn vị'));
     const loCol  =ci('lô');
     const hanCol =hdrs.findIndex(h=>h.includes('hạn'));
     const tenCtyCol=hdrs.findIndex(h=>h==='tên'); // nhap: Tên = tên công ty
@@ -7009,21 +7159,31 @@ async function sdb_load() {
     const d = await sdbApi('load');
     const keep = Object.values(SDB.rows).filter(r => r.dirty); SDB.rows = {};
     (d.rows || []).forEach(r => { SDB.rows[sdbK(r.month, r.dept)] = { month: r.month, dept: r.dept, xuat: +r.xuat || 0, tra: +r.tra || 0, vo: +r.vo || 0, nop: !!r.nop, date: r.date || '', note: r.note || '', saved: true, dirty: false }; });
-    keep.forEach(r => { SDB.rows[sdbK(r.month, r.dept)] = r; });
-    SDB.err = ''; return true;
-  } catch (e) { SDB.err = e.message; return false; }
+    keep.forEach(r => { const k = sdbK(r.month, r.dept), o = SDB.rows[k]; if (o) { if (o.xuat !== r.xuat || o.tra !== r.tra || o.vo !== r.vo) { o.xuat = r.xuat; o.tra = r.tra; o.vo = r.vo; o.dirty = true; } } else SDB.rows[k] = r; });
+    SDB.err = ''; SDB.synced = true; return true;
+  } catch (e) { SDB.err = e.message; SDB.synced = false; return false; }
   finally { SDB.saving--; sdb_render(); }
 }
 function sdb_onOpen() {
-  const m = document.getElementById('sed-month') && document.getElementById('sed-month').value;
-  if (!SDB.month) SDB.month = m || sdbToday().slice(0, 7);
+  if (!SDB.month) { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); SDB.month = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
   document.getElementById('sdb-month').value = SDB.month;
-  sdb_seed(false); sdb_render();
-  if (sdbCfg().url && !SDB.loadedOnce) { SDB.loadedOnce = true; sdb_load().then(() => { sdb_pickDefault(); sdb_seed(false); sdb_render(); }); }
-  else if (!sdbCfg().url) { sdb_toggleCfg(true); }
+  sdb_autoSeed();
+  if (!sdbCfg().url) sdb_toggleCfg(true);
+}
+// Tự lấy số liệu từ tab Vỏ Seduxen, tự tải Sheet, tự lưu dòng mới (nếu đã đồng bộ)
+function sdb_autoSeed() {
+  const sm = document.getElementById('sed-month');
+  if (!SDB.picked && sm && sm.value && typeof sedFilterMode !== 'undefined' && sedFilterMode !== 'range') { SDB.month = sm.value; const mi = document.getElementById('sdb-month'); if (mi) mi.value = SDB.month; }
+  const go = () => {
+    sdb_seed(false); sdb_render();
+    if (SDB.synced) { const d = Object.values(SDB.rows).filter(r => r.dirty && r.month === SDB.month); if (d.length) sdb_queue(d); }
+    if (typeof home_render === 'function') home_render();
+  };
+  if (sdbCfg().url && !SDB.loadedOnce) { SDB.loadedOnce = true; sdb_load().then(go); } else go();
 }
 function sdb_pickDefault() {
   if (SDB.picked) return;
+  const _sm = document.getElementById('sed-month'); if (_sm && _sm.value) return;
   const ms = [...new Set(Object.values(SDB.rows).map(r => r.month))].sort();
   if (ms.length && !ms.includes(SDB.month)) { SDB.month = ms[ms.length - 1]; document.getElementById('sdb-month').value = SDB.month; }
 }
@@ -7115,6 +7275,386 @@ function sdb_excel() {
   const aoa = [['Tháng', 'Khoa phòng', 'Xuất', 'Trả', 'Vỏ', 'Đã nộp BB', 'Ngày nộp', 'Ghi chú']].concat(list.map(r => [r.month, r.dept, r.xuat, r.tra, r.vo, r.nop ? 'Đã nộp' : 'Chưa nộp', sdbDmy(r.date), r.note]));
   const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!cols'] = [{ wch: 9 }, { wch: 34 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 28 }];
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Nộp BB Seduxen'); XLSX.writeFile(wb, 'NopBB_Seduxen_' + SDB.month + '.xlsx');
+}
+
+/* ═══ colCtl: chip ẩn/hiện cột + header dính + sắp xếp (tùy chọn) cho bảng bất kỳ ═══ */
+function colCtl(host, key, opt) {
+  if (!host || host.dataset.cc) return; host.dataset.cc = 1; opt = opt || {};
+  host.classList.add('cc-host');
+  const LS = 'cc_' + key; let hidden = []; try { hidden = JSON.parse(localStorage.getItem(LS) || '[]'); } catch (e) {}
+  let sort = null, sig = '';
+  const bar = document.createElement('div'); bar.className = 'cc';
+  bar.innerHTML = '<button class="cc-btn" type="button"></button><div class="cc-chips hidden"></div>';
+  host.parentNode.insertBefore(bar, host);
+  const btn = bar.firstChild, box = bar.lastChild;
+  btn.onclick = () => box.classList.toggle('hidden');
+  const save = () => { try { localStorage.setItem(LS, JSON.stringify(hidden)); } catch (e) {} apply(); };
+  box.onclick = e => {
+    const c = e.target.closest('.cc-chip'), a = e.target.closest('.cc-all');
+    if (c) { const n = c.dataset.n, i = hidden.indexOf(n); if (i < 0) hidden.push(n); else hidden.splice(i, 1); save(); }
+    else if (a) { hidden = []; save(); }
+  };
+  const num = t => { t = String(t).trim().replace(/\s/g, ''); if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) t = t.replace(/\./g, '').replace(',', '.'); else t = t.replace(',', '.'); const n = parseFloat(t); return /^-?[\d.]+%?$/.test(t) && isFinite(n) ? n : null; };
+  function apply() {
+    const tb = host.querySelector('table'); if (!tb) return;
+    const ths = [...tb.querySelectorAll('thead th')]; if (!ths.length) return;
+    const names = ths.map(t => t.textContent.replace(/[▲▼⇅]/g, '').trim());
+    const s2 = names.join('|');
+    if (s2 !== sig) {
+      sig = s2;
+      box.innerHTML = names.filter(n => n).map(n => '<button type="button" class="cc-chip" data-n="' + n.replace(/"/g, '&quot;') + '">' + n + '</button>').join('') + '<button type="button" class="cc-all">Hiện tất cả</button>';
+    }
+    box.querySelectorAll('.cc-chip').forEach(c => c.classList.toggle('off', hidden.includes(c.dataset.n)));
+    const hid = names.map(n => n && hidden.includes(n));
+    const nh = hidden.filter(h => names.includes(h)).length;
+    btn.innerHTML = '⚙ Cột' + (nh ? ' <b>(ẩn ' + nh + ')</b>' : '');
+    // sắp xếp
+    if (opt.sort) {
+      ths.forEach((th, i) => { th.classList.add('cc-s'); th.dataset.sd = sort && sort.i === i ? sort.d : ''; th.onclick = () => { sort = sort && sort.i === i ? { i, d: sort.d === 'asc' ? 'desc' : 'asc' } : { i, d: 'asc' }; apply(); }; });
+      const body = tb.tBodies[0];
+      if (body && sort) {
+        const all = [...body.rows], fixed = all.filter(r => [...r.cells].some(c => c.colSpan > 1)), rows = all.filter(r => !fixed.includes(r));
+        const val = r => { const t = (r.cells[sort.i] || {}).textContent || ''; const n = num(t); return n === null ? t.trim() : n; };
+        const sorted = rows.slice().sort((a, b) => { const x = val(a), y = val(b); const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'vi', { numeric: true }); return sort.d === 'asc' ? c : -c; });
+        const want = sorted.concat(fixed);
+        if (want.some((r, i) => r !== all[i])) want.forEach(r => body.appendChild(r));
+      }
+      if (/^stt$/i.test(names[0]) && tb.tBodies[0]) [...tb.tBodies[0].rows].filter(r => ![...r.cells].some(c => c.colSpan > 1)).forEach((r, i) => { if (r.cells[0] && r.cells[0].textContent !== String(i + 1)) r.cells[0].textContent = i + 1; });
+    }
+    // ẩn/hiện cột (có xử lý dòng gộp ô)
+    const vis = n => hid.slice(n[0], n[1]).filter(h => !h).length;
+    tb.querySelectorAll('tr').forEach(r => {
+      let c = 0;
+      [...r.cells].forEach(cell => {
+        if (cell.dataset.cs0 === undefined) cell.dataset.cs0 = cell.colSpan;
+        const sp = +cell.dataset.cs0, v = vis([c, c + sp]);
+        cell.style.display = v ? '' : 'none';
+        if (sp > 1 && v) cell.colSpan = v;
+        c += sp;
+      });
+    });
+  }
+  let raf = 0;
+  new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(apply); }).observe(host, { childList: true, subtree: true });
+  apply();
+}
+setTimeout(() => {
+  const sed = document.getElementById('sed-preview-table'); if (sed) colCtl(sed.closest('.table-wrap'), 'sed', { sort: true });
+  colCtl(document.getElementById('pb-list'), 'pb');
+}, 0);
+
+/* ═══ Lưu file đã nạp (IndexedDB) ═══ */
+const FS = { restoring: false };
+function fsOpen() { return new Promise(res => { try { const r = indexedDB.open('bbhv_files', 1); r.onupgradeneeded = () => r.result.createObjectStore('f'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch (e) { res(null); } }); }
+async function fsPut(key, files) {
+  try {
+    const arr = Array.from(files || []).filter(Boolean); if (!arr.length) return;
+    const items = await Promise.all(arr.map(async f => ({ name: f.name, type: f.type, buf: await f.arrayBuffer() })));
+    const db = await fsOpen(); if (!db) return;
+    db.transaction('f', 'readwrite').objectStore('f').put({ items, t: Date.now() }, key);
+  } catch (e) {}
+}
+async function fsGet(key) { const db = await fsOpen(); if (!db) return null; return new Promise(res => { const r = db.transaction('f').objectStore('f').get(key); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); }); }
+async function fsClearAll() { const db = await fsOpen(); if (db) db.transaction('f', 'readwrite').objectStore('f').clear(); setTimeout(() => location.reload(), 300); }
+const FS_LABEL = { bb_export: 'File Xuất kho', bb_import: 'File Nhập/Trả', tk_ton: 'File Tồn' };
+async function fsMeta() { const out = []; for (const k of Object.keys(FS_LABEL)) { const r = await fsGet(k); if (r) out.push({ key: k, label: FS_LABEL[k], names: r.items.map(i => i.name).join(', '), t: r.t }); } return out; }
+(function () {
+  const wrap = (name, keyOf) => { const o = window[name]; if (typeof o !== 'function') return; window[name] = function (f, t) { if (!FS.restoring) { const k = keyOf(t); if (k) fsPut(k, f && f.length !== undefined && !(f instanceof File) ? f : [f]); } return o.apply(this, arguments); }; };
+  wrap('bbhv_loadFile', t => t === 'export' ? 'bb_export' : t === 'import' ? 'bb_import' : '');
+  wrap('sed_loadFile', t => t === 'export' ? 'bb_export' : t === 'import' ? 'bb_import' : '');
+  wrap('loadWB', t => t === 'xuat' ? 'bb_export' : t === 'nhap' ? 'bb_import' : t === 'ton' ? 'tk_ton' : '');
+})();
+async function fsRestore() {
+  const ex = await fsGet('bb_export'), im = await fsGet('bb_import'), tn = await fsGet('tk_ton');
+  if (!ex && !im && !tn) { home_render(); return; }
+  FS.restoring = true; window._fsRestoring = true;
+  const mk = r => r.items.map(i => new File([i.buf], i.name, { type: i.type }));
+  if (ex) bbhv_loadFile(mk(ex), 'export');
+  if (im) setTimeout(() => bbhv_loadFile(mk(im), 'import'), 500);
+  if (tn) setTimeout(() => loadWB(mk(tn)[0], 'ton'), 1100);
+  setTimeout(() => { FS.restoring = false; window._fsRestoring = false; home_render(); }, 7000);
+}
+
+/* ═══ Cài đặt: kết nối Sheet + file đã nhớ ═══ */
+function ss_render() {
+  const g = k => localStorage.getItem(k) || '';
+  document.getElementById('ss-pb-url').value = g('pb_cloud_url'); document.getElementById('ss-pb-tok').value = g('pb_cloud_token');
+  document.getElementById('ss-sd-url').value = g('sdb_url'); document.getElementById('ss-sd-tok').value = g('sdb_token');
+  document.getElementById('ss-ung-url').value = g('ung_url'); document.getElementById('ss-ung-tok').value = g('ung_token');
+  fsMeta().then(m => { document.getElementById('ss-files').innerHTML = m.length ? m.map(x => '<div>• <b>' + x.label + ':</b> ' + sdbE(x.names) + ' <span style="color:#64748b">(' + new Date(x.t).toLocaleString('vi-VN') + ')</span></div>').join('') : 'Chưa nhớ file nào.'; });
+}
+function ss_save() {
+  const v = id => document.getElementById(id).value.trim();
+  localStorage.setItem('pb_cloud_url', v('ss-pb-url')); localStorage.setItem('pb_cloud_token', v('ss-pb-tok'));
+  localStorage.setItem('sdb_url', v('ss-sd-url')); localStorage.setItem('sdb_token', v('ss-sd-tok'));
+  localStorage.setItem('ung_url', v('ss-ung-url')); localStorage.setItem('ung_token', v('ss-ung-tok'));
+  SDB.loadedOnce = false; SDB.synced = false;
+  const m = document.getElementById('ss-msg'); m.style.color = '#15803d'; m.textContent = 'Đã lưu. Mở lại tab Phân bổ / Nộp BB là tự tải dữ liệu.';
+}
+
+/* ═══ Trang chủ ═══ */
+const HOME = [
+  { sec: 'Huỷ vỏ', bg: '#ffedd5', items: [
+    { ic: '📋', t: 'Sổ Trả Vỏ', d: 'Lập sổ trả vỏ từ file xuất / nhập', go: () => { switchApp(1); switchTab('tab-so-tra'); } },
+    { ic: '📄', t: 'Biên Bản', d: 'Biên bản hủy vỏ theo ngày', go: () => { switchApp(1); switchTab('tab-bien-ban'); } },
+    { ic: '🔢', t: 'Đếm Vỏ Seduxen', d: 'Xuất – Trả – Vỏ theo khoa', go: () => { switchApp(1); switchTab('tab-seduxen'); } },
+    { ic: '✅', t: 'Nộp BB Seduxen', d: 'Checklist khoa đã nộp biên bản', live: 'nopbb', go: () => { switchApp(1); switchTab('tab-sedbb'); } } ] },
+  { sec: 'Thẻ kho', bg: '#dbeafe', items: [
+    { ic: '📁', t: 'Nhập dữ liệu kho', d: 'Nạp file xuất, nhập, tồn', go: () => { switchApp(2); goScreen('sc-data'); } },
+    { ic: '📊', t: 'Thẻ kho', d: 'Xem, in thẻ kho theo mã', go: () => { switchApp(2); goScreen('sc-the-kho'); } },
+    { ic: '📝', t: 'Kiểm kê', d: 'Biên bản kiểm kê', go: () => { switchApp(2); goScreen('sc-bbkk'); if (typeof renderBBKK === 'function') renderBBKK(); } },
+    { ic: '📦', t: 'Ứng tủ trực', d: 'Khoa đang ứng bao nhiêu thuốc', go: () => { switchApp(2); goScreen('sc-ung'); ung_open(); } } ] },
+  { sec: 'Khác', bg: '#ede9fe', items: [
+    { ic: '📈', t: 'Theo dõi phân bổ', d: 'Phân bổ và nhập kho theo thầu', go: () => switchApp(5) },
+    { ic: '🏥', t: 'Thông tư 20', d: 'Điền STT TT20/2022', go: () => switchApp(3) },
+    { ic: '⚙️', t: 'Cài đặt', d: 'Kết nối Sheet, thuốc chuẩn, chứng từ', go: () => switchApp(4) } ] },
+];
+function homeShow() {
+  if (history.state && history.state.app) { history.back(); return; }
+  document.getElementById('home').classList.add('on'); document.body.classList.add('home-open'); home_render();
+}
+function homeHide(push) {
+  const h = document.getElementById('home'); if (!h.classList.contains('on')) return;
+  h.classList.remove('on'); document.body.classList.remove('home-open');
+  if (push) history.pushState({ app: 1 }, '', '#app');
+}
+function homeGo(i, j) { homeHide(true); HOME[i].items[j].go(); window.scrollTo(0, 0); }
+window.addEventListener('popstate', e => { if (!(e.state && e.state.app)) { document.getElementById('home').classList.add('on'); document.body.classList.add('home-open'); home_render(); } });
+['switchApp', 'switchTab', 'goScreen'].forEach(n => { const o = window[n]; window[n] = function () { if (!FS.restoring) homeHide(true); const r = o.apply(this, arguments); if (n === 'switchApp' && arguments[0] === 4) ss_render(); return r; }; });
+function home_render() {
+  const g = document.getElementById('hm-grid'); if (!g) return;
+  const q = (document.getElementById('hm-q').value || '').trim().toLowerCase();
+  let h = '';
+  HOME.forEach((s, i) => {
+    const its = s.items.map((it, j) => [it, j]).filter(([it]) => !q || (it.t + ' ' + it.d).toLowerCase().includes(q));
+    if (!its.length) return;
+    h += '<div class="hm-sec">' + s.sec + '</div><div class="hm-g">' + its.map(([it, j]) => {
+      let live = '';
+      if (it.live === 'nopbb' && typeof SDB !== 'undefined') { const r = Object.values(SDB.rows).filter(x => x.month === SDB.month); if (r.length) { const d = r.filter(x => x.nop).length; live = '<span class="hm-b' + (d < r.length ? ' w' : '') + '">' + d + '/' + r.length + ' khoa đã nộp</span>'; } }
+      return '<button class="hm-t" onclick="homeGo(' + i + ',' + j + ')"><span class="hm-i" style="background:' + s.bg + '">' + it.ic + '</span><span class="hm-x"><span class="hm-n">' + it.t + '</span><span class="hm-d">' + it.d + '</span>' + live + '</span></button>';
+    }).join('') + '</div>';
+  });
+  g.innerHTML = h || '<div class="hm-d" style="padding:20px">Không có chức năng nào khớp.</div>';
+  fsMeta().then(m => { const f = document.getElementById('hm-files'); f.innerHTML = m.length ? '<div class="hm-f">💾 Đã nhớ file lần trước: ' + m.map(x => '<b>' + x.label + '</b>').join(' · ') + '<button onclick="fsClearAll()">Xóa</button></div>' : ''; home_fit(); });
+  home_fit();
+}
+function home_fit() {
+  const h = document.getElementById('home'); if (!h || !h.classList.contains('on')) return;
+  const W = h.querySelector('.hm-wrap').clientWidth - 24;
+  const cols = Math.max(2, Math.min(5, Math.floor((W + 8) / 158)));
+  const secs = [...h.querySelectorAll('.hm-g')].map(g => g.children.length);
+  const rows = secs.reduce((a, n) => a + Math.ceil(n / cols), 0);
+  const fixed = h.querySelector('.hm-top').offsetHeight + h.querySelector('#hm-files').offsetHeight + secs.length * 32 + 30 + rows * 8;
+  const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) - (document.getElementById('topbar') || { offsetHeight: 64 }).offsetHeight - 70;
+  const avail = Math.min(h.clientHeight, vh);
+  const th = Math.max(54, Math.min(130, Math.floor((avail - fixed) / Math.max(rows, 1))));
+  h.style.setProperty('--hm-c', cols); h.style.setProperty('--hm-th', th + 'px'); h.classList.toggle('cp', th < 96 || W < 600);
+}
+['resize', 'orientationchange'].forEach(ev => window.addEventListener(ev, () => setTimeout(home_fit, 60)));
+if (window.visualViewport) window.visualViewport.addEventListener('resize', () => setTimeout(home_fit, 60));
+document.body.classList.add('home-open');
+history.replaceState(null, '', location.pathname + location.search);
+home_render();
+window.addEventListener('load', () => { setTimeout(fsRestore, 300); });
+
+/* ═══ Xem dữ liệu tồn đã lưu trên Google Sheet (Thẻ kho + Kiểm kê) ═══ */
+const SHV = {};
+const shvE = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const shvN = n => Number(n || 0).toLocaleString('vi-VN');
+function shv_card(k) {
+  SHV[k] = { months: null, month: '', data: null, q: '', f: 'all', loading: false };
+  return '<div class="shv" id="shv-' + k + '"><div class="shv-h" onclick="shv_toggle(\'' + k + '\')"><span>☁️ Dữ liệu đã lưu trên Google Sheet</span><i id="shv-' + k + '-st">Bấm để xem</i></div><div class="shv-b">' +
+    '<div class="shv-r"><select id="shv-' + k + '-m" onchange="shv_pick(\'' + k + '\',this.value)"></select><button class="shv-p" onclick="shv_months(\'' + k + '\',true)">🔄 Tải lại</button></div>' +
+    '<div class="shv-r"><input id="shv-' + k + '-q" placeholder="🔍 Tìm mã, tên thuốc…" oninput="SHV[\'' + k + '\'].q=this.value.trim().toLowerCase();shv_render(\'' + k + '\')" autocomplete="off">' +
+    '<button class="shv-p on" data-f="all" onclick="shv_f(\'' + k + '\',\'all\')">Tất cả</button><button class="shv-p" data-f="diff" onclick="shv_f(\'' + k + '\',\'diff\')">Chênh lệch</button></div>' +
+    '<div class="shv-sum" id="shv-' + k + '-sum"></div><div class="shv-w" id="shv-' + k + '-w"></div></div></div>';
+}
+function shv_mount() {
+  const a = document.querySelector('#sc-the-kho > button.btn-green'); if (a && !document.getElementById('shv-tk')) a.insertAdjacentHTML('afterend', shv_card('tk'));
+  const b = document.querySelector('#sc-bbkk > .hero'); if (b && !document.getElementById('shv-kk')) b.insertAdjacentHTML('afterend', shv_card('kk'));
+}
+function shv_toggle(k) {
+  const el = document.getElementById('shv-' + k); el.classList.toggle('on');
+  if (el.classList.contains('on')) { if (!SHV[k].months) shv_months(k); else shv_render(k); }
+}
+function shv_f(k, f) { SHV[k].f = f; document.querySelectorAll('#shv-' + k + ' .shv-p[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === f)); shv_render(k); }
+function shv_msg(k, t) { document.getElementById('shv-' + k + '-w').innerHTML = '<div class="shv-m">' + t + '</div>'; document.getElementById('shv-' + k + '-sum').textContent = ''; }
+async function shv_months(k, force) {
+  const S = SHV[k], sel = document.getElementById('shv-' + k + '-m');
+  if (!cloudConfigured()) { shv_msg(k, 'Chưa kết nối Google Sheet tồn kho.<br>Vào ⚙️ Cài đặt → “Lưu tồn kho lên Google Sheet” để nhập URL và mật khẩu.'); sel.innerHTML = ''; return; }
+  if (force) { Object.keys(tonSheetCache).forEach(x => delete tonSheetCache[x]); }
+  shv_msg(k, '⏳ Đang tải danh sách tháng…');
+  try {
+    const months = ((await cloudCall({ action: 'list' })).months || []).slice().sort().reverse();
+    S.months = months;
+    sel.innerHTML = months.length ? months.map(m => '<option value="' + m + '">Tồn cuối tháng ' + m + '</option>').join('') : '<option value="">(chưa có tháng nào)</option>';
+    document.getElementById('shv-' + k + '-st').textContent = months.length + ' tháng đã lưu';
+    if (!months.length) { shv_msg(k, 'Google Sheet chưa lưu tháng nào.'); return; }
+    if (!S.month || !months.includes(S.month)) S.month = months[0];
+    sel.value = S.month; shv_pick(k, S.month);
+  } catch (e) { S.months = null; shv_msg(k, '⚠️ ' + shvE(e.message)); }
+}
+async function shv_pick(k, m) {
+  const S = SHV[k]; S.month = m; if (!m) return;
+  shv_msg(k, '⏳ Đang tải tab ' + shvE(m) + '…');
+  try {
+    let d = tonSheetCache[m]; if (!d) { d = await cloudCall({ action: 'get', month: m }); tonSheetCache[m] = d; }
+    if (S.month !== m) return;
+    S.data = d.found ? d.rows : []; shv_render(k);
+  } catch (e) { shv_msg(k, '⚠️ ' + shvE(e.message)); }
+}
+function shv_cur() { const o = {}; try { if (typeof drugMap !== 'undefined' && Object.keys(drugMap).length) getBBKKData().forEach(r => { o[normMa(r.ma)] = r; }); } catch (e) {} return o; }
+function shv_render(k) {
+  const S = SHV[k]; if (!S.data) return;
+  const cur = shv_cur(), hasCur = Object.keys(cur).length > 0;
+  let rows = S.data.map(r => { const c = cur[normMa(r.ma)], t = parseFloat(r.ton) || 0; return { ma: r.ma, ten: r.ten, hl: r.hl, ton: t, cur: c ? c.ton : null, diff: c ? c.ton - t : null }; });
+  const sheetKeys = new Set(S.data.map(r => normMa(r.ma)));
+  if (hasCur) Object.keys(cur).forEach(m => { if (!sheetKeys.has(m)) rows.push({ ma: cur[m].ma, ten: cur[m].ten, hl: cur[m].hl, ton: null, cur: cur[m].ton, diff: null, only: 1 }); });
+  const total = rows.reduce((a, r) => a + (r.ton || 0), 0), nd = rows.filter(r => r.diff || r.only).length;
+  let list = rows.filter(r => (!S.q || (String(r.ma) + ' ' + r.ten).toLowerCase().includes(S.q)) && (S.f === 'all' || r.diff || r.only));
+  document.getElementById('shv-' + k + '-sum').innerHTML = '📄 Tab <b>' + shvE(S.month) + '</b> · <b>' + S.data.length + '</b> mặt hàng · Tổng tồn <b>' + shvN(total) + '</b>' + (hasCur ? ' · <b style="color:' + (nd ? '#dc2626' : '#15803d') + '">' + nd + '</b> mặt hàng lệch so với số liệu đang xử lý' : '');
+  const LIM = 300, shown = list.slice(0, LIM);
+  document.getElementById('shv-' + k + '-w').innerHTML = shown.length ? '<table class="shv-t"><thead><tr><th>Mã</th><th>Tên thuốc</th><th>HL</th><th class="n">Tồn Sheet</th>' + (hasCur ? '<th class="n">Hiện tại</th><th class="n">Lệch</th>' : '') + '</tr></thead><tbody>' + shown.map(r => '<tr' + (k === 'tk' ? ' class="go" onclick="shv_open(\'' + shvE(String(r.ma).replace(/'/g, '')) + '\')"' : '') + '><td>' + shvE(r.ma) + '</td><td class="nm">' + shvE(r.ten) + '</td><td>' + shvE(r.hl) + '</td><td class="n">' + (r.ton === null ? '—' : shvN(r.ton)) + '</td>' + (hasCur ? '<td class="n">' + (r.cur === null ? '—' : shvN(r.cur)) + '</td><td class="n">' + (r.only ? '<span class="shv-new">mới</span>' : r.diff ? '<span class="' + (r.diff > 0 ? 'shv-pos">+' : 'shv-neg">') + shvN(r.diff) + '</span>' : (r.cur === null ? '' : '0')) + '</td>' : '') + '</tr>').join('') + '</tbody></table>' + (list.length > LIM ? '<div class="shv-m">Hiển thị ' + LIM + '/' + list.length + ' dòng — gõ tên để lọc</div>' : '') : '<div class="shv-m">Không có dòng nào.</div>';
+}
+function shv_open(ma) {
+  if (typeof drugMap === 'undefined') return;
+  const key = Object.keys(drugMap).find(x => normMa(drugMap[x].ma || x) === normMa(ma)); if (!key) return;
+  selectDrug(key); const t = document.getElementById('tk-picker'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+shv_mount();
+
+/* ═══ Ứng thuốc tủ trực: tính liên tục theo thời gian (ứng xuất − ứng trả) + lưu Google Sheet ═══ */
+const UNG = { mode: 'khoa', f: 'pos', q: '', open: new Set(), openMap: null, openAsof: '', asofs: null, data: null, meta: null };
+const ungF = n => Number(n || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+const ungK = (kh, ma) => String(kh).trim().toLowerCase() + '|' + normMa(ma);
+function ung_compute() {
+  if (typeof xuatWB === 'undefined' || (!xuatWB && !nhapWB)) return { err: 'Chưa có file Xuất / Nhập. Vào “Nhập dữ liệu kho” để nạp (app sẽ nhớ file cho lần sau).' };
+  const U = TU_TRUC_XUAT.map(x => x.toLowerCase()), T = TU_TRUC_NHAP.map(x => x.toLowerCase());
+  let recs = [];
+  try {
+    if (xuatWB) recs = recs.concat(tk_parseSheet(xuatWB, [...XUAT_TYPES, ...TU_TRUC_XUAT, ...TU_TRUC_NHAP]) || []);
+    if (nhapWB) recs = recs.concat(tk_parseSheet(nhapWB, [...NHAP_TYPES, ...TU_TRUC_NHAP, ...TU_TRUC_XUAT]) || []);
+  } catch (e) { return { err: 'Không đọc được file: ' + e.message }; }
+  const after = UNG.openAsof || '';
+  const ev = [];
+  recs.forEach(r => { const lt = String(r.loaiCT || '').trim().toLowerCase(); const kind = U.includes(lt) ? 'ung' : T.includes(lt) ? 'tra' : ''; if (!kind || (after && r.date <= after)) return; ev.push({ kind, date: r.date, khoa: r.khoa || '(Không rõ khoa)', ma: r.ma || r.ten, ten: r.ten, hl: r.hl, sl: r.sl, loai: r.loaiCT }); });
+  const by = {};
+  ev.forEach(e => { const k = ungK(e.khoa, e.ma); (by[k] = by[k] || { khoa: e.khoa, ma: e.ma, ten: e.ten, hl: e.hl, ev: [] }).ev.push(e); });
+  if (UNG.openMap) Object.keys(UNG.openMap).forEach(k => { if (!by[k]) { const o = UNG.openMap[k]; by[k] = { khoa: o.khoa, ma: o.ma, ten: o.ten, hl: o.hl, ev: [] }; } });
+  const rows = Object.keys(by).map(k => {
+    const g = by[k], open = UNG.openMap && UNG.openMap[k] ? UNG.openMap[k].con : 0;
+    g.ev.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.kind === b.kind ? 0 : a.kind === 'ung' ? -1 : 1));
+    let run = open, ung = 0, tra = 0, min = open;
+    g.ev.forEach(e => { if (e.kind === 'ung') { run += e.sl; ung += e.sl; } else { run -= e.sl; tra += e.sl; } e.run = run; if (run < min) min = run; });
+    return { key: k, khoa: g.khoa, ma: g.ma, ten: g.ten, hl: g.hl, open, ung, tra, con: run, min, ev: g.ev };
+  });
+  const dates = ev.map(e => e.date).sort();
+  return { rows, from: dates[0] || '', to: dates[dates.length - 1] || '', noKhoa: ev.filter(e => e.khoa === '(Không rõ khoa)').length, nEv: ev.length };
+}
+function ung_open() { UNG.data = ung_compute(); ung_render(); if (!UNG.asofs && ungCfg().url) ung_loadAsofs(); }
+function ung_btns() {
+  document.getElementById('ung-mode').innerHTML = [['khoa', 'Theo khoa'], ['ma', 'Theo thuốc']].map(([k, l]) => '<button class="sdb-pill' + (UNG.mode === k ? ' on' : '') + '" onclick="UNG.mode=\'' + k + '\';ung_render()">' + l + '</button>').join('');
+  document.getElementById('ung-f').innerHTML = [['pos', 'Còn ứng'], ['all', 'Tất cả'], ['neg', 'Âm']].map(([k, l]) => '<button class="sdb-pill' + (UNG.f === k ? ' on' : '') + '" onclick="UNG.f=\'' + k + '\';ung_render()">' + l + '</button>').join('');
+}
+function ung_render() {
+  ung_btns();
+  const D = UNG.data, L = document.getElementById('ung-list'), M = document.getElementById('ung-msg'), S = document.getElementById('ung-sum');
+  if (!D || D.err) { S.innerHTML = ''; M.textContent = ''; L.innerHTML = '<div class="shv-m">' + shvE(D ? D.err : 'Đang tính…') + '</div>'; return; }
+  const all = D.rows, pos = all.filter(r => r.con > 0), neg = all.filter(r => r.con < 0);
+  S.innerHTML = '<div><b style="color:#1d4ed8">' + new Set(pos.map(r => r.khoa)).size + '</b><span>Khoa đang ứng</span></div><div><b>' + new Set(pos.map(r => normMa(r.ma))).size + '</b><span>Mặt hàng</span></div><div><b style="color:#1d4ed8">' + ungF(pos.reduce((a, r) => a + r.con, 0)) + '</b><span>Tổng SL còn ứng</span></div>' + (neg.length ? '<div><b class="ung-neg">' + neg.length + '</b><span>Dòng âm (trả > ứng)</span></div>' : '');
+  let note = '📅 Tính từ ' + sdbDmy(D.from) + ' đến ' + sdbDmy(D.to) + ' · ' + D.nEv + ' lần ứng/trả' + (UNG.openAsof ? ' · đầu kỳ = bản chốt ' + sdbDmy(UNG.openAsof) + ' (chỉ tính sau ngày này)' : '');
+  if (D.noKhoa) note += '\n⚠️ ' + D.noKhoa + ' dòng không có cột Khoa phòng trong file nên gom vào “(Không rõ khoa)”.';
+  if (neg.length && !UNG.openAsof) note += '\n⚠️ Dòng âm thường do file không bắt đầu từ lúc mới ứng — chọn “Tồn ứng đầu kỳ” từ bản chốt đã lưu để bù.';
+  M.style.whiteSpace = 'pre-wrap'; M.style.color = D.noKhoa || neg.length ? '#b45309' : '#475569'; M.textContent = note;
+  const q = UNG.q;
+  let rows = all.filter(r => (UNG.f === 'all' || (UNG.f === 'pos' ? r.con > 0 : r.con < 0)) && (!q || (r.khoa + ' ' + r.ma + ' ' + r.ten).toLowerCase().includes(q)));
+  if (!rows.length) { L.innerHTML = '<div class="shv-m">Không có dòng nào.</div>'; return; }
+  const gk = UNG.mode === 'khoa' ? r => r.khoa : r => r.ma, groups = {};
+  rows.forEach(r => { (groups[gk(r)] = groups[gk(r)] || []).push(r); });
+  const hasOpen = !!UNG.openMap;
+  const cell = n => '<td class="' + (n > 0 ? 'ung-pos' : n < 0 ? 'ung-neg' : 'ung-zero') + '">' + ungF(n) + '</td>';
+  let h = '<table class="ung-t"><thead><tr><th>' + (UNG.mode === 'khoa' ? 'Khoa phòng / Thuốc' : 'Thuốc / Khoa phòng') + '</th>' + (hasOpen ? '<th>Đầu kỳ</th>' : '') + '<th>Ứng</th><th>Trả</th><th>Còn ứng</th></tr></thead><tbody>';
+  Object.keys(groups).sort((a, b) => a.localeCompare(b, 'vi')).forEach(g => {
+    const rs = groups[g], tot = rs.reduce((a, r) => a + r.con, 0), isOpen = q || UNG.open.has(UNG.mode + '|' + g);
+    const label = UNG.mode === 'khoa' ? shvE(g) : shvE(rs[0].ten) + ' <small style="color:#64748b">' + shvE(rs[0].ma) + '</small>';
+    h += '<tr class="ung-g" data-g="' + shvE(UNG.mode + '|' + g) + '"><td>' + (isOpen ? '▾ ' : '▸ ') + label + ' <small style="font-weight:500;color:#64748b">(' + rs.length + ')</small></td>' + (hasOpen ? '<td></td>' : '') + '<td></td><td></td><td class="' + (tot > 0 ? 'ung-pos' : tot < 0 ? 'ung-neg' : 'ung-zero') + '">' + ungF(tot) + '</td></tr>';
+    if (isOpen) rs.sort((a, b) => b.con - a.con).forEach(r => {
+      const lab = UNG.mode === 'khoa' ? shvE(r.ten) + ' <small>' + shvE(r.hl) + ' · ' + shvE(r.ma) + '</small>' : shvE(r.khoa);
+      h += '<tr class="ung-c" data-k="' + shvE(r.key) + '"><td>' + lab + (r.min < 0 && r.con >= 0 ? ' <small title="Từng âm trong kỳ">⚠</small>' : '') + '</td>' + (hasOpen ? '<td>' + ungF(r.open) + '</td>' : '') + '<td>' + ungF(r.ung) + '</td><td>' + ungF(r.tra) + '</td>' + cell(r.con) + '</tr>';
+    });
+  });
+  L.innerHTML = h + '</tbody></table>';
+}
+document.getElementById('ung-list').addEventListener('click', e => {
+  const g = e.target.closest('.ung-g'), c = e.target.closest('.ung-c');
+  if (g) { const k = g.dataset.g; UNG.open.has(k) ? UNG.open.delete(k) : UNG.open.add(k); ung_render(); }
+  else if (c) { const r = UNG.data.rows.find(x => x.key === c.dataset.k); if (!r) return;
+    document.getElementById('ung-pop-t').textContent = r.khoa + ' — ' + r.ten;
+    document.getElementById('ung-pop-b').innerHTML = '<table class="ung-t"><thead><tr><th>Ngày</th><th>Loại</th><th>SL</th><th>Còn ứng</th></tr></thead><tbody>' + (UNG.openMap ? '<tr><td>Đầu kỳ</td><td></td><td></td><td>' + ungF(r.open) + '</td></tr>' : '') + r.ev.map(e => '<tr><td>' + sdbDmy(e.date) + '</td><td style="white-space:normal">' + shvE(e.loai) + '</td><td class="' + (e.kind === 'ung' ? 'ung-pos">+' : 'ung-neg">−') + ungF(e.sl) + '</td><td>' + ungF(e.run) + '</td></tr>').join('') + '</tbody></table>';
+    document.getElementById('ung-pop').classList.add('on'); }
+});
+/* ── Google Sheet ── */
+const ungCfg = () => ({ url: localStorage.getItem('ung_url') || '', token: localStorage.getItem('ung_token') || '' });
+async function ungApi(action, extra) {
+  const c = ungCfg(); if (!c.url) throw new Error('Chưa kết nối Google Sheet (bấm ⚙ Sheet).');
+  let res; try { res = await fetch(c.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, token: c.token }, extra || {})) }); } catch (e) { throw new Error('Không kết nối được. Kiểm tra URL Web App và quyền “Anyone”.'); }
+  let d; try { d = await res.json(); } catch (e) { throw new Error('Phản hồi không hợp lệ. Kiểm tra URL /exec và đã Deploy phiên bản mới.'); }
+  if (!d.ok) throw new Error(d.error || 'Script báo lỗi'); return d;
+}
+function ung_cfgOpen() { const c = ungCfg(); document.getElementById('ung-url').value = c.url; document.getElementById('ung-tok').value = c.token; document.getElementById('ung-cfg-msg').textContent = ''; document.getElementById('ung-cfg').classList.add('on'); }
+function ung_cfgSave() { localStorage.setItem('ung_url', document.getElementById('ung-url').value.trim()); localStorage.setItem('ung_token', document.getElementById('ung-tok').value.trim()); UNG.asofs = null; document.getElementById('ung-cfg').classList.remove('on'); ung_loadAsofs(true); }
+async function ung_cfgTest() {
+  localStorage.setItem('ung_url', document.getElementById('ung-url').value.trim()); localStorage.setItem('ung_token', document.getElementById('ung-tok').value.trim());
+  const m = document.getElementById('ung-cfg-msg'); m.className = 'sdb-msg'; m.textContent = 'Đang kiểm tra…';
+  try { const d = await ungApi('ping'); m.className = 'sdb-msg ok'; m.textContent = 'Kết nối OK — sheet “' + d.sheet + '”, ' + d.rows + ' dòng.'; } catch (e) { m.className = 'sdb-msg bad'; m.textContent = e.message; }
+}
+async function ung_loadAsofs(force) {
+  const sel = document.getElementById('ung-open'); if (!ungCfg().url) return;
+  try { const d = await ungApi('list'); UNG.asofs = d.asofs || []; const keep = UNG.openAsof;
+    sel.innerHTML = '<option value="">Không — tính từ file</option>' + UNG.asofs.slice().reverse().map(a => '<option value="' + a + '">Bản chốt ' + sdbDmy(a) + '</option>').join(''); sel.value = keep;
+  } catch (e) { if (force) alert(e.message); }
+}
+async function ung_setOpen(a) {
+  if (!a) { UNG.openAsof = ''; UNG.openMap = null; ung_open(); return; }
+  try { const d = await ungApi('get', { asof: a }); UNG.openMap = {}; (d.rows || []).forEach(r => { UNG.openMap[ungK(r.khoa, r.ma)] = r; }); UNG.openAsof = a; ung_open(); }
+  catch (e) { alert(e.message); document.getElementById('ung-open').value = UNG.openAsof; }
+}
+async function ung_save() {
+  const D = UNG.data; if (!D || D.err || !D.rows.length) { alert('Chưa có dữ liệu để lưu.'); return; }
+  if (!ungCfg().url) { ung_cfgOpen(); return; }
+  const rows = D.rows.filter(r => r.con !== 0).map(r => ({ khoa: r.khoa, ma: r.ma, ten: r.ten, hl: r.hl, ung: r.ung, tra: r.tra, con: r.con }));
+  if (!confirm('Lưu bản chốt ngày ' + sdbDmy(D.to) + ' lên Google Sheet?\n' + rows.length + ' dòng (khoa × thuốc) còn ứng.\nNếu ngày này đã có bản chốt, sẽ được ghi đè.')) return;
+  try { const r = await ungApi('save', { asof: D.to, rows }); const M = document.getElementById('ung-msg'); M.style.color = '#15803d'; M.textContent = '✅ Đã lưu ' + r.saved + ' dòng, bản chốt ngày ' + sdbDmy(D.to) + '.'; ung_loadAsofs(); }
+  catch (e) { alert('Lưu thất bại: ' + e.message); }
+}
+function ung_excel() {
+  const D = UNG.data; if (!D || D.err || !D.rows.length) { alert('Chưa có dữ liệu.'); return; }
+  const aoa = [['Khoa phòng', 'Mã', 'Tên thuốc', 'HL', 'Đầu kỳ', 'Ứng', 'Trả', 'Còn ứng']].concat(D.rows.slice().sort((a, b) => a.khoa.localeCompare(b.khoa, 'vi') || a.ten.localeCompare(b.ten, 'vi')).map(r => [r.khoa, r.ma, r.ten, r.hl, r.open, r.ung, r.tra, r.con]));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Ung tu truc'); XLSX.writeFile(wb, 'Ung_tu_truc_' + D.to + '.xlsx');
+}
+(function () { const a = document.querySelector('#sc-the-kho > button.btn-green'); if (a && !document.getElementById('ung-go')) a.insertAdjacentHTML('afterend', '<button id="ung-go" class="btn btn-ghost" onclick="goScreen(\'sc-ung\');ung_open()" style="height:42px">📦 Ứng thuốc tủ trực — khoa đang ứng bao nhiêu</button>'); })();
+
+function ung_warnKind(r) { return r.ung > 0 && r.tra > 0 && (r.con < 0 || (r.con > 0 && r.con < r.ung)) ? 'a' : (r.tra > 0 && r.ung === 0 && r.con < 0 ? 'b' : ''); }
+function ung_print() {
+  const D = UNG.data; if (!D || D.err || !D.rows.length) { alert('Chưa có dữ liệu để in.'); return; }
+  const q = UNG.q, E = shvE, pb = document.getElementById('ung-pb') && document.getElementById('ung-pb').checked;
+  const rows = D.rows.filter(r => !q || (r.khoa + ' ' + r.ma + ' ' + r.ten).toLowerCase().includes(q)), groups = {};
+  rows.forEach(r => { (groups[r.khoa] = groups[r.khoa] || []).push(r); });
+  let blocks = '', n = 0;
+  Object.keys(groups).sort((a, b) => a.localeCompare(b, 'vi')).forEach(g => {
+    const rs = groups[g], main = rs.filter(r => r.con > 0).sort((a, b) => a.ten.localeCompare(b.ten, 'vi')), warns = rs.filter(r => ung_warnKind(r)).sort((a, b) => a.ten.localeCompare(b.ten, 'vi'));
+    if (!main.length && !warns.length) return;
+    n++;
+    let t = '<div class="blk' + (pb && n > 1 ? ' pb' : '') + '"><h3>KHOA: ' + E(g) + ' <span>— ' + main.length + ' mặt hàng còn ứng</span></h3>';
+    t += '<table><colgroup><col style="width:34px"><col><col style="width:68px"><col style="width:68px"><col style="width:68px"><col style="width:84px"><col style="width:70px"><col style="width:70px"><col style="width:70px"></colgroup><thead><tr><th>STT</th><th>Tên thuốc</th><th>Còn ứng</th><th>Trả phiếu</th><th>Ứng phiếu</th><th>Ứng thuốc mới</th><th></th><th></th><th></th></tr></thead><tbody>';
+    t += main.length ? main.map((r, i) => '<tr><td class="c">' + (i + 1) + '</td><td>' + E(r.ten) + (r.hl && !String(r.ten).includes(r.hl) ? ' <small>' + E(r.hl) + '</small>' : '') + ' <small>(' + E(r.ma) + ')</small>' + (ung_warnKind(r) ? ' <b>⚠</b>' : '') + '</td><td class="n"><b>' + ungF(r.con) + '</b></td><td class="n">' + ungF(r.tra) + '</td><td class="n">' + ungF(r.ung) + '</td><td></td><td></td><td></td><td></td></tr>').join('') : '<tr><td colspan="9" class="c"><i>Không có thuốc còn ứng</i></td></tr>';
+    t += '</tbody></table>';
+    if (warns.length) t += '<div class="w"><b>⚠ Cần theo dõi:</b><ul>' + warns.map(r => '<li><b>' + E(r.ten) + '</b> (' + E(r.ma) + '): ' + (ung_warnKind(r) === 'a' ? 'ứng ' + ungF(r.ung) + ', trả ' + ungF(r.tra) + ', còn ' + ungF(r.con) + (r.con < 0 ? ' — trả nhiều hơn số ứng' : ' — trả chưa đủ so với số ứng') : 'có trả ' + ungF(r.tra) + ' nhưng không có ứng cùng mã (còn ' + ungF(r.con) + ') — kiểm tra ứng bằng mã khác') + '</li>').join('') + '</ul></div>';
+    blocks += t + '</div>';
+  });
+  if (!blocks) { alert('Không có thuốc nào còn ứng hoặc cần theo dõi để in.'); return; }
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ứng thuốc tủ trực</title><style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Times New Roman",serif;font-size:12.5px;color:#000}h2{text-align:center;font-size:17px;margin:0}p.s{text-align:center;margin:3px 0 10px}h3{font-size:14px;margin:12px 0 4px}h3 span{font-weight:normal;font-size:12px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #000;padding:5px 6px;height:25px;overflow:hidden}th{background:#eee;height:auto}.c{text-align:center}.n{text-align:right}small{font-size:10.5px;color:#444}.w{margin:5px 0 0;border:1px dashed #000;padding:4px 8px;font-size:12px;page-break-inside:avoid}.w ul{margin:2px 0 0;padding-left:18px}.pb{page-break-before:always}</style></head><body><h2>BẢNG THEO DÕI THUỐC ỨNG TỦ TRỰC</h2><p class="s">Dữ liệu từ ' + sdbDmy(D.from) + ' đến ' + sdbDmy(D.to) + (UNG.openAsof ? ' (đầu kỳ: bản chốt ' + sdbDmy(UNG.openAsof) + ')' : '') + ' · chỉ in thuốc còn ứng &gt; 0</p>' + blocks + '</body></html>';
+  mobilePrint(html, 'Ứng thuốc tủ trực');
 }
 </script>
 </body>
