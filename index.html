@@ -2139,7 +2139,7 @@ body.home-open #bbhv-inner-nav{display:none!important}
         <label style="font-size:12px;color:#475569;display:flex;align-items:center;gap:4px"><input type="checkbox" id="ung-pb">mỗi khoa 1 trang</label><button class="btn btn-sm btn-ghost" onclick="ung_print()">🖨 In</button><button class="btn btn-sm btn-ghost" onclick="ung_excel()">Excel</button>
       </div>
       <div class="ung-r"><span style="font-size:12.5px;font-weight:700;color:#475569">Nguồn:</span><div class="seg" id="ung-src"></div><span style="flex:1"></span>
-        <button class="btn btn-sm btn-primary" onclick="ung_push()">☁️ Cập nhật vào Sheet</button><button class="btn btn-sm btn-ghost" onclick="ung_loadSheet()" title="Tải lại từ Sheet">🔄</button></div>
+        <button class="btn btn-sm btn-primary" onclick="ung_push()">☁️ Cập nhật vào Sheet</button><button class="btn btn-sm btn-ghost" onclick="ung_loadSheet()" title="Tải lại từ Sheet">🔄</button><button class="btn btn-sm btn-ghost" id="ung-ig-btn" onclick="ung_igOpen()" title="Danh sách mã không theo dõi">🚫 Không theo dõi</button></div>
       <div class="ung-r"><span style="font-size:12.5px;font-weight:700;color:#475569">Cơ số tính đến ngày:</span><input type="date" id="ung-asof" class="input" style="height:32px;width:150px" onchange="ung_loadSheet()"><button class="btn btn-sm btn-ghost" onclick="document.getElementById('ung-asof').value='';ung_loadSheet()">Hiện tại</button><span style="font-size:11.5px;color:#64748b">(chỉ áp dụng cho nguồn Sheet — tra lại cuối tháng)</span></div>
       <div id="ung-msg" style="font-size:12.5px;font-weight:600"></div>
       <div id="ung-list" class="ung-w"></div>
@@ -7528,7 +7528,7 @@ function shv_open(ma) {
 shv_mount();
 
 /* ═══ Sổ cơ số tủ trực: lịch sử ứng/trả (có ngày giờ) lưu trên Google Sheet, cơ số = tổng ứng − tổng trả ═══ */
-const UNG = { mode: 'khoa', f: 'pos', q: '', open: new Set(), src: 'sheet', data: null, file: null, sheet: null, sheetErr: '' };
+const UNG = { mode: 'khoa', f: 'pos', q: '', open: new Set(), src: 'sheet', data: null, file: null, sheet: null, sheetErr: '', ign: new Set(), ignList: [] };
 const ungF = n => Number(n || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
 const ungK = (kh, ma) => String(kh).trim().toLowerCase() + '|' + normMa(ma);
 const ungDT = x => { if (!x) return ''; const [d, t] = String(x).split(' '); return sdbDmy(d) + (t ? ' ' + t : ''); };
@@ -7549,7 +7549,7 @@ function ung_events() {
     cnt[base] = (cnt[base] || 0) + 1;
     ev.push({ key: base + '#' + cnt[base], date: r.date, time: r.gio || '', khoa, ma, ten: r.ten, hl: r.hl, kind, loai: r.loaiCT, sl: r.sl, so: r.so || '' });
   });
-  return { events: ev };
+  return { events: ev.filter(e => !UNG.ign.has(normMa(e.ma))) };
 }
 const ungSort = (a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.time || '') < (b.time || '') ? -1 : (a.time || '') > (b.time || '') ? 1 : (a.kind === b.kind ? 0 : a.kind === 'ung' ? -1 : 1);
 function ung_fromEvents(events) {
@@ -7610,7 +7610,7 @@ function ung_render() {
 }
 function ung_popShow(title, html) { document.getElementById('ung-pop-t').textContent = title; document.getElementById('ung-pop-b').innerHTML = html; document.getElementById('ung-pop').classList.add('on'); }
 async function ung_timeline(r) {
-  const draw = ev => { let run = 0; const sh = !r.ev; UNG.cur = r; UNG.curEv = ev; ung_popShow(r.khoa + ' — ' + r.ten, (sh ? '<div style="margin-bottom:8px"><button class="btn btn-sm btn-ghost" style="color:#dc2626;border-color:#fca5a5" onclick="ung_delGroup()">🗑 Xoá thuốc này khỏi Sheet (' + ev.length + ' dòng)</button></div>' : '') + '<table class="ung-t"><thead><tr><th>Ngày giờ</th><th>Loại</th><th>SL</th><th>Số phiếu</th><th>Cơ số</th>' + (sh ? '<th></th>' : '') + '</tr></thead><tbody>' + (ev.length ? ev.map((e, i) => { run += e.kind === 'ung' ? e.sl : -e.sl; return '<tr><td>' + sdbDmy(e.date) + (e.time ? ' ' + e.time : '') + '</td><td style="white-space:normal;text-align:left">' + shvE(e.loai || (e.kind === 'ung' ? 'Ứng' : 'Trả')) + '</td><td class="' + (e.kind === 'ung' ? 'ung-pos">+' : 'ung-neg">−') + ungF(e.sl) + '</td><td>' + shvE(e.so) + '</td><td>' + ungF(run) + '</td>' + (sh ? '<td><button class="btn btn-sm btn-ghost" style="color:#dc2626;padding:0 6px" title="Xoá dòng này" onclick="ung_delEv(' + i + ')">✕</button></td>' : '') + '</tr>'; }).join('') : '<tr><td colspan="6">Không có lịch sử.</td></tr>') + '</tbody></table>'); };
+  const draw = ev => { let run = 0; const sh = !r.ev; UNG.cur = r; UNG.curEv = ev; ung_popShow(r.khoa + ' — ' + r.ten, (ungCfg().url ? '<div style="margin-bottom:8px"><button class="btn btn-sm btn-ghost" style="color:#b91c1c;border-color:#fca5a5" onclick="ung_untrack()">🚫 Không theo dõi mã này nữa (xoá hết dữ liệu ở mọi khoa)</button></div>' : '') + (sh ? '<div style="margin-bottom:8px"><button class="btn btn-sm btn-ghost" style="color:#dc2626;border-color:#fca5a5" onclick="ung_delGroup()">🗑 Xoá thuốc này khỏi Sheet (' + ev.length + ' dòng)</button></div>' : '') + '<table class="ung-t"><thead><tr><th>Ngày giờ</th><th>Loại</th><th>SL</th><th>Số phiếu</th><th>Cơ số</th>' + (sh ? '<th></th>' : '') + '</tr></thead><tbody>' + (ev.length ? ev.map((e, i) => { run += e.kind === 'ung' ? e.sl : -e.sl; return '<tr><td>' + sdbDmy(e.date) + (e.time ? ' ' + e.time : '') + '</td><td style="white-space:normal;text-align:left">' + shvE(e.loai || (e.kind === 'ung' ? 'Ứng' : 'Trả')) + '</td><td class="' + (e.kind === 'ung' ? 'ung-pos">+' : 'ung-neg">−') + ungF(e.sl) + '</td><td>' + shvE(e.so) + '</td><td>' + ungF(run) + '</td>' + (sh ? '<td><button class="btn btn-sm btn-ghost" style="color:#dc2626;padding:0 6px" title="Xoá dòng này" onclick="ung_delEv(' + i + ')">✕</button></td>' : '') + '</tr>'; }).join('') : '<tr><td colspan="6">Không có lịch sử.</td></tr>') + '</tbody></table>'); };
   if (r.ev) { draw(r.ev); return; }
   ung_popShow(r.khoa + ' — ' + r.ten, '<div class="shv-m">⏳ Đang tải lịch sử từ Google Sheet…</div>');
   try { const d = await ungApi('history', { khoa: r.khoa, ma: r.ma }); draw(d.events || []); } catch (e) { ung_popShow(r.khoa + ' — ' + r.ten, '<div class="shv-m">⚠️ ' + shvE(e.message) + '</div>'); }
@@ -7633,6 +7633,25 @@ async function ung_delEv(i) {
   try { await ungApi('delete', { keys: [e.key] }); await ung_loadSheet(); ung_timeline(r); }
   catch (er) { alert('Xoá thất bại: ' + er.message); }
 }
+
+function ung_igBtn() { const b = document.getElementById('ung-ig-btn'); if (b) b.textContent = '🚫 Không theo dõi' + (UNG.ignList.length ? ' (' + UNG.ignList.length + ')' : ''); }
+async function ung_untrack() {
+  const r = UNG.cur; if (!r) return;
+  if (!confirm('KHÔNG THEO DÕI mã ' + r.ma + ' — ' + r.ten + '?\n\n• Xoá TOÀN BỘ dữ liệu ứng/trả của mã này ở MỌI khoa trên Google Sheet (một lần, không phải xoá từng dòng).\n• Các lần nạp file sau sẽ tự bỏ qua mã này.\n• Dòng bị xoá được chép sang sheet “DaXoa”. Muốn theo dõi lại: bấm “🚫 Không theo dõi” → “Theo dõi lại”.')) return;
+  try {
+    const d = await ungApi('untrack', { ma: r.ma, ten: r.ten });
+    document.getElementById('ung-pop').classList.remove('on'); await ung_loadSheet();
+    const M = document.getElementById('ung-msg'); M.style.color = '#15803d'; M.textContent = '🚫 Đã bỏ theo dõi ' + r.ten + ' (' + r.ma + '): xoá ' + d.deleted + ' dòng ở mọi khoa.';
+  } catch (e) { alert('Thất bại: ' + e.message); }
+}
+function ung_igOpen() {
+  const L = UNG.ignList || [];
+  ung_popShow('Mã không theo dõi', L.length ? '<table class="ung-t"><thead><tr><th>Mã</th><th>Tên thuốc</th><th>Từ ngày</th><th></th></tr></thead><tbody>' + L.map((x, i) => '<tr><td>' + shvE(x.ma) + '</td><td style="white-space:normal;text-align:left">' + shvE(x.ten) + '</td><td>' + shvE((x.at || '').slice(0, 10)) + '</td><td><button class="btn btn-sm btn-ghost" onclick="ung_retrack(' + i + ')">Theo dõi lại</button></td></tr>').join('') + '</tbody></table><div style="font-size:12px;color:#64748b;margin-top:8px">Theo dõi lại chỉ bỏ mã khỏi danh sách; dữ liệu đã xoá cần nạp lại file (hoặc khôi phục từ sheet DaXoa).</div>' : 'Chưa có mã nào bị bỏ theo dõi.');
+}
+async function ung_retrack(i) {
+  const x = (UNG.ignList || [])[i]; if (!x) return;
+  try { await ungApi('retrack', { ma: x.ma }); await ung_loadSheet(); ung_igOpen(); } catch (e) { alert('Thất bại: ' + e.message); }
+}
 /* ── Google Sheet ── */
 const ungCfg = () => ({ url: localStorage.getItem('ung_url') || '', token: localStorage.getItem('ung_token') || '' });
 async function ungApi(action, extra) {
@@ -7652,6 +7671,7 @@ async function ung_loadSheet() {
   if (!ungCfg().url) { UNG.src = 'file'; ung_pick(); return; }
   UNG.sheet = null; UNG.sheetErr = ''; if (UNG.src === 'sheet') ung_pick();
   try {
+    try { const u = await ungApi('untracked'); UNG.ignList = u.list || []; UNG.ign = new Set(UNG.ignList.map(x => normMa(x.ma))); const E = ung_events(); UNG.file = E.err ? { err: E.err } : ung_fromEvents(E.events); ung_igBtn(); } catch (e) { /* script cũ chưa có untracked */ }
     const asof = (document.getElementById('ung-asof') || {}).value || '', d = await ungApi('coso', asof ? { asof } : {}), mt = d.meta || {};
     UNG.sheet = { src: 'sheet', rows: (d.rows || []).map(r => ({ key: ungK(r.khoa, r.ma), khoa: r.khoa, ma: r.ma, ten: r.ten, hl: r.hl, open: 0, ung: r.ung, tra: r.tra, con: r.con, min: r.con, ev: null, lastUng: r.lastUng, lastTra: r.lastTra })), from: mt.from || '', to: mt.to || '', nEv: mt.events || 0, updated: mt.updated || '', asof: mt.asof || '', noKhoa: (d.rows || []).filter(r => r.khoa === '(Không rõ khoa)').length };
   } catch (e) { UNG.sheetErr = e.message; }
