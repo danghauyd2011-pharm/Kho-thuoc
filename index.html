@@ -7610,7 +7610,7 @@ function ung_render() {
 }
 function ung_popShow(title, html) { document.getElementById('ung-pop-t').textContent = title; document.getElementById('ung-pop-b').innerHTML = html; document.getElementById('ung-pop').classList.add('on'); }
 async function ung_timeline(r) {
-  const draw = ev => { let run = 0; ung_popShow(r.khoa + ' — ' + r.ten, '<table class="ung-t"><thead><tr><th>Ngày giờ</th><th>Loại</th><th>SL</th><th>Số phiếu</th><th>Cơ số</th></tr></thead><tbody>' + (ev.length ? ev.map(e => { run += e.kind === 'ung' ? e.sl : -e.sl; return '<tr><td>' + sdbDmy(e.date) + (e.time ? ' ' + e.time : '') + '</td><td style="white-space:normal;text-align:left">' + shvE(e.loai || (e.kind === 'ung' ? 'Ứng' : 'Trả')) + '</td><td class="' + (e.kind === 'ung' ? 'ung-pos">+' : 'ung-neg">−') + ungF(e.sl) + '</td><td>' + shvE(e.so) + '</td><td>' + ungF(run) + '</td></tr>'; }).join('') : '<tr><td colspan="5">Không có lịch sử.</td></tr>') + '</tbody></table>'); };
+  const draw = ev => { let run = 0; const sh = !r.ev; UNG.cur = r; UNG.curEv = ev; ung_popShow(r.khoa + ' — ' + r.ten, (sh ? '<div style="margin-bottom:8px"><button class="btn btn-sm btn-ghost" style="color:#dc2626;border-color:#fca5a5" onclick="ung_delGroup()">🗑 Xoá thuốc này khỏi Sheet (' + ev.length + ' dòng)</button></div>' : '') + '<table class="ung-t"><thead><tr><th>Ngày giờ</th><th>Loại</th><th>SL</th><th>Số phiếu</th><th>Cơ số</th>' + (sh ? '<th></th>' : '') + '</tr></thead><tbody>' + (ev.length ? ev.map((e, i) => { run += e.kind === 'ung' ? e.sl : -e.sl; return '<tr><td>' + sdbDmy(e.date) + (e.time ? ' ' + e.time : '') + '</td><td style="white-space:normal;text-align:left">' + shvE(e.loai || (e.kind === 'ung' ? 'Ứng' : 'Trả')) + '</td><td class="' + (e.kind === 'ung' ? 'ung-pos">+' : 'ung-neg">−') + ungF(e.sl) + '</td><td>' + shvE(e.so) + '</td><td>' + ungF(run) + '</td>' + (sh ? '<td><button class="btn btn-sm btn-ghost" style="color:#dc2626;padding:0 6px" title="Xoá dòng này" onclick="ung_delEv(' + i + ')">✕</button></td>' : '') + '</tr>'; }).join('') : '<tr><td colspan="6">Không có lịch sử.</td></tr>') + '</tbody></table>'); };
   if (r.ev) { draw(r.ev); return; }
   ung_popShow(r.khoa + ' — ' + r.ten, '<div class="shv-m">⏳ Đang tải lịch sử từ Google Sheet…</div>');
   try { const d = await ungApi('history', { khoa: r.khoa, ma: r.ma }); draw(d.events || []); } catch (e) { ung_popShow(r.khoa + ' — ' + r.ten, '<div class="shv-m">⚠️ ' + shvE(e.message) + '</div>'); }
@@ -7620,6 +7620,19 @@ document.getElementById('ung-list').addEventListener('click', e => {
   if (g) { const k = g.dataset.g; UNG.open.has(k) ? UNG.open.delete(k) : UNG.open.add(k); ung_render(); }
   else if (c) { const r = UNG.data.rows.find(x => x.key === c.dataset.k); if (r) ung_timeline(r); }
 });
+
+async function ung_delGroup() {
+  const r = UNG.cur; if (!r) return;
+  if (!confirm('Xoá TOÀN BỘ lịch sử ứng/trả của\n' + r.ten + ' (' + r.ma + ') — ' + r.khoa + '\ntrên Google Sheet?\n\n• Cơ số của thuốc này ở khoa này sẽ về 0 và các tháng cũ cũng đổi theo.\n• Dòng bị xoá được lưu tạm ở sheet “DaXoa” (chỉ xem được trong Google Sheet).\n• Nếu sau này nạp lại file còn các dòng này, chúng sẽ được thêm lại.')) return;
+  try { const d = await ungApi('delete', { khoa: r.khoa, ma: r.ma }); document.getElementById('ung-pop').classList.remove('on'); await ung_loadSheet(); const M = document.getElementById('ung-msg'); M.style.color = '#15803d'; M.textContent = '🗑 Đã xoá ' + d.deleted + ' dòng của ' + r.ten + ' — ' + r.khoa + ' khỏi Sheet.'; }
+  catch (e) { alert('Xoá thất bại: ' + e.message); }
+}
+async function ung_delEv(i) {
+  const e = (UNG.curEv || [])[i], r = UNG.cur; if (!e || !e.key) return;
+  if (!confirm('Xoá dòng ' + (e.kind === 'ung' ? 'ỨNG ' : 'TRẢ ') + ungF(e.sl) + ' ngày ' + sdbDmy(e.date) + (e.time ? ' ' + e.time : '') + ' (phiếu ' + (e.so || '—') + ') khỏi Google Sheet?')) return;
+  try { await ungApi('delete', { keys: [e.key] }); await ung_loadSheet(); ung_timeline(r); }
+  catch (er) { alert('Xoá thất bại: ' + er.message); }
+}
 /* ── Google Sheet ── */
 const ungCfg = () => ({ url: localStorage.getItem('ung_url') || '', token: localStorage.getItem('ung_token') || '' });
 async function ungApi(action, extra) {
