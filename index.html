@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Dược — BV Đà Nẵng</title>
+<title>Kho thuốc</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -1330,6 +1330,7 @@ body.home-open #bbhv-inner-nav{display:none!important}
 .ug-t th{position:sticky;top:0;z-index:2;background:linear-gradient(#1e40af,#1e3a8a);color:#fff;padding:11px 10px;text-align:left;white-space:nowrap;cursor:pointer;font-weight:800}.ug-t th.n,.ug-t td.n{text-align:right}
 .ug-t td{padding:11px 10px;border-top:1px solid #e8edf5;vertical-align:top;font-variant-numeric:tabular-nums}.ug-t tr.ung-c{cursor:pointer}.ug-t tr.ung-c:hover td,.ug-t tr.ung-c:active td{background:#f1f6ff}.ug-t .tn{font-weight:700;color:#1e3a8a}
 .ug-pg{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:#475569;padding:8px 4px}.ug-pg button{border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:5px 14px;font-weight:700}.ug-pg button:disabled{opacity:.35}
+.ug-act{white-space:nowrap;text-align:right;width:84px}.ug-ic{border:1px solid #cbd5e1;background:#fff;border-radius:8px;width:36px;height:34px;font-size:16px;margin-left:4px;padding:0}.ug-ic:active{background:#e2e8f0}
 .ug-pcbtn{position:fixed;right:14px;bottom:78px;z-index:50;background:#2563eb;color:#fff;border:0;border-radius:99px;padding:12px 18px;font-weight:800;box-shadow:0 6px 18px rgba(37,99,235,.4)}
 .ug-sheet{position:fixed;inset:0;z-index:1000;background:rgba(15,36,56,.45);display:none;align-items:flex-end}.ug-sheet.on{display:flex}.ug-sh-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column}
 .ug-sh-b{overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}.ug-sh-b input.input{height:42px;border-radius:99px}.ug-h{font-size:11px;font-weight:800;color:#8a99b3;letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
@@ -1352,6 +1353,7 @@ body.home-open #bbhv-inner-nav{display:none!important}
       <div class="drawer-logo-text">
         <div class="drawer-app-name" id="d-app-name">Biên Bản Huỷ Vỏ</div>
         <div class="drawer-app-sub">Bệnh Viện Đà Nẵng</div>
+        <div class="drawer-app-sub">Author: Đăng Hậu</div>
       </div>
       <button class="drawer-close" onclick="closeDrawer()">✕</button>
     </div>
@@ -1431,7 +1433,7 @@ body.home-open #bbhv-inner-nav{display:none!important}
       </div>
       <button class="dz-reset" onclick="resetZoom()">↺</button>
     </div>
-    <div class="drawer-footer-text">Dược lâm sàng · BV Đà Nẵng 2026</div>
+    <div class="drawer-footer-text">Author: Đăng Hậu · BV Đà Nẵng 2026</div>
   </div>
 </aside>
 
@@ -3150,7 +3152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════
 const APP_META = {
   1: { logo:'💊', logoClass:'tbl-1', drawerClass:'dl-1', title:'Biên Bản Huỷ Vỏ', badge:'BBHV', badgeBg:'var(--c1l)', badgeColor:'var(--c1)' },
-  2: { logo:'📦', logoClass:'tbl-2', drawerClass:'dl-2', title:'Thẻ Kho Dược', badge:'Kho Dược', badgeBg:'var(--c2l)', badgeColor:'var(--c2d)' },
+  2: { logo:'📦', logoClass:'tbl-2', drawerClass:'dl-2', title:'Kho thuốc', badge:'Kho Dược', badgeBg:'var(--c2l)', badgeColor:'var(--c2d)' },
   3: { logo:'📋', logoClass:'tbl-3', drawerClass:'dl-3', title:'Thông Tư 20/2022', badge:'TT20', badgeBg:'var(--c3l)', badgeColor:'var(--c3d)' },
   4: { logo:'⚙️', logoClass:'', drawerClass:'', title:'Cài Đặt', badge:'CFG', badgeBg:'var(--c4l)', badgeColor:'var(--c4d)' },
   5: { logo:'📈', logoClass:'tbl-2', drawerClass:'dl-2', title:'Phân Bổ', badge:'Phân bổ', badgeBg:'var(--c2l)', badgeColor:'var(--c2d)' },
@@ -7628,9 +7630,10 @@ function ung_render() {
   const rows = ung_view(), n = rows.length, PS = 100, pages = Math.max(1, Math.ceil(n / PS)); UNG.page = Math.max(0, Math.min(UNG.page, pages - 1));
   if (!n) { P.innerHTML = ''; L.innerHTML = '<div class="shv-m" style="padding:18px">Không có dòng nào khớp bộ lọc.</div>'; return; }
   const vis = UNG_COLS.filter(c => UNG.pc || UNG.cols.has(c[0])), off = UNG.page * PS, cls = x => x > 0 ? 'ung-pos' : x < 0 ? 'ung-neg' : 'ung-zero';
-  let h = '<table class="ug-t"><thead><tr>' + vis.map(([k, l]) => '<th class="' + (['ung', 'tra', 'con'].includes(k) ? 'n' : '') + '"' + (k === 'stt' ? '' : ' data-s="' + k + '"') + '>' + l + (k === 'stt' ? '' : UNG.sort.k === k ? (UNG.sort.d > 0 ? ' ▲' : ' ▼') : ' <small style="opacity:.55">⇅</small>') + '</th>').join('') + '</tr></thead><tbody>';
-  rows.slice(off, off + PS).forEach((r, i) => {
-    h += '<tr class="ung-c" data-k="' + shvE(r.key) + '">' + vis.map(([k]) => k === 'stt' ? '<td>' + (off + i + 1) + '</td>' : k === 'ma' ? '<td style="white-space:nowrap">' + shvE(r.ma) + '</td>' : k === 'ten' ? '<td class="tn">' + shvE(r.ten) + (r.hl && !String(r.ten).includes(r.hl) ? ' <small style="color:#64748b;font-weight:500">' + shvE(r.hl) + '</small>' : '') + '</td>' : k === 'khoa' ? '<td>' + shvE(r.khoa) + '</td>' : k === 'last' ? '<td style="font-size:11.5px;color:#64748b;white-space:nowrap">' + ungDT(r.last) + '</td>' : '<td class="n ' + (k === 'con' ? cls(r.con) : '') + '">' + ungF(r[k]) + '</td>').join('') + '</tr>';
+  let h = '<table class="ug-t"><thead><tr>' + vis.map(([k, l]) => '<th class="' + (['ung', 'tra', 'con'].includes(k) ? 'n' : '') + '"' + (k === 'stt' ? '' : ' data-s="' + k + '"') + '>' + l + (k === 'stt' ? '' : UNG.sort.k === k ? (UNG.sort.d > 0 ? ' ▲' : ' ▼') : ' <small style="opacity:.55">⇅</small>') + '</th>').join('') + '<th></th></tr></thead><tbody>';
+  UNG.pageRows = rows.slice(off, off + PS);
+  UNG.pageRows.forEach((r, i) => {
+    h += '<tr class="ung-c" data-k="' + shvE(r.key) + '">' + vis.map(([k]) => k === 'stt' ? '<td>' + (off + i + 1) + '</td>' : k === 'ma' ? '<td style="white-space:nowrap">' + shvE(r.ma) + '</td>' : k === 'ten' ? '<td class="tn">' + shvE(r.ten) + (r.hl && !String(r.ten).includes(r.hl) ? ' <small style="color:#64748b;font-weight:500">' + shvE(r.hl) + '</small>' : '') + '</td>' : k === 'khoa' ? '<td>' + shvE(r.khoa) + '</td>' : k === 'last' ? '<td style="font-size:11.5px;color:#64748b;white-space:nowrap">' + ungDT(r.last) + '</td>' : '<td class="n ' + (k === 'con' ? cls(r.con) : '') + '">' + ungF(r[k]) + '</td>').join('') + '<td class="ug-act"><button class="ug-ic" title="In thuốc này" onclick="event.stopPropagation();ung_rowAct(0,' + i + ')">🖨</button><button class="ug-ic" title="Xoá: không theo dõi mã này" onclick="event.stopPropagation();ung_rowAct(1,' + i + ')">🗑</button></td></tr>';
   });
   L.innerHTML = h + '</tbody></table>';
   P.innerHTML = '<span>' + (off + 1) + '–' + Math.min(off + PS, n) + ' / <b>' + n + '</b> kết quả</span><span><button onclick="UNG.page--;ung_render()"' + (UNG.page ? '' : ' disabled') + '>‹</button> <button onclick="UNG.page++;ung_render()"' + (UNG.page < pages - 1 ? '' : ' disabled') + '>›</button></span>';
@@ -7652,6 +7655,7 @@ function ung_colsRender() { ung_el('ung-cols').innerHTML = UNG_COLS.filter(c => 
 function ung_colTg(k) { UNG.cols.has(k) ? UNG.cols.delete(k) : UNG.cols.add(k); try { localStorage.setItem('ung_cols', JSON.stringify([...UNG.cols])); } catch (e) { } ung_render(); }
 function ung_colsToggle() { const e = ung_el('ung-cols'), h = ung_el('ung-cols-h'); e.style.display = h.style.display = e.style.display === 'none' ? 'block' : 'none'; }
 function ung_togglePC() { UNG.pc = !UNG.pc; ung_el('ung-pc').textContent = UNG.pc ? '📱 Chế độ mobile' : '🖥️ Chế độ PC'; ung_render(); }
+function ung_rowAct(a, i) { const r = (UNG.pageRows || [])[i]; if (!r) return; if (a === 0) ung_printMa(normMa(r.ma)); else ung_untrack(r.ma, r.ten); }
 function ung_tlKey(k) { const r = UNG.data.rows.find(x => x.key === k); if (r) ung_timeline(r); }
 function ung_maPop(nm) {
   const rs = UNG.data.rows.filter(r => normMa(r.ma) === nm).sort((a, b) => b.con - a.con); if (!rs.length) return; UNG.popRows = rs;
@@ -7687,8 +7691,8 @@ async function ung_delEv(i) {
 }
 
 function ung_igBtn() { const b = document.getElementById('ung-ig-btn'); if (b) b.textContent = '🚫 Không theo dõi' + (UNG.ignList.length ? ' (' + UNG.ignList.length + ')' : ''); }
-async function ung_untrack() {
-  const r = UNG.cur; if (!r) return;
+async function ung_untrack(ma, ten) {
+  const r = ma !== undefined ? { ma, ten } : UNG.cur; if (!r) return;
   if (!confirm('KHÔNG THEO DÕI mã ' + r.ma + ' — ' + r.ten + '?\n\n• Xoá TOÀN BỘ dữ liệu ứng/trả của mã này ở MỌI khoa trên Google Sheet (một lần, không phải xoá từng dòng).\n• Ghi mốc thời gian: dữ liệu cũ (đến mốc này) không bao giờ được tính lại, kể cả khi nạp lại file cũ.\n• Khi nạp dữ liệu có thời gian MỚI HƠN mốc, mã tự được theo dõi lại và chỉ tính từ dữ liệu mới.\n• Dòng bị xoá được chép sang sheet “DaXoa”.')) return;
   try {
     const d = await ungApi('untrack', { ma: r.ma, ten: r.ten });
@@ -7756,14 +7760,14 @@ function ung_excel() {
 }
 (function () { const a = document.querySelector('#sc-the-kho > button.btn-green'); if (a && !document.getElementById('ung-go')) a.insertAdjacentHTML('afterend', '<button id="ung-go" class="btn btn-ghost" onclick="goScreen(\'sc-ung\');ung_open()" style="height:42px">📦 Sổ cơ số tủ trực — khoa đang ứng bao nhiêu</button>'); })();
 function ung_warnKind(r) { return r.ung > 0 && r.tra > 0 && (r.con < 0 || (r.con > 0 && r.con < r.ung)) ? 'a' : (r.tra > 0 && r.ung === 0 && r.con < 0 ? 'b' : ''); }
-const UNG_PHEAD = ['Cơ số', 'Trả phiếu', 'Ứng phiếu', 'Ứng thuốc', 'Trả thuốc'];
+const UNG_PHEAD = ['Cơ số', 'Khoá mã', 'Trả phiếu', 'Ứng phiếu', 'Ứng thuốc', 'Trả thuốc'];
 // Khung in chung: A4 NGANG, thanh công cụ (ẩn khi in) để chọn máy in của PC hoặc Lưu PDF
 function ung_printDoc(title, heading, sub, blocks) {
-  const css = '@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Times New Roman",serif;font-size:12.5px;color:#000;margin:0}h2{text-align:center;font-size:17px;margin:0}p.s{text-align:center;margin:3px 0 10px}h3{font-size:14px;margin:12px 0 4px}h3 span{font-weight:normal;font-size:12px}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #000;padding:5px 6px;height:27px;overflow:hidden}th{background:#eee;height:auto;font-size:12px}.c{text-align:center}.n{text-align:right}small{font-size:10.5px;color:#444}.w{margin:5px 0 0;border:1px dashed #000;padding:4px 8px;font-size:12px;page-break-inside:avoid}.w ul{margin:2px 0 0;padding-left:18px}.pb{page-break-before:always}.tb{position:fixed;top:0;left:0;right:0;z-index:9;background:#1e3a8a;color:#fff;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font:13px Arial,sans-serif}.tb button{border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;background:#fff;color:#1e3a8a}@media screen{body{padding:56px 10px 10px}}@media print{.tb{display:none}}';
+  const css = '@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Times New Roman",serif;font-size:12.5px;color:#000;margin:0}h2{text-align:center;font-size:17px;margin:0}p.s{text-align:center;margin:3px 0 10px}h3{font-size:14px;margin:12px 0 4px}h3 span{font-weight:normal;font-size:12px}table{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #000;padding:5px 6px;height:27px;overflow:hidden;word-break:break-word}th{background:#eee;height:auto;font-size:12px}.c{text-align:center}.n{text-align:right}small{font-size:10.5px;color:#444}.w{margin:5px 0 0;border:1px dashed #000;padding:4px 8px;font-size:12px;page-break-inside:avoid}.w ul{margin:2px 0 0;padding-left:18px}.pb{page-break-before:always}.tb{position:fixed;top:0;left:0;right:0;z-index:9;background:#1e3a8a;color:#fff;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font:13px Arial,sans-serif}.tb button{border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;background:#fff;color:#1e3a8a}@media screen{body{padding:56px 10px 10px}}@media print{.tb{display:none}}';
   const tb = '<div class="tb"><button onclick="window.print()">🖨 In / Lưu PDF</button><button onclick="window.close()">Đóng</button><span>Bấm “In”, rồi chọn máy in của PC hoặc “Lưu dưới dạng PDF” · khổ A4 ngang</span></div>';
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + title + '</title><style>' + css + '</style></head><body onload="if(window.parent!==window){var b=document.querySelector(\'.tb\');if(b)b.style.display=\'none\'}">' + tb + '<h2>' + heading + '</h2><p class="s">' + sub + '</p>' + blocks + '</body></html>';
 }
-const ung_pcols = '<col style="width:34px"><col><col style="width:70px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:72px"><col style="width:62px"><col style="width:62px"><col style="width:62px">';
+const ung_pcols = '<col style="width:34px"><col style="width:260px"><col style="width:66px">' + '<col style="width:70px">'.repeat(5) + '<col style="width:56px">'.repeat(3);
 const ung_phead = '<th>STT</th><th>%S</th>' + UNG_PHEAD.map(h => '<th>' + h + '</th>').join('') + '<th></th><th></th><th></th>';
 
 function ung_print() {
@@ -7776,7 +7780,7 @@ function ung_print() {
     if (!main.length && !warns.length) return;
     n++;
     let h = '<div class="blk' + (pb && n > 1 ? ' pb' : '') + '"><h3>KHOA: ' + E(g) + ' <span>— ' + main.length + ' mặt hàng còn ứng</span></h3><table><colgroup>' + ung_pcols + '</colgroup><thead><tr>' + ung_phead.replace('%S', 'Tên thuốc') + '</tr></thead><tbody>';
-    h += main.length ? main.map((r, i) => '<tr><td class="c">' + (i + 1) + '</td><td>' + E(r.ten) + (r.hl && !String(r.ten).includes(r.hl) ? ' <small>' + E(r.hl) + '</small>' : '') + ' <small>(' + E(r.ma) + ')</small>' + (ung_warnKind(r) ? ' <b>⚠</b>' : '') + '</td><td class="n"><b>' + ungF(r.con) + '</b></td>' + '<td></td>'.repeat(7) + '</tr>').join('') : '<tr><td colspan="10" class="c"><i>Không có thuốc còn ứng</i></td></tr>';
+    h += main.length ? main.map((r, i) => '<tr><td class="c">' + (i + 1) + '</td><td>' + E(r.ten) + (r.hl && !String(r.ten).includes(r.hl) ? ' <small>' + E(r.hl) + '</small>' : '') + ' <small>(' + E(r.ma) + ')</small>' + (ung_warnKind(r) ? ' <b>⚠</b>' : '') + '</td><td class="n"><b>' + ungF(r.con) + '</b></td>' + '<td></td>'.repeat(8) + '</tr>').join('') : '<tr><td colspan="11" class="c"><i>Không có thuốc còn ứng</i></td></tr>';
     h += '</tbody></table>';
     if (warns.length) h += '<div class="w"><b>⚠ Cần theo dõi:</b><ul>' + warns.map(r => '<li><b>' + E(r.ten) + '</b> (' + E(r.ma) + '): ' + (ung_warnKind(r) === 'a' ? 'ứng ' + ungF(r.ung) + ', trả ' + ungF(r.tra) + ', còn ' + ungF(r.con) + (r.con < 0 ? ' — trả nhiều hơn số ứng' : ' — trả chưa đủ so với số ứng') : 'có trả ' + ungF(r.tra) + ' nhưng không có ứng cùng mã (còn ' + ungF(r.con) + ') — kiểm tra ứng bằng mã khác') + '</li>').join('') + '</ul></div>';
     blocks += h + '</div>';
@@ -7791,7 +7795,7 @@ function ung_printMa(nm) {
   let blocks = '', n = 0;
   Object.values(by).sort((a, b) => a[0].ten.localeCompare(b[0].ten, 'vi')).forEach(rs => {
     rs.sort((a, b) => a.khoa.localeCompare(b.khoa, 'vi')); const r0 = rs[0], tot = rs.reduce((a, r) => a + r.con, 0);
-    blocks += '<div class="blk' + (pb && n++ ? ' pb' : '') + '"><h3>' + E(r0.ten) + (r0.hl && !String(r0.ten).includes(r0.hl) ? ' <small>' + E(r0.hl) + '</small>' : '') + ' <small>(' + E(r0.ma) + ')</small> <span>— tổng cơ số ' + ungF(tot) + ' · ' + rs.length + ' khoa</span></h3><table><colgroup>' + ung_pcols + '</colgroup><thead><tr>' + ung_phead.replace('%S', 'Khoa phòng') + '</tr></thead><tbody>' + rs.map((r, i) => '<tr><td class="c">' + (i + 1) + '</td><td>' + E(r.khoa) + '</td><td class="n"><b>' + ungF(r.con) + '</b></td>' + '<td></td>'.repeat(7) + '</tr>').join('') + '<tr><td></td><td><b>Tổng</b></td><td class="n"><b>' + ungF(tot) + '</b></td>' + '<td></td>'.repeat(7) + '</tr></tbody></table></div>';
+    blocks += '<div class="blk' + (pb && n++ ? ' pb' : '') + '"><h3>' + E(r0.ten) + (r0.hl && !String(r0.ten).includes(r0.hl) ? ' <small>' + E(r0.hl) + '</small>' : '') + ' <small>(' + E(r0.ma) + ')</small> <span>— tổng cơ số ' + ungF(tot) + ' · ' + rs.length + ' khoa</span></h3><table><colgroup>' + ung_pcols + '</colgroup><thead><tr>' + ung_phead.replace('%S', 'Khoa phòng') + '</tr></thead><tbody>' + rs.map((r, i) => '<tr><td class="c">' + (i + 1) + '</td><td>' + E(r.khoa) + '</td><td class="n"><b>' + ungF(r.con) + '</b></td>' + '<td></td>'.repeat(8) + '</tr>').join('') + '<tr><td></td><td><b>Tổng</b></td><td class="n"><b>' + ungF(tot) + '</b></td>' + '<td></td>'.repeat(8) + '</tr></tbody></table></div>';
   });
   if (!blocks) { alert('Không có thuốc nào để in.'); return; }
   mobilePrint(ung_printDoc('Cơ số tủ trực theo thuốc', 'BẢNG CƠ SỐ THUỐC TỦ TRỰC THEO THUỐC', 'Cơ số tính từ ' + sdbDmy(D.from) + ' đến ' + sdbDmy(D.to), blocks), 'Cơ số tủ trực theo thuốc');
