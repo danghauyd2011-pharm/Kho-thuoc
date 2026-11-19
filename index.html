@@ -1417,6 +1417,19 @@ body:not(.home-open) .content-area{padding-bottom:96px!important}
 #d-app-name:after{font-size:15px}
 #topbar .tb-sub{font-size:0!important}
 #topbar .tb-sub:after{content:"Author: Đăng Hậu";font-size:12px}
+/* ═══ Báo cáo xuất nhập tồn ═══ */
+.bcx-page{width:1123px;background:#fff;padding:36px 38px 40px;box-sizing:border-box;box-shadow:0 6px 32px rgba(0,0,0,.16);border-radius:2px}
+.bcx-det summary{cursor:pointer;font-weight:800;font-size:13px;padding:14px 16px;list-style:none}
+.bcx-det summary::-webkit-details-marker{display:none}
+.bcx-er{border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff;margin-bottom:8px}
+.bcx-en{font-weight:800;font-size:13px;color:var(--t1)}
+.bcx-en small{font-weight:600;color:var(--t2);font-size:11px;margin-left:4px}
+.bcx-eg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.bcx-eg label{font-size:10px;font-weight:700;color:var(--t2);display:flex;flex-direction:column;gap:3px}
+.bcx-eg label.w{grid-column:1/-1}
+.bcx-eg .input{height:38px;font-size:13px;padding:0 10px;min-width:0}
+
+
 /* ═══ THEME 3: Gam màu đổi theo phút (JS chỉ cập nhật biến --h = góc màu) ═══ */
 @supports (color: oklch(0.5 0.2 100)) {
 :root{
@@ -1508,6 +1521,9 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
       </button>
       <button class="dnav-btn" id="sb-sc-bbkk" onclick="goScreen('sc-bbkk');renderBBKK();closeDrawer()">
         <span class="db-icon">📋</span> Kiểm kê
+      </button>
+      <button class="dnav-btn" id="sb-sc-bcxnt" onclick="goScreen('sc-bcxnt');bcxnt_open();closeDrawer()">
+        <span class="db-icon">📑</span> Báo cáo xuất nhập tồn
       </button>
     </div>
 
@@ -2160,6 +2176,10 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
       </div>
     </div>
 
+    <button class="btn btn-ghost" onclick="goScreen('sc-bcxnt');bcxnt_open()" style="height:44px;font-size:13px">
+      📑 Báo cáo xuất nhập tồn (từ ngày – đến ngày)
+    </button>
+
     <div id="err-box" class="notice n-red hidden">
       <span class="n-i">⚠️</span><span id="err-txt"></span>
     </div>
@@ -2198,6 +2218,9 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
 
     <button class="btn btn-green" onclick="goScreen('sc-bbkk');renderBBKK()" style="height:46px">
       📋 Xem Biên Bản Kiểm Kê Cuối Tháng
+    </button>
+    <button class="btn btn-ghost" onclick="goScreen('sc-bcxnt');bcxnt_open()" style="height:46px">
+      📑 Báo cáo xuất nhập tồn (từ ngày – đến ngày)
     </button>
 
     <div class="slabel">Chọn mã hàng — Thẻ kho</div>
@@ -2328,6 +2351,88 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
 
   </div>
 
+
+
+  <!-- ════ BÁO CÁO XUẤT NHẬP TỒN (từ ngày – đến ngày) ════ -->
+  <div id="sc-bcxnt" class="screen">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 0 0">
+      <button class="btn btn-ghost btn-sm" onclick="goScreen('sc-the-kho')">← Quay lại</button>
+    </div>
+    <div class="hero hero-2">
+      <div class="hero-eye">Kho Dược</div>
+      <div class="hero-title">Báo Cáo Xuất Nhập Tồn</div>
+      <div class="hero-sub">Từ ngày – đến ngày · nhóm theo công ty · in A4 ngang</div>
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-v" id="bcx-hs-ma">—</div><div class="hs-l">Mặt hàng</div></div>
+        <div class="hs"><div class="hs-v" id="bcx-hs-nhap">—</div><div class="hs-l">Tổng nhập</div></div>
+        <div class="hs"><div class="hs-v" id="bcx-hs-xuat">—</div><div class="hs-l">Thực xuất</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-p" style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <div class="field-label" style="margin-bottom:8px">⚡ Chọn nhanh</div>
+          <div class="date-quick-btns">
+            <button class="dq-btn" onclick="bcxnt_preset('thismonth')">Tháng này</button>
+            <button class="dq-btn" onclick="bcxnt_preset('lastmonth')">Tháng trước</button>
+            <button class="dq-btn" onclick="bcxnt_preset('all')">Toàn bộ file</button>
+            <input class="input" type="month" id="bcx-month" onchange="bcxnt_month(this.value)" title="Chọn tháng bất kỳ" style="height:34px;width:150px;font-size:13px;padding:0 8px">
+          </div>
+        </div>
+        <div class="date-range-row">
+          <div class="field"><div class="field-label">Từ ngày</div><input class="input" type="date" id="bcx-from"></div>
+          <div class="field"><div class="field-label">Đến ngày</div><input class="input" type="date" id="bcx-to"></div>
+        </div>
+        <div class="date-range-row">
+          <div class="field"><div class="field-label">Tên kho trên báo cáo</div><input class="input" id="bcx-kho" autocomplete="off"></div>
+          <div class="field"><div class="field-label">Ngày lập báo cáo</div><input class="input" type="date" id="bcx-sign"></div>
+        </div>
+        <button class="btn btn-green" id="bcx-run" onclick="bcxnt_run()" style="height:46px;font-size:14px">⚡ Lập báo cáo</button>
+        <div id="bcx-msg" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+
+
+    <div class="card">
+      <div class="card-hdr"><div class="c-title">☁️ Báo cáo đã lưu hằng tháng</div></div>
+      <div class="card-p" style="display:flex;flex-direction:column;gap:10px">
+        <div id="bcx-saved" style="font-size:13px;color:var(--t2)">Chưa tải danh sách.</div>
+        <div class="flex-row">
+          <button class="btn btn-sm btn-ghost" style="flex:1" onclick="bcxnt_listSaved(true)">🔄 Tải danh sách</button>
+          <button class="btn btn-sm btn-ghost" style="flex:1" onclick="bcxnt_cfgToggle()">⚙ Kết nối Sheet</button>
+        </div>
+        <div id="bcx-xcfg" style="display:none;flex-direction:column;gap:8px">
+          <input class="input" id="bcx-xurl" placeholder="URL Web App báo cáo XNT (đuôi /exec)" autocomplete="off" spellcheck="false">
+          <input class="input" id="bcx-xtok" type="password" placeholder="Mật khẩu (dòng SECRET trong script)" autocomplete="off">
+          <div class="flex-row"><button class="btn btn-sm btn-ghost" style="flex:1" onclick="bcxnt_cfgTest()">Kiểm tra</button><button class="btn btn-sm btn-primary" style="flex:1" onclick="bcxnt_cfgSave()">Lưu kết nối</button></div>
+        </div>
+        <div id="bcx-xmsg" style="font-size:12.5px;font-weight:600"></div>
+      </div>
+    </div>
+
+    <div id="bcx-out" class="hidden" style="display:flex;flex-direction:column;gap:12px">
+      <div class="exp-row">
+        <button class="btn btn-green" style="flex:1;height:48px" onclick="bcxnt_excel()">📊 Xuất Excel</button>
+        <button class="btn btn-orange" style="flex:1;height:48px" onclick="bcxnt_print()">🖨️ In / PDF</button>
+      </div>
+      <button class="btn btn-primary" style="height:48px" onclick="bcxnt_save()">☁️ Lưu báo cáo này lên Google Sheet</button>
+      <div class="prev-wrap">
+        <div class="prev-hdr">Xem trước — A4 ngang</div>
+        <div class="prev-scroll" id="bcx-wrap">
+          <div class="a4-scaler" id="bcx-scaler"><div class="bcx-page bcx" id="bcx-page"></div></div>
+        </div>
+      </div>
+      <details class="card bcx-det">
+        <summary>✏️ Bổ sung / sửa thông tin từng thuốc (công ty, lô, hạn, nơi SX, đơn giá…)</summary>
+        <div class="card-p">
+          <div class="notice n-blue" style="margin-bottom:10px"><span class="n-i">ℹ️</span><span>Ô để trống = dùng giá trị tự động (hiện mờ trong ô). Thông tin bạn nhập được nhớ trên máy này cho các lần lập báo cáo sau.</span></div>
+          <datalist id="bcx-dl-cty"></datalist>
+          <div id="bcx-edit"></div>
+        </div>
+      </details>
+    </div>
+  </div>
 
 
 </div><!-- /app-tk -->
@@ -2478,6 +2583,8 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
       <input class="input" id="ss-sd-url" placeholder="URL Web App (/exec)" autocomplete="off"><input class="input" id="ss-sd-tok" type="password" placeholder="Mật khẩu" autocomplete="off">
       <b style="font-size:13px">📦 Ứng thuốc tủ trực</b>
       <input class="input" id="ss-ung-url" placeholder="URL Web App (/exec)" autocomplete="off"><input class="input" id="ss-ung-tok" type="password" placeholder="Mật khẩu" autocomplete="off">
+      <b style="font-size:13px">📑 Lưu báo cáo xuất nhập tồn</b>
+      <input class="input" id="ss-xnt-url" placeholder="URL Web App (/exec)" autocomplete="off"><input class="input" id="ss-xnt-tok" type="password" placeholder="Mật khẩu" autocomplete="off">
       <button class="btn btn-primary" onclick="ss_save()">Lưu kết nối</button>
       <div id="ss-msg" style="font-size:12.5px;font-weight:600"></div>
     </div>
@@ -4983,7 +5090,7 @@ function goScreen(id) {
   document.getElementById(id).classList.add('active');
   // Update drawer sub-buttons
   document.querySelectorAll('#sb-tk-sub .dnav-btn').forEach(b=>b.classList.remove('active'));
-  const sbMap={'sc-data':'sb-sc-data','sc-the-kho':'sb-sc-the-kho','sc-bbkk':'sb-sc-bbkk','sc-ton':'sb-sc-data'};
+  const sbMap={'sc-data':'sb-sc-data','sc-the-kho':'sb-sc-the-kho','sc-bbkk':'sb-sc-bbkk','sc-bcxnt':'sb-sc-bcxnt','sc-ton':'sb-sc-data'};
   const sbBtn=document.getElementById(sbMap[id]); if(sbBtn) sbBtn.classList.add('active');
   // When returning to sc-data, reset date card state
   if(id==='sc-data'){
@@ -4996,6 +5103,7 @@ function goScreen(id) {
   }
   if(id==='sc-the-kho') setTimeout(scaleA4, 80);
   if(id==='sc-bbkk') setTimeout(scaleBBKK, 80);
+  if(id==='sc-bcxnt') setTimeout(()=>{ if(window.bcxnt_scale) bcxnt_scale(); }, 80);
   if(window.PB) PB.onScreen(id);
 }
 
@@ -5125,6 +5233,9 @@ function tk_parseSheet(wb, typeFilter) {
     const shdCol=hdrs.findIndex(h=>h==='shd'||h.includes('hóa đơn')||h.includes('hoá đơn')); // số hóa đơn
     const gioCol=hdrs.findIndex(h=>h==='giờ'||h.includes('giờ')||h.includes('thời gian'));
     const soCol=hdrs.findIndex(h=>h.includes('số chứng từ')||h==='số ct'||h.includes('số phiếu')||h==='số ct.');
+    const dgCol=hdrs.findIndex(h=>h==='đơn giá'||h==='đơn giá nhập'||h==='giá nhập'||h==='giá');
+    const nsxCol=hdrs.findIndex(h=>/^(nơi|nước|hãng|nhà)\s*(sx|sản xuất)$/.test(h)||h==='nsx'||h==='hãng sx');
+    const dvtCol=hdrs.findIndex(h=>h==='đvt'||h==='dvt'||h==='đơn vị tính');
     const parseGio=v=>{ if(typeof v==='number'){const fr=v-Math.floor(v); if(fr>0.00001){const mi=Math.round(fr*1440); return String(Math.floor(mi/60)%24).padStart(2,'0')+':'+String(mi%60).padStart(2,'0');} return '';} const m=String(v==null?'':v).match(/(\d{1,2}):(\d{2})/); return m?m[1].padStart(2,'0')+':'+m[2]:''; };
     if([dateCol,tenCol,slCol,typeCol].some(i=>i===-1)) continue;
     const recs=[];
@@ -5148,7 +5259,8 @@ function tk_parseSheet(wb, typeFilter) {
       const shd=shdCol!==-1?(row[shdCol]||'').toString().trim():'';
       let gio=parseGio(row[dateCol]); if(!gio&&gioCol!==-1) gio=parseGio(row[gioCol]);
       const so=soCol!==-1?(row[soCol]||'').toString().trim():'';
-      recs.push({date:iso,ma,ten,hl,loaiCT,sl,khoa,lo,han,tenCty,shd,gio,so});
+      const dg=dgCol!==-1?row[dgCol]:'', nsx=nsxCol!==-1?(row[nsxCol]||'').toString().trim():'', dvt=dvtCol!==-1?(row[dvtCol]||'').toString().trim():'';
+      recs.push({date:iso,ma,ten,hl,loaiCT,sl,khoa,lo,han,tenCty,shd,gio,so,dg,nsx,dvt});
     }
     return recs;
   }
@@ -7224,7 +7336,17 @@ function onOpen() {
   if (!S.dirty) loadFromSheet(true);        // rồi làm mới từ Google Sheet; không ghi đè khi đang sửa dở
 }
 
+async function ensureLoaded(force) {
+  if (!configured()) return false;
+  if (S.loading) { for (let i = 0; i < 80 && S.loading; i++) await new Promise(r => setTimeout(r, 250)); return S.loaded; }
+  if (!S.loaded || (force && !S.dirty)) await loadFromSheet(true);
+  return S.loaded;
+}
+
 window.PB = {
+  lines: () => Object.values(S.lines),
+  ensure: ensureLoaded,
+  configured,
   onOpen,
   onScreen(id) { if (V.detail) closeDetail(); refreshFab(); },
   onApp(n) { if (n === 5) onOpen(); else if (V.detail) closeDetail(); refreshFab(); },
@@ -7509,6 +7631,7 @@ function ss_render() {
   document.getElementById('ss-pb-url').value = g('pb_cloud_url'); document.getElementById('ss-pb-tok').value = g('pb_cloud_token');
   document.getElementById('ss-sd-url').value = g('sdb_url'); document.getElementById('ss-sd-tok').value = g('sdb_token');
   document.getElementById('ss-ung-url').value = g('ung_url'); document.getElementById('ss-ung-tok').value = g('ung_token');
+  document.getElementById('ss-xnt-url').value = g('xnt_url'); document.getElementById('ss-xnt-tok').value = g('xnt_token');
   fsMeta().then(m => { document.getElementById('ss-files').innerHTML = m.length ? m.map(x => '<div>• <b>' + x.label + ':</b> ' + sdbE(x.names) + ' <span style="color:#64748b">(' + new Date(x.t).toLocaleString('vi-VN') + ')</span></div>').join('') : 'Chưa nhớ file nào.'; });
 }
 function ss_save() {
@@ -7516,6 +7639,7 @@ function ss_save() {
   localStorage.setItem('pb_cloud_url', v('ss-pb-url')); localStorage.setItem('pb_cloud_token', v('ss-pb-tok'));
   localStorage.setItem('sdb_url', v('ss-sd-url')); localStorage.setItem('sdb_token', v('ss-sd-tok'));
   localStorage.setItem('ung_url', v('ss-ung-url')); localStorage.setItem('ung_token', v('ss-ung-tok'));
+  localStorage.setItem('xnt_url', v('ss-xnt-url')); localStorage.setItem('xnt_token', v('ss-xnt-tok'));
   SDB.loadedOnce = false; SDB.synced = false;
   const m = document.getElementById('ss-msg'); m.style.color = '#15803d'; m.textContent = 'Đã lưu. Mở lại tab Phân bổ / Nộp BB là tự tải dữ liệu.';
 }
@@ -7530,6 +7654,7 @@ const HOME = [
   { sec: 'Thẻ kho', bg: '#dbeafe', items: [
     { ic: '📁', t: 'Nhập dữ liệu kho', d: 'Nạp file xuất, nhập, tồn', go: () => { switchApp(2); goScreen('sc-data'); } },
     { ic: '📊', t: 'Thẻ kho', d: 'Xem, in thẻ kho theo mã', go: () => { switchApp(2); goScreen('sc-the-kho'); } },
+    { ic: '📑', t: 'Báo cáo xuất nhập tồn', d: 'Từ ngày – đến ngày, nhóm theo công ty', go: () => { switchApp(2); goScreen('sc-bcxnt'); if (typeof bcxnt_open === 'function') bcxnt_open(); } },
     { ic: '📝', t: 'Kiểm kê', d: 'Biên bản kiểm kê', go: () => { switchApp(2); goScreen('sc-bbkk'); if (typeof renderBBKK === 'function') renderBBKK(); } },
     { ic: '📦', t: 'Cơ số tủ trực', d: 'Khoa đang ứng bao nhiêu · tra ngày giờ', go: () => { switchApp(2); goScreen('sc-ung'); ung_open(); } } ] },
   { sec: 'Khác', bg: '#ede9fe', items: [
@@ -7946,6 +8071,460 @@ function ung_printMa(nm) {
   setInterval(prog,3000);sync();
 })();
 </script>
+<style id="bcx-css-src">
+.bcx{font-family:'Times New Roman',Times,'Liberation Serif',serif;color:#000;font-size:12px;line-height:1.25}
+.bcx .hd{position:relative;min-height:62px}
+.bcx .hd-l{font-weight:bold;font-size:13px;line-height:1.55;padding-left:2px}
+.bcx .hd-r{position:absolute;top:0;left:58.7%;transform:translateX(-50%);text-align:center;font-weight:bold;font-size:13px;line-height:1.4;white-space:nowrap}
+.bcx .ttl{text-align:center;margin:22px 0 16px}
+.bcx .ttl .t1{font-size:20px;font-weight:bold}
+.bcx .ttl .t2{font-size:17px;font-weight:bold;margin-top:6px}
+.bcx .ttl .t3{font-size:14.5px;font-weight:bold;margin-top:6px}
+.bcx table.bt{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.bcx .bt th{border:1.5px solid #000;font-weight:bold;text-transform:uppercase;text-align:center;padding:6px 2px;vertical-align:middle;line-height:1.2;font-size:12.5px}
+.bcx .bt td{border-left:1px solid #000;border-right:1px solid #000;border-bottom:1px dotted #777;padding:3px 4px;vertical-align:top;overflow-wrap:anywhere}
+.bcx .bt td.c{text-align:center}.bcx .bt td.r{text-align:right}
+.bcx .bt tr.co td{border:1.5px solid #000;font-weight:bold;font-size:12.5px;padding:4px 5px;text-align:left}
+.bcx .bt tr.tt td{border:1.5px solid #000;font-weight:bold;padding:4px}
+.bcx .bt tr.tt td.c{text-align:center}
+.bcx .sig{break-inside:avoid;page-break-inside:avoid}
+.bcx .dt{text-align:right;font-style:italic;font-size:14.5px;margin:12px 70px 8px 0}
+.bcx table.sg{width:100%;border-collapse:collapse;table-layout:fixed}
+.bcx table.sg td{text-align:center;font-weight:bold;font-size:13.5px;padding:2px 4px;height:84px;vertical-align:top;border:0}
+</style>
+<script>
+/* ═══════════════════════════════════════════════════════
+   BÁO CÁO XUẤT NHẬP TỒN (từ ngày – đến ngày)
+   - Nhập / Xuất: cộng toàn bộ file Nhập / Xuất của Thẻ kho trong khoảng ngày
+   - Tồn đầu kỳ: tab "tồn cuối tháng trước" trên Google Sheet (+ biến động từ đầu tháng đến trước "Từ ngày")
+   - Tên công ty: cột "Tên NCC" của các dòng nhập trong Theo dõi phân bổ
+   ═══════════════════════════════════════════════════════ */
+(function () {
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => (Number(n) || 0).toLocaleString('vi-VN');
+const b0 = n => n ? fmt(n) : '';
+const pad = n => String(n).padStart(2, '0');
+const dmy = iso => iso && /^\d{4}-\d{2}-\d{2}/.test(iso) ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : (iso || '');
+const isoOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const todayISO = () => isoOf(new Date());
+const monthStart = iso => iso.slice(0, 7) + '-01';
+const monthEnd = iso => { const p = iso.split('-').map(Number); return isoOf(new Date(p[0], p[1], 0)); };
+const numVN = v => {
+  if (typeof v === 'number') return v;
+  let s = String(v == null ? '' : v).trim(); if (!s) return 0;
+  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g, '').replace(',', '.'); else s = s.replace(/,/g, '');
+  return parseFloat(s.replace(/[^\d.\-]/g, '')) || 0;
+};
+const normCty = s => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+const LS = 'bcxnt_v1';
+const DEF_KHO = 'KHO THUỐC NGHIỆN HƯỚNG THẦN';
+let STORE = { byMa: {}, kho: '', sign: '' };
+try { const s = JSON.parse(localStorage.getItem(LS) || 'null'); if (s && typeof s === 'object') STORE = Object.assign(STORE, s); } catch (e) {}
+if (!STORE.byMa) STORE.byMa = {};
+const save = () => { try { localStorage.setItem(LS, JSON.stringify(STORE)); } catch (e) {} };
+
+const S = { base: null, model: null, busy: false, from: '', to: '', tm: null, ran: false };
+
+/* ── Đọc file Xuất / Nhập (dùng lại bộ đọc của Thẻ kho, có cache) ── */
+const PC = new WeakMap();
+function parsed(wb, types) {
+  if (!wb) return [];
+  let m = PC.get(wb); if (!m) { m = {}; PC.set(wb, m); }
+  const k = types.join('|');
+  if (!m[k]) m[k] = (tk_parseSheet(wb, types) || []).slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  return m[k];
+}
+function fileRange() {
+  const all = [].concat(parsed(xuatWB, XUAT_TYPES), parsed(nhapWB, NHAP_TYPES)).map(r => r.date).filter(Boolean).sort();
+  return all.length ? [all[0], all[all.length - 1]] : ['', ''];
+}
+
+/* ── Tồn đầu kỳ: tab tồn cuối tháng trước trên Google Sheet ── */
+async function resolveTon(from) {
+  const mk = prevMonthKey(from.slice(0, 7));
+  const out = { map: {}, src: 'none', mk, note: '' };
+  if (cloudConfigured()) {
+    try {
+      let d = tonSheetCache[mk];
+      if (!d) { d = await cloudCall({ action: 'get', month: mk }); tonSheetCache[mk] = d; }
+      if (d && d.found) {
+        d.rows.forEach(r => { if (!r.ma) return; out.map[normMa(r.ma)] = { ton: parseFloat(r.ton) || 0, ten: r.ten || '', hl: r.hl || '' }; });
+        out.src = 'sheet'; return out;
+      }
+      out.note = 'Google Sheet chưa có tab tồn cuối tháng ' + mk + '.';
+    } catch (e) { out.note = 'Không tải được tồn từ Google Sheet: ' + e.message; }
+  } else out.note = 'Chưa cấu hình Google Sheet tồn kho (⚙️ Cài đặt).';
+  const keys = Object.keys(tonMap || {});
+  if (keys.length) {
+    keys.forEach(k => { const m = (tonMeta || {})[k] || {}, dm = (drugMap || {})[k] || {}; out.map[normMa(k)] = { ton: tonMap[k] || 0, ten: m.ten || dm.name || '', hl: m.hl || dm.hl || '' }; });
+    out.src = 'thekho';
+  }
+  return out;
+}
+
+/* ── Dữ liệu nhập phân bổ (có tên công ty) ── */
+async function getPB() {
+  if (!window.PB || !PB.lines) return { lines: [], ok: false, cfg: false };
+  const cfg = PB.configured();
+  if (!cfg) return { lines: PB.lines(), ok: PB.lines().length > 0, cfg: false };
+  let ok = false; try { ok = await PB.ensure(true); } catch (e) {}
+  return { lines: PB.lines(), ok: ok || PB.lines().length > 0, cfg: true };
+}
+
+const inferDvt = (ten, hl) => /inj|tiêm|ống|\/\s*\d*\s*ml|\bml\b/i.test((ten || '') + ' ' + (hl || '')) ? 'Ống' : 'Viên';
+
+function lotsFor(a, pbl, from, to) {
+  const cand = {};
+  const touch = (lo, han, cty, date, pb) => {
+    lo = String(lo || '').trim(); if (!lo && !han) return;
+    const k = lo.toLowerCase() || ('~' + han);
+    const c = cand[k] || (cand[k] = { lo, han: '', cty: '', d0: date || '9999-99-99', inP: false });
+    if (han && !c.han) c.han = han;
+    if (pb) { if (cty) c.cty = cty; } else if (cty && !c.cty) c.cty = cty;
+    if (date) { if (date < c.d0) c.d0 = date; if (date >= from && date <= to) c.inP = true; }
+  };
+  a.lotRecs.forEach(r => touch(r.lo, r.han, r.tenCty, r.date, false));
+  pbl.forEach(l => { if (l.date && l.date <= to) touch(l.lo, l.han, l.ncc, l.date, true); });
+  return Object.values(cand).sort((x, y) => x.d0 < y.d0 ? -1 : x.d0 > y.d0 ? 1 : 0);
+}
+
+/* ── Tổng hợp theo mã thuốc ── */
+function buildBase(from, to, ton, pb) {
+  const xs = parsed(xuatWB, XUAT_TYPES), ns = parsed(nhapWB, NHAP_TYPES);
+  const ms = monthStart(from), mid = from > ms;
+  const keyOf = r => normMa(r.ma) || ('t:' + String(r.ten || '').toLowerCase());
+  const A = {};
+  const getA = r => { const k = keyOf(r); const a = A[k] || (A[k] = { k, ma: r.ma || '', ten: '', hl: '', nhap: 0, xuat: 0, pre: 0, lotRecs: [], dg: 0, nsx: '', dvt: '' }); if (!a.ten && r.ten) a.ten = r.ten; if (!a.hl && r.hl) a.hl = r.hl; return a; };
+  ns.forEach(r => {
+    const a = getA(r);
+    if (r.date >= from && r.date <= to) a.nhap += r.sl;
+    else if (mid && r.date >= ms && r.date < from) a.pre += r.sl;
+    if (r.date <= to) {
+      const lt = (r.loaiCT || '').toLowerCase();
+      if (lt.includes('nhập kho') && !lt.includes('từ tủ trực') && !lt.includes('nhập tủ trực')) a.lotRecs.push(r);
+      const g = numVN(r.dg); if (g > 0) a.dg = g;
+      if (r.nsx) a.nsx = r.nsx; if (r.dvt) a.dvt = r.dvt;
+    }
+  });
+  xs.forEach(r => {
+    const a = getA(r);
+    if (r.date >= from && r.date <= to) a.xuat += r.sl;
+    else if (mid && r.date >= ms && r.date < from) a.pre -= r.sl;
+  });
+  const pbBy = {};
+  pb.lines.forEach(l => { const k = normMa(l.ma); (pbBy[k] = pbBy[k] || []).push(l); });
+  Object.values(pbBy).forEach(arr => arr.sort((x, y) => (x.date + x.ct) < (y.date + y.ct) ? -1 : 1));
+
+  Object.keys(ton.map).forEach(k => { if (!A[k] && ton.map[k].ton) A[k] = { k, ma: k, ten: ton.map[k].ten, hl: ton.map[k].hl, nhap: 0, xuat: 0, pre: 0, lotRecs: [], dg: 0, nsx: '', dvt: '' }; });
+
+  const rows = [];
+  Object.values(A).forEach(a => {
+    const t = ton.map[a.k];
+    if (t) { if (!a.ten) a.ten = t.ten; if (!a.hl) a.hl = t.hl; }
+    const ton0 = (t ? t.ton : 0) + a.pre;
+    const ton1 = ton0 + a.nhap - a.xuat;
+    if (!ton0 && !a.nhap && !a.xuat && !ton1) return;
+    const pbl = pbBy[a.k] || [];
+    const lots = lotsFor(a, pbl, from, to);
+    let shown = [];
+    if (ton0 > 0) { const before = lots.filter(l => l.d0 < from); if (before.length) shown.push(before[before.length - 1]); }
+    lots.filter(l => l.inP).forEach(l => { if (!shown.includes(l)) shown.push(l); });
+    if (!shown.length && lots.length) shown.push(lots[lots.length - 1]);
+    let cty = shown.length ? shown[shown.length - 1].cty : '';
+    if (!cty) { const l = pbl.slice().reverse().find(x => x.date <= to && x.ncc); cty = l ? l.ncc : ''; }
+    if (!cty) { const r = a.lotRecs.slice().reverse().find(x => x.tenCty); cty = r ? r.tenCty : ''; }
+    rows.push({
+      k: a.k, ma: a.ma || a.k, ten: a.ten || a.ma, hl: a.hl, ton0, nhap: a.nhap, xuat: a.xuat, ton1,
+      auto: { cty, lo: shown.map(l => l.lo), han: shown.map(l => l.han ? dmy(l.han) : ''), nsx: a.nsx, dg: a.dg, dvt: a.dvt || inferDvt(a.ten, a.hl) }
+    });
+  });
+  return { rows, from, to };
+}
+
+/* ── Áp thông tin bổ sung người dùng nhập → nhóm theo công ty ── */
+function overlay() {
+  const base = S.base; if (!base) return;
+  const groups = {}, tot = { t0: 0, n: 0, x: 0, t1: 0, tt: 0 };
+  base.rows.forEach(b => {
+    const m = STORE.byMa[b.k] || {};
+    const lo = m.lo ? [m.lo] : b.auto.lo;
+    const han = m.han ? [dmy(m.han)] : (m.lo ? [''] : b.auto.han);
+    const dgM = numVN(m.dg), dg = dgM > 0 ? dgM : b.auto.dg;
+    const cty = (m.cty || b.auto.cty || '').trim();
+    const row = { k: b.k, ten: b.ten, hl: b.hl, dvt: m.dvt || b.auto.dvt, lo, han, nsx: m.nsx || b.auto.nsx || '', dg, ton0: b.ton0, nhap: b.nhap, xuat: b.xuat, ton1: b.ton1, tt: dg > 0 ? b.ton1 * dg : 0, gc: m.gc || '' };
+    const gk = normCty(cty) || '~none';
+    const g = groups[gk] || (groups[gk] = { key: gk, label: cty || 'Chưa rõ công ty', rows: [] });
+    g.rows.push(row);
+    tot.t0 += row.ton0; tot.n += row.nhap; tot.x += row.xuat; tot.t1 += row.ton1; tot.tt += row.tt;
+  });
+  const list = Object.values(groups).sort((a, b) => a.key === '~none' ? 1 : b.key === '~none' ? -1 : a.label.localeCompare(b.label, 'vi'));
+  list.forEach(g => g.rows.sort((a, b) => String(a.ten).localeCompare(String(b.ten), 'vi')));
+  S.model = { from: base.from, to: base.to, groups: list, tot, kho: (STORE.kho || '').trim() || DEF_KHO, sign: STORE.sign || todayISO() };
+}
+
+function periodTitle(from, to) {
+  const a = from.split('-'), b = to.split('-');
+  if (a[2] === '01' && a[0] === b[0] && a[1] === b[1]) return 'THÁNG ' + Number(a[1]) + ' Năm ' + a[0];
+  return 'TỪ NGÀY ' + dmy(from) + ' ĐẾN NGÀY ' + dmy(to);
+}
+
+/* ── HTML báo cáo (dùng chung cho xem trước và in) ── */
+const COLS = [3.4, 16, 7.4, 4.8, 6.8, 7.2, 6.7, 8, 6.4, 6, 5.8, 5.9, 8.9, 6.7];
+function docHTML(m) {
+  const sg = m.sign.split('-');
+  let h = '<div class="hd"><div class="hd-l">SỞ Y TẾ TP. ĐÀ NẴNG<br>BỆNH VIỆN ĐÀ NẴNG<br>KHOA DƯỢC</div>' +
+    '<div class="hd-r">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc<br><span style="font-weight:normal">-----------------------</span></div></div>' +
+    '<div class="ttl"><div class="t1">BÁO CÁO NHẬP XUẤT TỒN</div><div class="t2">' + esc(m.kho) + '</div><div class="t3">' + esc(periodTitle(m.from, m.to)) + '</div></div>';
+  h += '<table class="bt"><colgroup>' + COLS.map(w => '<col style="width:' + w + '%">').join('') + '</colgroup><thead><tr>' +
+    '<th>STT</th><th colspan="2" style="text-transform:none">Tên Thuốc - Nồng độ - Hàm lượng</th><th>ĐVT</th><th>Số lô</th><th>Nơi SX</th><th>Hạn dùng</th><th>Đơn giá</th><th>Tồn đầu kỳ</th><th>Tổng nhập</th><th>Thực xuất</th><th>Tồn cuối kỳ</th><th>Thành tiền</th><th>Ghi chú</th></tr></thead><tbody>';
+  m.groups.forEach(g => {
+    h += '<tr class="co"><td colspan="14">' + esc(g.label) + '</td></tr>';
+    g.rows.forEach((r, i) => {
+      h += '<tr><td class="c">' + (i + 1) + '</td><td>' + esc(r.ten) + '</td><td>' + esc(r.hl) + '</td><td>' + esc(r.dvt) + '</td><td>' + r.lo.map(esc).join('<br>') + '</td><td>' + esc(r.nsx) + '</td><td>' + r.han.map(esc).join('<br>') + '</td>' +
+        '<td class="r">' + b0(r.dg) + '</td><td class="c">' + b0(r.ton0) + '</td><td class="c">' + b0(r.nhap) + '</td><td class="c">' + b0(r.xuat) + '</td><td class="c">' + b0(r.ton1) + '</td><td class="r">' + b0(r.tt) + '</td><td>' + esc(r.gc) + '</td></tr>';
+    });
+  });
+  const t = m.tot;
+  h += '<tr class="tt"><td colspan="8">Tổng cộng</td><td class="c">' + b0(t.t0) + '</td><td class="c">' + b0(t.n) + '</td><td class="c">' + b0(t.x) + '</td><td class="c">' + b0(t.t1) + '</td><td class="r">' + b0(t.tt) + '</td><td></td></tr></tbody></table>';
+  h += '<div class="sig"><div class="dt">Ngày ' + Number(sg[2]) + ' tháng ' + Number(sg[1]) + ' năm ' + sg[0] + '</div><table class="sg"><tr>' +
+    ['Trưởng khoa Dược', 'Phòng TCKT', 'Tiếp liệu', 'Đại diện công ty', 'Thống kê Dược', 'Thủ kho'].map(x => '<td>' + x + '</td>').join('') + '</tr></table></div>';
+  return h;
+}
+const BC_CSS = ($('bcx-css-src') || {}).textContent || '';
+
+function renderPreview() {
+  const m = S.model; if (!m) return;
+  $('bcx-page').innerHTML = docHTML(m);
+  $('bcx-hs-ma').textContent = m.groups.reduce((s, g) => s + g.rows.length, 0);
+  $('bcx-hs-nhap').textContent = fmt(m.tot.n);
+  $('bcx-hs-xuat').textContent = fmt(m.tot.x);
+  scale();
+}
+function scale() {
+  const wrap = $('bcx-wrap'), sc = $('bcx-scaler'), pg = $('bcx-page');
+  if (!wrap || !sc || !pg || !wrap.offsetWidth) return;
+  const k = Math.min(1, (wrap.offsetWidth - 2) / 1123);
+  sc.style.transform = 'scale(' + k + ')'; sc.style.transformOrigin = 'top left';
+  wrap.style.height = Math.min(640, Math.ceil(pg.offsetHeight * k) + 6) + 'px';
+}
+window.addEventListener('resize', scale);
+window.bcxnt_scale = scale;
+
+/* ── Bảng bổ sung thông tin ── */
+function renderEditor() {
+  const base = S.base, box = $('bcx-edit'); if (!base) { box.innerHTML = ''; return; }
+  const ctys = new Set(); base.rows.forEach(b => { if (b.auto.cty) ctys.add(b.auto.cty); });
+  (window.PB && PB.lines ? PB.lines() : []).forEach(l => { if (l.ncc) ctys.add(l.ncc); });
+  $('bcx-dl-cty').innerHTML = [...ctys].sort().map(c => '<option value="' + esc(c) + '">').join('');
+  box.innerHTML = base.rows.slice().sort((a, b) => String(a.ten).localeCompare(String(b.ten), 'vi')).map(b => {
+    const m = STORE.byMa[b.k] || {}, a = b.auto;
+    const f = (key, label, ph, attrs, cls) => '<label' + (cls ? ' class="' + cls + '"' : '') + '>' + label + '<input class="input" data-f="' + key + '" value="' + esc(m[key] || '') + '" placeholder="' + esc(ph || '') + '" ' + (attrs || '') + ' autocomplete="off"></label>';
+    return '<div class="bcx-er" data-k="' + esc(b.k) + '"><div class="bcx-en">' + esc(b.ten) + '<small>' + esc(b.hl) + ' · ' + esc(b.ma) + '</small></div><div class="bcx-eg">' +
+      f('cty', 'Công ty', a.cty, 'list="bcx-dl-cty"', 'w') + f('lo', 'Số lô', a.lo.join(', ')) + f('han', 'Hạn dùng', '', 'type="date"') +
+      f('nsx', 'Nơi SX', a.nsx) + f('dg', 'Đơn giá', a.dg ? fmt(a.dg) : '', 'inputmode="numeric"') + f('dvt', 'ĐVT', a.dvt) + f('gc', 'Ghi chú', '') + '</div></div>';
+  }).join('');
+}
+function later() { clearTimeout(S.tm); S.tm = setTimeout(() => { overlay(); renderPreview(); }, 250); }
+document.addEventListener('input', e => {
+  const t = e.target; if (!t || !t.closest) return;
+  const row = t.closest('#bcx-edit [data-k]');
+  if (row && t.dataset.f) {
+    const o = STORE.byMa[row.dataset.k] || (STORE.byMa[row.dataset.k] = {});
+    const v = t.value.trim(); if (v) o[t.dataset.f] = v; else delete o[t.dataset.f];
+    save(); later(); return;
+  }
+  if (t.id === 'bcx-kho') { STORE.kho = t.value.trim(); save(); later(); }
+  else if (t.id === 'bcx-sign') { STORE.sign = t.value; save(); later(); }
+});
+
+/* ── Thông báo ── */
+function notes(list) {
+  $('bcx-msg').innerHTML = list.map(n => '<div class="notice n-' + n[1] + '"><span class="n-i">' + (n[1] === 'green' ? '✅' : n[1] === 'red' ? '⚠️' : n[1] === 'orange' ? '⚠️' : 'ℹ️') + '</span><span>' + esc(n[0]) + '</span></div>').join('');
+}
+
+/* ── Chạy ── */
+window.bcxnt_run = async function () {
+  if (S.busy) return;
+  const from = $('bcx-from').value, to = $('bcx-to').value;
+  if (!xuatWB || !nhapWB) { notes([['Chưa có file Xuất kho / Nhập kho. Vào "Nhập dữ liệu" và chọn 2 file (dùng chung với Thẻ kho), rồi quay lại đây.', 'orange']]); return; }
+  if (!from || !to) { notes([['Hãy chọn Từ ngày và Đến ngày.', 'orange']]); return; }
+  if (from > to) { notes([['"Từ ngày" đang lớn hơn "Đến ngày".', 'orange']]); return; }
+  const btn = $('bcx-run'), old = btn.innerHTML; S.busy = true; btn.disabled = true; btn.innerHTML = '⏳ Đang lập báo cáo…';
+  try {
+    if (!parsed(xuatWB, XUAT_TYPES).length) throw new Error('Không đọc được dữ liệu từ file Xuất kho.');
+    if (!parsed(nhapWB, NHAP_TYPES).length) throw new Error('Không đọc được dữ liệu từ file Nhập kho.');
+    const [ton, pb] = await Promise.all([resolveTon(from), getPB()]);
+    S.base = buildBase(from, to, ton, pb); S.from = from; S.to = to; S.ran = true;
+    overlay(); $('bcx-out').classList.remove('hidden'); $('bcx-out').style.display = 'flex'; renderEditor(); renderPreview();
+    const ns = [], rng = fileRange(), ms = monthStart(from);
+    if (!S.model.groups.length) ns.push(['Không có thuốc nào có tồn hoặc phát sinh trong khoảng ngày này.', 'orange']);
+    if (ton.src === 'sheet') ns.push(['Tồn đầu kỳ: lấy từ tab tồn cuối tháng ' + ton.mk + ' trên Google Sheet.', 'green']);
+    else if (ton.src === 'thekho') ns.push([ton.note + ' Đang dùng tồn đã nạp ở Thẻ kho — hãy kiểm tra đúng kỳ.', 'orange']);
+    else ns.push([ton.note + ' Tồn đầu kỳ đang tính = 0 (chỉ gồm biến động trong file).', 'orange']);
+    if (from > ms) {
+      const prevDay = isoOf(new Date(Number(from.slice(0, 4)), Number(from.slice(5, 7)) - 1, Number(from.slice(8, 10)) - 1));
+      const gap = !!(rng[0] && rng[0] > ms);
+      ns.push([gap ? 'Từ ngày không phải ngày 1 và file bắt đầu từ ' + dmy(rng[0]) + ': tồn đầu kỳ có thể thiếu biến động từ ' + dmy(ms) + ' đến ' + dmy(prevDay) + '.' : 'Tồn đầu kỳ = tồn cuối tháng trước + nhập − xuất từ ' + dmy(ms) + ' đến ' + dmy(prevDay) + '.', gap ? 'orange' : 'blue']);
+    }
+    if (pb.ok) ns.push(['Tên công ty: lấy từ dòng nhập trong Theo dõi phân bổ (' + pb.lines.length + ' dòng).', 'green']);
+    else ns.push([pb.cfg ? 'Không tải được dữ liệu Phân bổ → tên công ty lấy từ cột "Tên" của file nhập kho.' : 'Chưa kết nối Google Sheet Phân bổ → tên công ty lấy từ cột "Tên" của file nhập kho.', 'orange']);
+    const nc = S.model.groups.filter(g => g.key === '~none').reduce((s, g) => s + g.rows.length, 0);
+    if (nc) ns.push([nc + ' thuốc chưa có tên công ty — bổ sung ở mục ✏️ bên dưới.', 'orange']);
+    const nd = S.model.groups.reduce((s, g) => s + g.rows.filter(r => !r.dg).length, 0);
+    if (nd) ns.push([nd + ' thuốc chưa có đơn giá (Thành tiền để trống) — nhập ở mục ✏️ bên dưới, app sẽ nhớ cho lần sau.', 'blue']);
+    notes(ns);
+  } catch (e) { notes([['Lỗi: ' + e.message, 'red']]); console.error(e); }
+  finally { S.busy = false; btn.disabled = false; btn.innerHTML = old; }
+};
+
+function showOut() { const o = $('bcx-out'); if (o && !o.classList.contains('hidden')) o.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function setRange(f, e) {
+  if (!f) { notes([['Chưa có dữ liệu từ file Xuất / Nhập để lấy khoảng ngày.', 'orange']]); return false; }
+  $('bcx-from').value = f; $('bcx-to').value = e;
+  $('bcx-month').value = f.slice(0, 7) === e.slice(0, 7) ? f.slice(0, 7) : '';
+  return true;
+}
+window.bcxnt_preset = function (p) {
+  const t = todayISO(); let f = '', e = '';
+  if (p === 'thismonth') { f = monthStart(t); e = t; }
+  else if (p === 'lastmonth') { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); f = isoOf(d); e = monthEnd(f); }
+  else { const r = fileRange(); f = r[0]; e = r[1]; }
+  if (setRange(f, e)) window.bcxnt_run().then(showOut);
+};
+window.bcxnt_month = function (v) {
+  if (!/^\d{4}-\d{2}$/.test(v || '')) return;
+  const f = v + '-01', me = monthEnd(f), t = todayISO();
+  if (setRange(f, me > t && f <= t ? t : me)) window.bcxnt_run().then(showOut);
+};
+
+window.bcxnt_open = function () {
+  $('bcx-kho').value = STORE.kho || ''; $('bcx-kho').placeholder = DEF_KHO;
+  $('bcx-sign').value = STORE.sign || todayISO();
+  if (!$('bcx-from').value || !$('bcx-to').value) {
+    const f = ($('tk-date-from') || {}).value, t = ($('tk-date-to') || {}).value;
+    if (f && t) { $('bcx-from').value = f; $('bcx-to').value = t; }
+    else if (xuatWB && nhapWB) { const r = fileRange(); if (r[1]) { $('bcx-from').value = monthStart(r[1]); $('bcx-to').value = r[1]; } }
+    else { $('bcx-from').value = monthStart(todayISO()); $('bcx-to').value = todayISO(); }
+  }
+  if (!xuatWB || !nhapWB) notes([['Chưa có file Xuất kho / Nhập kho. Vào "Nhập dữ liệu" và chọn 2 file (dùng chung với Thẻ kho).', 'orange']]);
+  else if (!S.ran) window.bcxnt_run();
+  if ($('bcx-from').value && $('bcx-from').value.slice(0, 7) === $('bcx-to').value.slice(0, 7)) $('bcx-month').value = $('bcx-from').value.slice(0, 7);
+  if (XC().url && !S.savedLoaded) window.bcxnt_listSaved(false);
+  setTimeout(scale, 80);
+};
+
+
+/* ── Lưu báo cáo hằng tháng lên Google Sheet (Apps Script BaoCaoXNT_AppsScript.gs) ── */
+const XC = () => ({ url: localStorage.getItem('xnt_url') || '', token: localStorage.getItem('xnt_token') || '' });
+async function xApi(action, extra) {
+  const c = XC(); if (!c.url) throw new Error('Chưa kết nối Google Sheet (bấm ⚙ Kết nối Sheet).');
+  let res, raw = '', d;
+  try { res = await fetch(c.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, token: c.token }, extra || {})) }); }
+  catch (e) { throw new Error('Không kết nối được. Kiểm tra URL Web App và quyền “Anyone”.'); }
+  try { raw = await res.text(); d = JSON.parse(raw); }
+  catch (e) { throw new Error(/accounts\.google|sign ?in/i.test(raw) ? 'Google đang yêu cầu đăng nhập: hãy Deploy lại với “Who has access = Anyone”.' : 'Phản hồi không hợp lệ. Kiểm tra URL /exec và đã Deploy phiên bản mới.'); }
+  if (!d.ok) throw new Error(d.error || 'Script báo lỗi');
+  return d;
+}
+function xMsg(t, cls) { const m = $('bcx-xmsg'); m.style.color = cls === 'bad' ? '#b91c1c' : cls === 'ok' ? '#15803d' : '#475569'; m.textContent = t || ''; }
+const savedKey = (f, t) => (f.slice(8, 10) === '01' && f.slice(0, 7) === t.slice(0, 7)) ? f.slice(0, 7) : f + '_' + t;
+const fmtTime = iso => { try { return new Date(iso).toLocaleString('vi-VN'); } catch (e) { return iso || ''; } };
+
+window.bcxnt_cfgToggle = function () {
+  const b = $('bcx-xcfg'), on = b.style.display === 'none';
+  if (on) { const c = XC(); $('bcx-xurl').value = c.url; $('bcx-xtok').value = c.token; }
+  b.style.display = on ? 'flex' : 'none';
+};
+function cfgRead() { localStorage.setItem('xnt_url', $('bcx-xurl').value.trim()); localStorage.setItem('xnt_token', $('bcx-xtok').value.trim()); }
+window.bcxnt_cfgTest = async function () {
+  cfgRead(); xMsg('Đang kiểm tra…');
+  try { const d = await xApi('ping'); if (!(d.actions || []).includes('save')) throw new Error('URL này không phải script “Báo cáo XNT”. Kiểm tra lại URL /exec.'); xMsg('Kết nối OK — ' + d.sheet + ', đã lưu ' + d.saved + ' kỳ báo cáo.', 'ok'); }
+  catch (e) { xMsg(e.message, 'bad'); }
+};
+window.bcxnt_cfgSave = function () { cfgRead(); $('bcx-xcfg').style.display = 'none'; xMsg('Đã lưu kết nối.', 'ok'); S.savedLoaded = false; window.bcxnt_listSaved(true); };
+
+window.bcxnt_listSaved = async function (manual) {
+  const box = $('bcx-saved');
+  if (!XC().url) { box.textContent = 'Chưa kết nối Google Sheet. Bấm “⚙ Kết nối Sheet” để nhập URL Web App.'; return; }
+  box.textContent = 'Đang tải…';
+  try {
+    const d = await xApi('list'); S.saved = {}; S.savedLoaded = true;
+    (d.items || []).forEach(it => { S.saved[it.key] = it; });
+    box.innerHTML = (d.items || []).length ? d.items.map(it =>
+      '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1;min-width:0"><b style="color:var(--t1)">' + esc(it.key.includes('_') ? dmy(it.from) + ' → ' + dmy(it.to) : 'Tháng ' + it.key.slice(5) + '/' + it.key.slice(0, 4)) + '</b>' +
+      '<div style="font-size:11.5px">' + esc(dmy(it.from)) + ' – ' + esc(dmy(it.to)) + ' · ' + it.rows + ' thuốc · lưu ' + esc(fmtTime(it.savedAt)) + (it.versions > 1 ? ' · ' + it.versions + ' lần lưu' : '') + '</div></div>' +
+      '<button class="btn btn-sm btn-ghost" onclick="bcxnt_loadSaved(\'' + esc(it.key) + '\')">Xem</button></div>').join('') : 'Chưa có báo cáo nào được lưu.';
+    if (manual) xMsg('');
+  } catch (e) { box.textContent = '—'; xMsg(e.message, 'bad'); }
+};
+
+window.bcxnt_save = async function () {
+  const m = S.model; if (!m) { alert('Hãy lập báo cáo trước.'); return; }
+  if (!XC().url) { $('bcx-xcfg').style.display === 'none' && window.bcxnt_cfgToggle(); xMsg('Hãy nhập URL Web App rồi bấm Lưu kết nối, sau đó lưu báo cáo.', 'bad'); $('bcx-saved').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  const key = savedKey(m.from, m.to), old = S.saved && S.saved[key];
+  if (old && !confirm('Kỳ này đã có bản lưu lúc ' + fmtTime(old.savedAt) + '.\nLưu đè bản mới? (bản cũ vẫn được giữ trong nhật ký “BC_XNT_NhatKy” trên Sheet)')) return;
+  xMsg('Đang lưu lên Google Sheet…');
+  try {
+    const d = await xApi('save', { key, model: { from: m.from, to: m.to, kho: m.kho, sign: m.sign, groups: m.groups, tot: m.tot } });
+    xMsg('Đã lưu kỳ ' + d.key + ' (' + d.rows + ' thuốc) vào tab “' + d.tab + '”.', 'ok'); S.savedLoaded = false; window.bcxnt_listSaved(false);
+  } catch (e) { xMsg(e.message, 'bad'); }
+};
+
+window.bcxnt_loadSaved = async function (key) {
+  xMsg('Đang tải báo cáo đã lưu…');
+  try {
+    const d = await xApi('get', { key }), m = d.model; if (!m || !m.groups) throw new Error('Bản lưu bị lỗi.');
+    S.model = m; S.base = null; S.ran = true;
+    $('bcx-from').value = m.from; $('bcx-to').value = m.to; $('bcx-month').value = m.from.slice(0, 7) === m.to.slice(0, 7) ? m.from.slice(0, 7) : '';
+    $('bcx-kho').value = m.kho || ''; $('bcx-sign').value = m.sign || '';
+    $('bcx-out').classList.remove('hidden'); $('bcx-out').style.display = 'flex'; renderEditor(); renderPreview();
+    notes([['Đang xem bản đã lưu ' + (d.savedAt ? 'lúc ' + fmtTime(d.savedAt) : '') + '. In / Xuất Excel dùng đúng số liệu này. Muốn tính lại từ file hiện tại, bấm “Lập báo cáo”.', 'blue']]);
+    xMsg(''); showOut();
+  } catch (e) { xMsg(e.message, 'bad'); }
+};
+
+/* ── In / PDF ── */
+window.bcxnt_print = function () {
+  if (!S.model) { alert('Hãy lập báo cáo trước.'); return; }
+  const css = '*{box-sizing:border-box;margin:0;padding:0}body{background:#fff}@page{size:A4 landscape;margin:10mm 10mm 14mm}@page{@top-left{content:" "}@top-center{content:" "}@top-right{content:" "}@bottom-left{content:" "}@bottom-center{content:" "}@bottom-right{content:"Trang " counter(page) "/" counter(pages);font:10pt "Times New Roman",serif}}' + BC_CSS +
+    '.bcx{font-size:12px}.bcx thead{display:table-header-group}.bcx .bt tr{break-inside:avoid;page-break-inside:avoid}';
+  mobilePrint('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Báo cáo xuất nhập tồn ' + dmy(S.model.from) + ' - ' + dmy(S.model.to) + '</title><style>' + css + '</style></head><body><div class="bcx">' + docHTML(S.model) + '</div></body></html>', 'Báo cáo xuất nhập tồn');
+};
+
+/* ── Excel ── */
+window.bcxnt_excel = function () {
+  const m = S.model; if (!m) { alert('Hãy lập báo cáo trước.'); return; }
+  const sg = m.sign.split('-'), NC = 14, aoa = [], mg = [];
+  const line = (arr, merge) => { aoa.push(arr); if (merge) mg.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: NC - 1 } }); };
+  const pr = (a, c, b) => { const x = new Array(NC).fill(''); x[0] = a; x[c] = b; return x; };
+  line(pr('SỞ Y TẾ TP. ĐÀ NẴNG', 7, 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM'));
+  line(pr('BỆNH VIỆN ĐÀ NẴNG', 7, 'Độc lập - Tự do - Hạnh phúc'));
+  line(pr('KHOA DƯỢC', 7, '-----------------------'));
+  line([]);
+  line(['BÁO CÁO NHẬP XUẤT TỒN'], true); line([m.kho], true); line([periodTitle(m.from, m.to)], true); line([]);
+  aoa.push(['STT', 'Tên Thuốc - Nồng độ - Hàm lượng', '', 'ĐVT', 'SỐ LÔ', 'NƠI SX', 'HẠN DÙNG', 'ĐƠN GIÁ', 'TỒN ĐẦU KỲ', 'TỔNG NHẬP', 'THỰC XUẤT', 'TỒN CUỐI KỲ', 'THÀNH TIỀN', 'GHI CHÚ']);
+  mg.push({ s: { r: aoa.length - 1, c: 1 }, e: { r: aoa.length - 1, c: 2 } });
+  m.groups.forEach(g => {
+    line([g.label], true);
+    g.rows.forEach((r, i) => aoa.push([i + 1, r.ten, r.hl, r.dvt, r.lo.join('\n'), r.nsx, r.han.join('\n'), r.dg || '', r.ton0 || '', r.nhap || '', r.xuat || '', r.ton1 || '', r.tt || '', r.gc]));
+  });
+  const t = m.tot;
+  aoa.push(['Tổng cộng', '', '', '', '', '', '', '', t.t0 || '', t.n || '', t.x || '', t.t1 || '', t.tt || '', '']);
+  mg.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: 7 } });
+  line([]);
+  const d = new Array(NC).fill(''); d[10] = 'Ngày ' + Number(sg[2]) + ' tháng ' + Number(sg[1]) + ' năm ' + sg[0]; aoa.push(d);
+  const s = new Array(NC).fill(''); s[0] = 'Trưởng khoa Dược'; s[3] = 'Phòng TCKT'; s[5] = 'Tiếp liệu'; s[7] = 'Đại diện công ty'; s[10] = 'Thống kê Dược'; s[12] = 'Thủ kho'; aoa.push(s);
+  const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!merges'] = mg;
+  ws['!cols'] = [6, 26, 14, 7, 12, 18, 12, 11, 11, 11, 11, 11, 14, 14].map(w => ({ wch: w }));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Xuất nhập tồn');
+  xlsxDownload(wb, 'Bao_cao_xuat_nhap_ton_' + m.from + '_' + m.to + '.xlsx');
+};
+})();
+</script>
+
 <script>
 /* Gam màu đổi theo phút: mỗi phút nhích 30° trên vòng màu, trong phút trôi mượt theo giây */
 (function () {
