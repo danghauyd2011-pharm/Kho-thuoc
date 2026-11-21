@@ -6,6 +6,7 @@
 <title>Kho thuốc</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -1433,11 +1434,12 @@ body:not(.home-open) .content-area{padding-bottom:96px!important}
 /* ═══ THEME 3: Gam màu đổi theo phút (JS chỉ cập nhật biến --h = góc màu) ═══ */
 @supports (color: oklch(0.5 0.2 100)) {
 :root{
+  --sp:1;
   --c1:oklch(.60 .20 var(--h)); --c1l:oklch(.95 .03 var(--h)); --c1d:oklch(.45 .19 var(--h));
   --bd:oklch(.37 .13 var(--h)); --bd2:oklch(.42 .15 var(--h));
   --bm:oklch(.55 .21 var(--h)); --bm2:oklch(.48 .20 var(--h)); --bl:oklch(.96 .02 var(--h));
-  --g1:linear-gradient(100deg,oklch(.33 .15 calc(var(--h) - 20)),oklch(.52 .22 var(--h)) 38%,oklch(.58 .24 calc(var(--h) + 45)) 72%,oklch(.72 .18 calc(var(--h) + 110)));
-  --g2:linear-gradient(135deg,oklch(.40 .18 calc(var(--h) - 10)),oklch(.52 .22 var(--h)) 55%,oklch(.56 .22 calc(var(--h) + 50)));
+  --g1:linear-gradient(100deg,oklch(.33 .15 calc(var(--h) - 20 * var(--sp))),oklch(.52 .22 var(--h)) 38%,oklch(.58 .24 calc(var(--h) + 45 * var(--sp))) 72%,oklch(.72 .18 calc(var(--h) + 110 * var(--sp))));
+  --g2:linear-gradient(135deg,oklch(.40 .18 calc(var(--h) - 10 * var(--sp))),oklch(.52 .22 var(--h)) 55%,oklch(.56 .22 calc(var(--h) + 50 * var(--sp))));
   --pu:oklch(.52 .22 var(--h));
   --sh:oklch(.50 .20 var(--h) / .35); --sh2:oklch(.50 .20 var(--h) / .10); --sh3:oklch(.50 .20 var(--h) / .25);
   --ink:oklch(.25 .08 var(--h));
@@ -1449,17 +1451,17 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
 #home .hm-t{box-shadow:0 8px 24px var(--sh2)!important}
 #home .hm-t:hover{box-shadow:0 12px 30px var(--sh3)!important}
 #home .hm-i{box-shadow:0 6px 14px var(--sh)}
-#home .hm-g .hm-t:nth-child(4n+1) .hm-i{background:linear-gradient(135deg,oklch(.62 .21 calc(var(--h) - 12)),oklch(.52 .22 var(--h)))!important}
+#home .hm-g .hm-t:nth-child(4n+1) .hm-i{background:linear-gradient(135deg,oklch(.62 .21 calc(var(--h) - 12 * var(--sp))),oklch(.52 .22 var(--h)))!important}
 #home .hm-n,#home .hm-h,#home .hm-sec{color:var(--ink)!important}
 #home .hm-q{background:oklch(.96 .025 var(--h))!important}
-#drawer{background:linear-gradient(180deg,oklch(.25 .10 calc(var(--h) - 10)),oklch(.37 .16 var(--h)) 55%,oklch(.38 .15 calc(var(--h) + 60)))!important}
+#drawer{background:linear-gradient(180deg,oklch(.25 .10 calc(var(--h) - 10 * var(--sp))),oklch(.37 .16 var(--h)) 55%,oklch(.38 .15 calc(var(--h) + 60 * var(--sp))))!important}
 .nx-side-nav .nxb{color:oklch(.93 .03 var(--h))}
-.nx-side-nav .nxb.on{background:linear-gradient(90deg,oklch(.70 .19 calc(var(--h) + 110)),oklch(.55 .23 calc(var(--h) + 50)))}
+.nx-side-nav .nxb.on{background:linear-gradient(90deg,oklch(.70 .19 calc(var(--h) + 110 * var(--sp))),oklch(.55 .23 calc(var(--h) + 50 * var(--sp))))}
 #nx-tab{box-shadow:0 10px 30px var(--sh)}
 #nx-tab button{color:oklch(.60 .05 var(--h))}
 #nx-tab button.on{color:var(--pu)}
-.shv-h{background:linear-gradient(135deg,var(--bl),oklch(.96 .02 calc(var(--h) + 40)))}
-.ug-hero{background:linear-gradient(100deg,var(--bd),var(--bm) 60%,oklch(.56 .16 calc(var(--h) + 90)))}
+.shv-h{background:linear-gradient(135deg,var(--bl),oklch(.96 .02 calc(var(--h) + 40 * var(--sp))))}
+.ug-hero{background:linear-gradient(100deg,var(--bd),var(--bm) 60%,oklch(.56 .16 calc(var(--h) + 90 * var(--sp))))}
 }
 </style>
 </head>
@@ -1578,6 +1580,7 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
     <div class="tb-sub">Bệnh Viện Đà Nẵng</div>
   </div>
   <div class="tb-right">
+    <button id="theme-btn" onclick="themeOpen()" title="Chọn giao diện / màu sắc" aria-label="Giao diện" style="height:32px;padding:0 9px;border:1px solid rgba(255,255,255,.55);border-radius:10px;background:rgba(255,255,255,.18);color:#fff;font:800 14px/1 inherit;cursor:pointer">🎨</button>
     <button id="mini-btn" onclick="miniToggle()" title="Thu nhỏ thành cửa sổ đồng hồ luôn nổi trên các ứng dụng khác" aria-label="Thu nhỏ" style="height:32px;padding:0 10px;border:1px solid rgba(255,255,255,.55);border-radius:10px;background:rgba(255,255,255,.18);color:#fff;font:800 12px/1 inherit;cursor:pointer;white-space:nowrap">🗕 Thu nhỏ</button>
     <div class="tb-zoom">
       <button class="tb-zoom-btn" onclick="adjustZoom(-0.1)">−</button>
@@ -1819,9 +1822,14 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
           </div>
         </div>
 
-        <button class="btn btn-green" onclick="exportDailyBB()" id="btn-export-daily" style="height:50px;font-size:14px">
-          ⬇️ Xuất Biên Bản Hằng Ngày (.docx)
-        </button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-green" onclick="exportDailyBB()" id="btn-export-daily" style="flex:1;height:50px;font-size:14px">
+            ⬇️ Xuất file (.docx)
+          </button>
+          <button class="btn btn-orange" onclick="printDailyBB()" id="btn-print-daily" style="flex:1;height:50px;font-size:14px">
+            🖨️ In ngay
+          </button>
+        </div>
 
         <div id="daily-results" class="result-list hidden"></div>
 
@@ -4308,7 +4316,7 @@ function numberToVietnamese(n){
 }
 
 // ── A4 PREVIEW RENDERER ──
-function renderA4Preview(rows,total,dateFrom,dateTo){
+function a4Html(rows,total,dateFrom,dateTo){
   const [fY,fM,fD]=dateFrom.split('-');
   const [tY,tM,tD]=dateTo.split('-');
   const totalWords=numberToVietnamese(total);
@@ -4353,7 +4361,27 @@ function renderA4Preview(rows,total,dateFrom,dateTo){
         <div class="a4-sign-right"><strong>Chủ tịch hội đồng</strong><br><br><br><strong>${(CFG&&CFG.chairmanTitle||'PHÓ GIÁM ĐỐC')}</strong><br><strong>${(CFG&&CFG.chairmanName||'TS.BSCKII.Nguyễn Thành Trung')}</strong></div>
       </div>
     </div>`;
-  document.getElementById('a4-daily-preview').innerHTML=html;
+  return html;
+}
+function renderA4Preview(rows,total,dateFrom,dateTo){document.getElementById('a4-daily-preview').innerHTML=a4Html(rows,total,dateFrom,dateTo);}
+
+// ── In thẳng biên bản (cùng nội dung với bản xem trước / file .docx) ──
+const BB_PRINT_CSS=".a4-header { display:flex; justify-content:space-between; margin-bottom:4px; font-size:12.5px; } .a4-header-left { flex:0 0 34.375%; text-align:center; } .a4-header-right { flex:0 0 65.625%; text-align:center; } .a4-header-line { display:block; height:1px; background:#000; width:70%; margin:3px auto 0; } .a4-title { text-align:center; font-weight:bold; font-size:13.5px; margin:14px 0 2px; text-transform:uppercase; } .a4-subtitle { text-align:center; font-weight:bold; font-size:13px; margin-bottom:2px; } .a4-date-range { text-align:center; font-style:italic; font-size:13px; margin-bottom:12px; } .a4-council { margin-bottom:8px; font-size:12.5px; } .a4-council-member { padding-left:6px; line-height:1.6; } .a4-table { width:100%; border-collapse:collapse; font-size:12px; margin-bottom:6px; } .a4-table th,.a4-table td { border:1px solid #000; padding:4px 6px; vertical-align:middle; } .a4-table th { text-align:center; font-weight:bold; } .a4-table .center { text-align:center; } .a4-footer { font-size:12.5px; } .a4-sign-row { display:flex; justify-content:space-between; margin-top:16px; font-size:12.5px; } .a4-sign-left,.a4-sign-right { text-align:center; }";
+function printDailyBB(){
+  const groups=getSelectedGroups();
+  if(groups.length===0){showBBError('Vui lòng chọn ít nhất một ngày/nhóm ngày.');return;}
+  const pages=[];
+  if(isMergeMode()){
+    const dates=getMergedDatesFromGroups(groups),{rows,total}=aggregateForBB(dates);
+    if(rows.length)pages.push(a4Html(rows,total,dates[0],dates[dates.length-1]));
+  }else{
+    groups.forEach(g=>{const {rows,total}=aggregateForBB(g);if(rows.length)pages.push(a4Html(rows,total,g[0],g[g.length-1]));});
+  }
+  if(!pages.length){showBBError('Không có dữ liệu thuốc trong các ngày đã chọn.');return;}
+  const css='*{box-sizing:border-box;margin:0;padding:0}body{background:#fff;font-family:"Times New Roman",serif;font-size:13px;line-height:1.5;color:#000}'+
+    '@page{size:A4 portrait;margin:10mm 13mm}@page{@top-left{content:" "}@top-center{content:" "}@top-right{content:" "}@bottom-left{content:" "}@bottom-center{content:" "}@bottom-right{content:" "}}'+
+    '.pg{page-break-after:always;break-after:page}.pg:last-child{page-break-after:auto;break-after:auto}.a4-table tr{break-inside:avoid;page-break-inside:avoid}.a4-table thead{display:table-header-group}.a4-sign-row{break-inside:avoid;page-break-inside:avoid}'+BB_PRINT_CSS;
+  mobilePrint('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Biên bản hủy bao bì</title><style>'+css+'</style></head><body>'+pages.map(h=>'<div class="pg">'+h+'</div>').join('')+'</body></html>','Biên bản hủy bao bì');
 }
 
 // ── Export Daily ──
@@ -8495,50 +8523,159 @@ window.bcxnt_print = function () {
   mobilePrint('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Báo cáo xuất nhập tồn ' + dmy(S.model.from) + ' - ' + dmy(S.model.to) + '</title><style>' + css + '</style></head><body><div class="bcx">' + docHTML(S.model) + '</div></body></html>', 'Báo cáo xuất nhập tồn');
 };
 
-/* ── Excel ── */
-window.bcxnt_excel = function () {
+/* ── Excel: định dạng giống bản in PDF (viền, font Times New Roman, gộp ô, khổ A4 ngang, lặp tiêu đề bảng, số trang) ── */
+window.bcxnt_excel = async function () {
   const m = S.model; if (!m) { alert('Hãy lập báo cáo trước.'); return; }
-  const sg = m.sign.split('-'), NC = 14, aoa = [], mg = [];
-  const line = (arr, merge) => { aoa.push(arr); if (merge) mg.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: NC - 1 } }); };
-  const pr = (a, c, b) => { const x = new Array(NC).fill(''); x[0] = a; x[c] = b; return x; };
-  line(pr('SỞ Y TẾ TP. ĐÀ NẴNG', 7, 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM'));
-  line(pr('BỆNH VIỆN ĐÀ NẴNG', 7, 'Độc lập - Tự do - Hạnh phúc'));
-  line(pr('KHOA DƯỢC', 7, '-----------------------'));
-  line([]);
-  line(['BÁO CÁO NHẬP XUẤT TỒN'], true); line([m.kho], true); line([periodTitle(m.from, m.to)], true); line([]);
-  aoa.push(['STT', 'Tên Thuốc - Nồng độ - Hàm lượng', '', 'ĐVT', 'SỐ LÔ', 'NƠI SX', 'HẠN DÙNG', 'ĐƠN GIÁ', 'TỒN ĐẦU KỲ', 'TỔNG NHẬP', 'THỰC XUẤT', 'TỒN CUỐI KỲ', 'THÀNH TIỀN', 'GHI CHÚ']);
-  mg.push({ s: { r: aoa.length - 1, c: 1 }, e: { r: aoa.length - 1, c: 2 } });
-  m.groups.forEach(g => {
-    line([g.label], true);
-    g.rows.forEach((r, i) => aoa.push([i + 1, r.ten, r.hl, r.dvt, r.lo.join('\n'), r.nsx, r.han.join('\n'), r.dg || '', r.ton0 || '', r.nhap || '', r.xuat || '', r.ton1 || '', r.tt || '', r.gc]));
+  if (!window.ExcelJS) { alert('Thư viện Excel chưa tải (cần internet). Tải lại trang rồi thử lại.'); return; }
+  const sg = m.sign.split('-'), NC = 14, FONT = 'Times New Roman';
+  const wb = new ExcelJS.Workbook(); wb.creator = 'Khoa Dược - BV Đà Nẵng';
+  const ws = wb.addWorksheet('Xuất nhập tồn', {
+    views: [{ showGridLines: false }],
+    pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0, horizontalCentered: true,
+      margins: { left: 0.39, right: 0.39, top: 0.39, bottom: 0.59, header: 0.2, footer: 0.25 } },
+    headerFooter: { oddFooter: '&R&"' + FONT + ',Regular"&10Trang &P/&N' }
   });
-  const t = m.tot;
-  aoa.push(['Tổng cộng', '', '', '', '', '', '', '', t.t0 || '', t.n || '', t.x || '', t.t1 || '', t.tt || '', '']);
-  mg.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: 7 } });
-  line([]);
-  const d = new Array(NC).fill(''); d[10] = 'Ngày ' + Number(sg[2]) + ' tháng ' + Number(sg[1]) + ' năm ' + sg[0]; aoa.push(d);
-  const s = new Array(NC).fill(''); s[0] = 'Trưởng khoa Dược'; s[3] = 'Phòng TCKT'; s[5] = 'Tiếp liệu'; s[7] = 'Đại diện công ty'; s[10] = 'Thống kê Dược'; s[12] = 'Thủ kho'; aoa.push(s);
-  const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!merges'] = mg;
-  ws['!cols'] = [6, 26, 14, 7, 12, 18, 12, 11, 11, 11, 11, 11, 14, 14].map(w => ({ wch: w }));
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Xuất nhập tồn');
-  xlsxDownload(wb, 'Bao_cao_xuat_nhap_ton_' + m.from + '_' + m.to + '.xlsx');
+  /* cột theo đúng tỉ lệ bản in (tổng ≈ 1047px = A4 ngang trừ lề) */
+  const widths = COLS.map(w => Math.round((w * 10.47 - 5) / 7 * 100) / 100);
+  ws.columns = widths.map(w => ({ width: w }));
+  const BLK = { style: 'thin', color: { argb: 'FF000000' } }, DOT = { style: 'dotted', color: { argb: 'FF777777' } };
+  const f = (sz, o) => Object.assign({ name: FONT, size: sz }, o || {});
+  const row = (h) => { const r = ws.addRow([]); if (h) r.height = h; return r; };
+  const put = (r, c1, c2, val, font, al) => {
+    const cell = r.getCell(c1); cell.value = val; cell.font = font; cell.alignment = Object.assign({ vertical: 'middle' }, al || {});
+    if (c2 && c2 > c1) ws.mergeCells(r.number, c1, r.number, c2); return cell;
+  };
+  /* đầu trang: trái – quốc hiệu (căn giữa cụm F:K ≈ 58,7% bề ngang) */
+  const hdL = ['SỞ Y TẾ TP. ĐÀ NẴNG', 'BỆNH VIỆN ĐÀ NẴNG', 'KHOA DƯỢC'], hdR = ['CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', 'Độc lập - Tự do - Hạnh phúc', '-----------------------'];
+  for (let i = 0; i < 3; i++) {
+    const r = row(17);
+    put(r, 1, 5, hdL[i], f(10, { bold: true }), { horizontal: 'left' });
+    put(r, 6, 11, hdR[i], f(10, { bold: i < 2 }), { horizontal: 'center' });
+  }
+  row(14);
+  put(row(24), 1, NC, 'BÁO CÁO NHẬP XUẤT TỒN', f(15, { bold: true }), { horizontal: 'center' });
+  put(row(21), 1, NC, m.kho || '', f(13, { bold: true }), { horizontal: 'center' });
+  put(row(19), 1, NC, periodTitle(m.from, m.to), f(11, { bold: true }), { horizontal: 'center' });
+  row(12);
+
+  /* tiêu đề bảng */
+  const hr = row(32), HDR = ['STT', 'Tên Thuốc - Nồng độ - Hàm lượng', '', 'ĐVT', 'SỐ LÔ', 'NƠI SX', 'HẠN DÙNG', 'ĐƠN GIÁ', 'TỒN ĐẦU KỲ', 'TỔNG NHẬP', 'THỰC XUẤT', 'TỒN CUỐI KỲ', 'THÀNH TIỀN', 'GHI CHÚ'];
+  HDR.forEach((t, i) => { hr.getCell(i + 1).value = t; });
+  ws.mergeCells(hr.number, 2, hr.number, 3);
+  for (let c = 1; c <= NC; c++) {
+    const cell = hr.getCell(c); cell.font = f(9.5, { bold: true });
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }; cell.border = { top: BLK, bottom: BLK, left: BLK, right: BLK };
+  }
+  const headerRowNo = hr.number;
+  ws.pageSetup.printTitlesRow = headerRowNo + ':' + headerRowNo;
+
+  /* ước lượng số dòng khi xuống dòng để đặt chiều cao hàng */
+  const cap = c => Math.max(4, Math.floor(widths[c] * 1.3));
+  const lines = (txt, c) => { let n = 0; String(txt == null ? '' : txt).split('\n').forEach(seg => { n += Math.max(1, Math.ceil(seg.length / cap(c))); }); return n; };
+
+  m.groups.forEach(g => {
+    const gr = row(18);
+    for (let c = 1; c <= NC; c++) gr.getCell(c).border = { top: BLK, bottom: BLK, left: BLK, right: BLK };
+    put(gr, 1, NC, g.label || '', f(9.5, { bold: true }), { horizontal: 'left' });
+    gr.getCell(1).border = { top: BLK, bottom: BLK, left: BLK, right: BLK };
+    g.rows.forEach((r, i) => {
+      const vals = [i + 1, r.ten || '', r.hl || '', r.dvt || '', (r.lo || []).join('\n'), r.nsx || '', (r.han || []).join('\n'),
+        r.dg || null, r.ton0 || null, r.nhap || null, r.xuat || null, r.ton1 || null, r.tt || null, r.gc || ''];
+      const dr = ws.addRow(vals);
+      let ln = 1; [1, 2, 3, 4, 5, 6, 13].forEach(ci => { ln = Math.max(ln, lines(vals[ci], ci)); });
+      dr.height = Math.max(15, ln * 12 + 4);
+      const AL = ['center', 'left', 'left', 'left', 'left', 'left', 'left', 'right', 'center', 'center', 'center', 'center', 'right', 'left'];
+      for (let c = 1; c <= NC; c++) {
+        const cell = dr.getCell(c); cell.font = f(9);
+        cell.alignment = { horizontal: AL[c - 1], vertical: 'top', wrapText: true };
+        cell.border = { left: BLK, right: BLK, bottom: DOT };
+        if (c >= 8 && c <= 13) cell.numFmt = '#,##0';
+      }
+    });
+  });
+  /* tổng cộng */
+  const t = m.tot, tr = row(19);
+  [[9, t.t0], [10, t.n], [11, t.x], [12, t.t1], [13, t.tt]].forEach(a => { tr.getCell(a[0]).value = a[1] || null; });
+  tr.getCell(1).value = 'Tổng cộng';
+  ws.mergeCells(tr.number, 1, tr.number, 8);
+  for (let c = 1; c <= NC; c++) {
+    const cell = tr.getCell(c); cell.font = f(9.5, { bold: true }); cell.border = { top: BLK, bottom: BLK, left: BLK, right: BLK };
+    cell.alignment = { horizontal: c === 1 ? 'left' : (c === 13 ? 'right' : 'center'), vertical: 'middle' };
+    if (c >= 9 && c <= 13) cell.numFmt = '#,##0';
+  }
+  tr.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };   /* ô gộp lấy kiểu của ô đầu → đặt sau cùng */
+  /* ngày ký + chữ ký */
+  row(8);
+  put(row(18), 9, 13, 'Ngày ' + Number(sg[2]) + ' tháng ' + Number(sg[1]) + ' năm ' + sg[0], f(11, { italic: true }), { horizontal: 'right' });
+  row(6);
+  const sr = row(66), SG = [['Trưởng khoa Dược', 1, 2], ['Phòng TCKT', 3, 4], ['Tiếp liệu', 5, 7], ['Đại diện công ty', 8, 9], ['Thống kê Dược', 10, 12], ['Thủ kho', 13, 14]];
+  SG.forEach(x => put(sr, x[1], x[2], x[0], f(10, { bold: true }), { horizontal: 'center', vertical: 'top' }));
+
+  const buf = await wb.xlsx.writeBuffer();
+  xlsxDownload({ _raw: new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }) }, 'Bao_cao_xuat_nhap_ton_' + m.from + '_' + m.to + '.xlsx');
 };
 })();
 </script>
 
 <script>
-/* Gam màu đổi theo phút: mỗi phút nhích 30° trên vòng màu, trong phút trôi mượt theo giây */
+/* ═══ Giao diện (theme): gam màu đổi theo phút hoặc cố định theo lựa chọn — lưu trong trình duyệt ═══ */
 (function () {
   var root = document.documentElement, BASE = 293, STEP = 30, timer = null;
+  var THEMES = [
+    { id: 'auto', n: 'Đổi màu theo phút', d: 'Mặc định — màu trôi dần theo giờ', h: null, sp: 1 },
+    { id: 'tim',  n: 'Tím hoàng hôn',     d: 'Tím → hồng → cam',        h: 293, sp: 1 },
+    { id: 'cam',  n: 'Cam đỏ rực',        d: 'Đỏ cam → vàng',           h: 30,  sp: 1 },
+    { id: 'bien', n: 'Xanh dương y tế',   d: 'Xanh dương dịu, chuyên nghiệp', h: 245, sp: .5 },
+    { id: 'ngoc', n: 'Xanh ngọc',         d: 'Xanh ngọc mát mắt',       h: 175, sp: .55 },
+    { id: 'la',   n: 'Xanh lá',           d: 'Xanh lá tươi',            h: 145, sp: .6 },
+    { id: 'hong', n: 'Hồng đào',          d: 'Hồng → cam đào',          h: 355, sp: .7 }
+  ];
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cur() { var id = 'auto'; try { id = localStorage.getItem('app_theme') || 'auto'; } catch (e) {} return THEMES.filter(function (t) { return t.id === id; })[0] || THEMES[0]; }
   function paint() {
+    var t = cur(); root.style.setProperty('--sp', t.sp);
+    if (t.h !== null) { root.style.setProperty('--h', t.h); return; }
     var n = new Date(), m = n.getMinutes(), s = n.getSeconds() + n.getMilliseconds() / 1000;
-    var h = (BASE + m * STEP + (reduce ? 0 : s / 60 * STEP)) % 360;
-    root.style.setProperty('--h', h.toFixed(2));
+    root.style.setProperty('--h', ((BASE + m * STEP + (reduce ? 0 : s / 60 * STEP)) % 360).toFixed(2));
   }
-  function start() { paint(); clearInterval(timer); timer = setInterval(paint, reduce ? 15000 : 1000); }
+  function start() {
+    clearInterval(timer); paint();
+    if (cur().h === null) timer = setInterval(paint, reduce ? 15000 : 1000);
+  }
   document.addEventListener('visibilitychange', function () { if (document.hidden) clearInterval(timer); else start(); });
   start();
+
+  function tileBg(t) {
+    if (t.h === null) return 'conic-gradient(from 200deg,oklch(.55 .22 0),oklch(.6 .2 70),oklch(.6 .2 140),oklch(.55 .2 210),oklch(.55 .22 280),oklch(.55 .22 350),oklch(.55 .22 0))';
+    return 'linear-gradient(135deg,oklch(.40 .18 ' + (t.h - 10 * t.sp) + '),oklch(.52 .22 ' + t.h + ') 55%,oklch(.56 .22 ' + (t.h + 50 * t.sp) + '))';
+  }
+  function close() { var o = document.getElementById('theme-ov'); if (o) o.remove(); document.removeEventListener('keydown', esc); }
+  function esc(e) { if (e.key === 'Escape') close(); }
+  window.themeSet = function (id) {
+    try { localStorage.setItem('app_theme', id); } catch (e) {}
+    start(); render();
+  };
+  function render() {
+    var box = document.getElementById('theme-list'); if (!box) return; var c = cur().id;
+    box.innerHTML = THEMES.map(function (t) {
+      var on = t.id === c;
+      return '<button onclick="themeSet(\'' + t.id + '\')" style="display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;margin-bottom:8px;border-radius:14px;cursor:pointer;text-align:left;font:inherit;' +
+        'border:2px solid ' + (on ? 'var(--pu)' : '#e2e8f0') + ';background:' + (on ? 'var(--bl)' : '#fff') + '">' +
+        '<span style="flex:none;width:46px;height:46px;border-radius:12px;background:' + tileBg(t) + ';box-shadow:0 4px 10px rgba(0,0,0,.18)"></span>' +
+        '<span style="flex:1;min-width:0"><b style="display:block;font-size:14px;color:#0f172a">' + t.n + '</b><small style="color:#64748b;font-size:12px">' + t.d + '</small></span>' +
+        '<span style="flex:none;font-size:18px;color:var(--pu)">' + (on ? '✔' : '') + '</span></button>';
+    }).join('');
+  }
+  window.themeOpen = function () {
+    if (document.getElementById('theme-ov')) return;
+    var o = document.createElement('div'); o.id = 'theme-ov';
+    o.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px';
+    o.innerHTML = '<div style="background:#fff;border-radius:20px;width:100%;max-width:380px;max-height:88vh;overflow:auto;padding:16px 16px 8px;box-shadow:0 20px 60px rgba(0,0,0,.4)">' +
+      '<div style="display:flex;align-items:center;margin-bottom:12px"><b style="flex:1;font-size:16px;color:#0f172a">🎨 Chọn giao diện</b><button onclick="document.getElementById(\'theme-ov\').remove()" style="border:0;background:#f1f5f9;width:32px;height:32px;border-radius:10px;font-size:16px;cursor:pointer">✕</button></div>' +
+      '<div id="theme-list"></div></div>';
+    o.addEventListener('click', function (e) { if (e.target === o) close(); });
+    document.body.appendChild(o); document.addEventListener('keydown', esc); render();
+  };
 })();
 </script>
 <script>
@@ -8548,8 +8685,8 @@ window.bcxnt_excel = function () {
   const p2 = x => String(x).padStart(2, '0');
   const DAYS = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
   const CSS = '*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}' +
-    'body{--h:293;font-family:"Segoe UI",Roboto,Arial,sans-serif;color:#fff;cursor:pointer;user-select:none;overflow:hidden;' +
-    'background:linear-gradient(135deg,#b91c1c,#ea580c);background:linear-gradient(135deg,oklch(.40 .18 calc(var(--h) - 10)),oklch(.52 .22 var(--h)) 55%,oklch(.56 .22 calc(var(--h) + 50)))}' +
+    'body{--h:293;--sp:1;font-family:"Segoe UI",Roboto,Arial,sans-serif;color:#fff;cursor:pointer;user-select:none;overflow:hidden;' +
+    'background:linear-gradient(135deg,#b91c1c,#ea580c);background:linear-gradient(135deg,oklch(.40 .18 calc(var(--h) - 10 * var(--sp))),oklch(.52 .22 var(--h)) 55%,oklch(.56 .22 calc(var(--h) + 50 * var(--sp))))}' +
     '.w{height:100%;display:flex;flex-direction:column;justify-content:center;padding:10px 16px;position:relative}' +
     '.w:before{content:"";position:absolute;right:-40px;top:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.12)}' +
     '.nm{font-size:25px;font-weight:900;letter-spacing:.3px;line-height:1.1;text-shadow:0 2px 8px rgba(0,0,0,.35);position:relative}' +
@@ -8563,7 +8700,8 @@ window.bcxnt_excel = function () {
     if (!g('t')) return;
     g('t').textContent = p2(n.getHours()) + ':' + p2(n.getMinutes()) + ':' + p2(n.getSeconds());
     g('d').textContent = DAYS[n.getDay()] + ', ' + p2(n.getDate()) + '/' + p2(n.getMonth() + 1) + '/' + n.getFullYear() + ' · BV Đà Nẵng';
-    d.body.style.setProperty('--h', ((293 + n.getMinutes() * 30 + n.getSeconds() / 60 * 30) % 360).toFixed(2));
+    let th = 'auto'; try { th = localStorage.getItem('app_theme') || 'auto'; } catch (e) {}
+    const rs = document.documentElement.style; d.body.style.setProperty('--h', th === 'auto' ? ((293 + n.getMinutes() * 30 + n.getSeconds() / 60 * 30) % 360).toFixed(2) : (rs.getPropertyValue('--h') || '293')); d.body.style.setProperty('--sp', rs.getPropertyValue('--sp') || '1');
   }
   function setBtn(on) { const b = document.getElementById('mini-btn'); if (b) b.textContent = on ? '🗖 Phóng to' : '🗕 Thu nhỏ'; }
   function back() {
