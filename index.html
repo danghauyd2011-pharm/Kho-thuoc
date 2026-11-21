@@ -7728,16 +7728,39 @@ const HM_LOAD = [
 ];
 function hm_loader() {
   const box = document.getElementById('hm-files'); if (!box) return;
+  if (!hm_loader._init) { hm_loader._init = 1; try { if (localStorage.getItem('ton_src') === 'sheet' && typeof setTonSource === 'function') setTonSource('sheet'); } catch (e) {} }
   const nm = d => { const e = document.getElementById(d.fn); return e ? (e.textContent || '').replace(/^\s*✓\s*/, '').trim() : ''; };
-  box.innerHTML = '<div class="hm-f" style="gap:6px"><b style="color:#0f172a">📁 Nạp file 1 lần:</b>' + HM_LOAD.map(d => {
+  const chip = (d, label) => {
     const on = d.has(), n = on ? nm(d) : '';
     return '<label style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-weight:700;font-size:12px;max-width:100%;' +
       (on ? 'background:#dcfce7;border:1px solid #86efac;color:#166534' : 'background:#fff;border:1px dashed #94a3b8;color:#334155') + '" title="' + (n || 'Bấm để chọn file').replace(/"/g, '') + '">' +
-      (on ? '✓ ' : d.ic + ' ') + d.t + (n ? '<span style="font-weight:500;opacity:.8;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"> · ' + n.replace(/[<>&]/g, '') + '</span>' : '') +
-      '<input type="file" accept=".xlsx,.xls"' + (d.multi ? ' multiple' : '') + ' style="display:none" onchange="hm_pick(\'' + d.k + '\',this)"></label>';
-  }).join('') + '<button onclick="fsClearAll()">Xóa file đã nhớ</button></div>';
+      (on ? '✓ ' : d.ic + ' ') + label + (n ? '<span style="font-weight:500;opacity:.8;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"> · ' + n.replace(/[<>&]/g, '') + '</span>' : '') +
+      '<input type="file" accept=".xlsx,.xls,.csv"' + (d.multi ? ' multiple' : '') + ' style="display:none" onchange="hm_pick(\'' + d.k + '\',this)"></label>';
+  };
+  const seg = (m, txt) => '<button onclick="hm_tonSrc(\'' + m + '\')" style="margin:0;border:1px solid ' + (tonSource === m ? '#7c3aed' : '#cbd5e1') + ';background:' + (tonSource === m ? '#7c3aed' : '#fff') + ';color:' + (tonSource === m ? '#fff' : '#334155') + ';font:700 12px inherit;padding:5px 10px;border-radius:99px;cursor:pointer">' + txt + '</button>';
+  let ton = '<span style="display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap"><b style="color:#0f172a">📦 Tồn đầu kỳ:</b>' + seg('sheet', '☁️ Google Sheet') + seg('file', '📁 File');
+  if (tonSource === 'file') ton += chip(HM_LOAD[2], 'Chọn file tồn');
+  else if (!cloudConfigured()) ton += '<span style="color:#b45309;font-size:12px">Chưa cấu hình Google Sheet — vào ⚙ Cài đặt.</span>';
+  else {
+    const src = document.getElementById('cloud-ton-month');
+    ton += '<select id="hm-ton-month" onchange="hm_tonMonth(this.value)" style="height:30px;border:1px solid #cbd5e1;border-radius:99px;padding:0 10px;font:600 12px inherit;max-width:230px">' + (src ? src.innerHTML : '<option value="">— Chọn tháng —</option>') + '</select>' +
+      '<button onclick="hm_tonRefresh()" title="Tải lại danh sách tháng" style="margin:0;border:1px solid #cbd5e1;background:#fff;color:#334155;font:700 12px inherit;padding:5px 9px;border-radius:99px;cursor:pointer">🔄</button>';
+  }
+  ton += '</span>';
+  box.innerHTML = '<div class="hm-f" style="gap:6px"><b style="color:#0f172a">📁 Nạp file 1 lần:</b>' + chip(HM_LOAD[0], 'Xuất kho') + chip(HM_LOAD[1], 'Nhập / Trả') + '<span style="flex-basis:100%;height:0"></span>' + ton +
+    '<button onclick="fsClearAll()">Xóa file đã nhớ</button></div>';
+  const hs = document.getElementById('hm-ton-month'), ss = document.getElementById('cloud-ton-month');
+  if (hs && ss) hs.value = ss.value;
   home_fit();
 }
+/* Tồn đầu kỳ ở trang chủ điều khiển chính ô chọn trong “Nhập dữ liệu kho” → hai nơi luôn khớp nhau */
+function hm_tonSrc(m) { setTonSource(m); hm_loader(); [600, 1800].forEach(t => setTimeout(hm_loader, t)); }
+function hm_tonMonth(v) { const o = document.getElementById('cloud-ton-month'); if (!o) return; o.value = v; o.dispatchEvent(new Event('change')); }
+function hm_tonRefresh() { cloudRefreshMonths(true); [600, 1800, 3500].forEach(t => setTimeout(hm_loader, t)); }
+(function () {
+  const o = window.setTonSource; if (typeof o !== 'function') return;
+  window.setTonSource = function (m) { try { localStorage.setItem('ton_src', m); } catch (e) {} const r = o.apply(this, arguments); if (document.getElementById('hm-files')) setTimeout(hm_loader, 0); return r; };
+})();
 function hm_pick(k, inp) {
   const fl = Array.from(inp.files || []); inp.value = ''; if (!fl.length) return;
   try { if (k === 'ton') loadWB(fl[0], 'ton'); else bbhv_loadFile(fl, k); } catch (e) { alert('Không nạp được file: ' + e.message); return; }
