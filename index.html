@@ -7717,8 +7717,31 @@ function home_render() {
     }).join('') + '</div>';
   });
   g.innerHTML = h || '<div class="hm-d" style="padding:20px">Không có chức năng nào khớp.</div>';
-  fsMeta().then(m => { const f = document.getElementById('hm-files'); f.innerHTML = m.length ? '<div class="hm-f">💾 Đã nhớ file lần trước: ' + m.map(x => '<b>' + x.label + '</b>').join(' · ') + '<button onclick="fsClearAll()">Xóa</button></div>' : ''; home_fit(); });
+  hm_loader();
   home_fit();
+}
+/* ── Nạp file MỘT LẦN ở trang chủ: đi qua đúng các hàm nạp cũ nên vẫn tự đồng bộ sang Sổ trả vỏ / Biên bản / Seduxen / Thẻ kho / Báo cáo XNT, và vẫn được nhớ cho lần sau ── */
+const HM_LOAD = [
+  { k: 'export', ic: '📤', t: 'Xuất kho', multi: true, has: () => typeof exportWB !== 'undefined' && !!exportWB, fn: 'fn-export' },
+  { k: 'import', ic: '📥', t: 'Nhập / Trả', multi: true, has: () => typeof importWB !== 'undefined' && !!importWB, fn: 'fn-import' },
+  { k: 'ton', ic: '📦', t: 'Tồn đầu kỳ', multi: false, has: () => typeof tonWB !== 'undefined' && !!tonWB, fn: 'fn-ton' }
+];
+function hm_loader() {
+  const box = document.getElementById('hm-files'); if (!box) return;
+  const nm = d => { const e = document.getElementById(d.fn); return e ? (e.textContent || '').replace(/^\s*✓\s*/, '').trim() : ''; };
+  box.innerHTML = '<div class="hm-f" style="gap:6px"><b style="color:#0f172a">📁 Nạp file 1 lần:</b>' + HM_LOAD.map(d => {
+    const on = d.has(), n = on ? nm(d) : '';
+    return '<label style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-weight:700;font-size:12px;max-width:100%;' +
+      (on ? 'background:#dcfce7;border:1px solid #86efac;color:#166534' : 'background:#fff;border:1px dashed #94a3b8;color:#334155') + '" title="' + (n || 'Bấm để chọn file').replace(/"/g, '') + '">' +
+      (on ? '✓ ' : d.ic + ' ') + d.t + (n ? '<span style="font-weight:500;opacity:.8;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"> · ' + n.replace(/[<>&]/g, '') + '</span>' : '') +
+      '<input type="file" accept=".xlsx,.xls"' + (d.multi ? ' multiple' : '') + ' style="display:none" onchange="hm_pick(\'' + d.k + '\',this)"></label>';
+  }).join('') + '<button onclick="fsClearAll()">Xóa file đã nhớ</button></div>';
+  home_fit();
+}
+function hm_pick(k, inp) {
+  const fl = Array.from(inp.files || []); inp.value = ''; if (!fl.length) return;
+  try { if (k === 'ton') loadWB(fl[0], 'ton'); else bbhv_loadFile(fl, k); } catch (e) { alert('Không nạp được file: ' + e.message); return; }
+  [500, 1500, 3500].forEach(t => setTimeout(hm_loader, t));   /* nạp bất đồng bộ → cập nhật trạng thái vài nhịp */
 }
 function home_fit() {
   const h = document.getElementById('home'); if (!h || !h.classList.contains('on')) return;
