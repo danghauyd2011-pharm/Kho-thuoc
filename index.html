@@ -7734,12 +7734,12 @@ function hm_loader() {
     hm_loader._init = 1;
     try { if (localStorage.getItem('ton_src') === 'sheet' && typeof setTonSource === 'function') setTonSource('sheet'); } catch (e) {}
     const st = document.createElement('style');
-    st.textContent = '#hm-ico{position:absolute;top:10px;right:12px;display:flex;gap:7px;z-index:2}' +
-      '.hm-ib{position:relative;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;cursor:pointer;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);color:#fff;padding:0;margin:0;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}' +
+    st.textContent = '#hm-ico{position:absolute;top:10px;right:12px;display:flex;gap:5px;z-index:2}' +
+      '.hm-ib{position:relative;width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;cursor:pointer;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);color:#fff;padding:0;margin:0;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}' +
       '.hm-ib.on:after{content:"";position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid #fff}' +
-      '.hm-ib.act{background:rgba(255,255,255,.4)}.hm-ib input{display:none}' +
+      '.hm-ib.act{background:rgba(255,255,255,.4)}.hm-ib input{display:none}.hm-ib.go{background:#fff;border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}' +
       '.hm-pop{background:#fff;border:1px solid #e3e8f0;border-radius:14px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#475569;box-shadow:0 6px 18px rgba(15,23,42,.08)}' +
-      '@media(max-width:350px){.hm-ib{width:31px;height:31px;font-size:15px}#hm-ico{gap:5px}}';
+      '@media(max-width:350px){.hm-ib{width:28px;height:28px;font-size:14px}#hm-ico{gap:4px}}';
     document.head.appendChild(st);
   }
   const row = hero.parentElement; if (row && row.nextElementSibling !== box) row.after(box);   /* ô chọn tồn nằm ngay dưới thẻ đồng hồ */
@@ -7751,6 +7751,7 @@ function hm_loader() {
     return '<label class="hm-ib' + (on ? ' on' : '') + '" title="' + tip + '" aria-label="' + tip + '">' + d.ic + '<input type="file" accept=".xlsx,.xls,.csv"' + (d.multi ? ' multiple' : '') + ' onchange="hm_pick(\'' + d.k + '\',this)"></label>'; };
   ico.innerHTML = fileIb(HM_LOAD[0]) + fileIb(HM_LOAD[1]) +
     '<button class="hm-ib' + (tonOn ? ' on' : '') + (hm_loader._open ? ' act' : '') + '" onclick="hm_tonPop()" title="Tồn đầu kỳ (' + (tonSource === 'sheet' ? 'Google Sheet' : 'File') + ')" aria-label="Tồn đầu kỳ">📦</button>' +
+    '<button class="hm-ib go" onclick="hm_processAll()" title="Xử lý tất cả: Thẻ kho · Sổ trả vỏ · Seduxen" aria-label="Xử lý tất cả">⚡</button>' +
     '<button class="hm-ib" onclick="fsClearAll()" title="Xóa file đã nhớ" aria-label="Xóa file đã nhớ">🗑️</button>';
   if (!hm_loader._open) { box.innerHTML = ''; home_fit(); return; }
   const seg = (m, txt) => '<button onclick="hm_tonSrc(\'' + m + '\')" style="margin:0;border:1px solid ' + (tonSource === m ? '#7c3aed' : '#cbd5e1') + ';background:' + (tonSource === m ? '#7c3aed' : '#fff') + ';color:' + (tonSource === m ? '#fff' : '#334155') + ';font:700 12px inherit;padding:5px 10px;border-radius:99px;cursor:pointer">' + txt + '</button>';
@@ -7765,6 +7766,29 @@ function hm_loader() {
   box.innerHTML = h + '</div>';
   const hs = document.getElementById('hm-ton-month'); if (hs && sel) hs.value = sel.value;
   home_fit();
+}
+/* ⚡ Xử lý tất cả: chạy đúng các bước “Kiểm tra & chọn ngày → Xử lý” của Thẻ kho, “Xử lý” của Sổ trả vỏ & Seduxen; chỉ chạy khi bấm nút */
+function hm_processAll() {
+  const has = { tk: !!(xuatWB && nhapWB), bb: !!(exportWB && importWB), sed: typeof sedExportWB !== 'undefined' && !!(sedExportWB && sedImportWB) };
+  if (!has.tk && !has.bb && !has.sed) { toast('Chưa nạp đủ file Xuất kho và Nhập / Trả.'); return; }
+  const tm = document.getElementById('cloud-ton-month');
+  if (has.tk && tonSource === 'sheet' && cloudConfigured() && !(tm && tm.value)) { hm_loader._open = true; hm_loader(); toast('Hãy chọn tháng tồn đầu kỳ (📦) rồi bấm ⚡ lại.'); return; }
+  const errs = [], ok = [], names = { showErr: 'Thẻ kho', bbhv_showError: 'Sổ trả vỏ', sed_showError: 'Seduxen' }, orig = {};
+  Object.keys(names).forEach(k => { orig[k] = window[k]; window[k] = function (m) { errs.push(names[k] + ': ' + m); return orig[k].apply(this, arguments); }; });
+  try {
+    if (has.tk) {
+      const f = document.getElementById('tk-date-from'), t = document.getElementById('tk-date-to'), pf = f.value, pt = t.value;
+      tk_autoDetectDates();                                   /* lấy khoảng ngày của file */
+      if (pf && pt && typeof tkFileMin !== 'undefined' && pf >= f.value && pt <= t.value) { f.value = pf; t.value = pt; }   /* giữ khoảng bạn đã chọn nếu còn nằm trong file */
+      processData(); ok.push('Thẻ kho');
+    }
+    if (has.bb) { processAll(); ok.push('Sổ trả vỏ'); }
+    if (has.sed) { sed_processAll(); ok.push('Seduxen'); }
+  } catch (e) { errs.push(e.message); }
+  setTimeout(() => {
+    Object.keys(orig).forEach(k => { window[k] = orig[k]; });
+    toast(errs.length ? '⚠️ ' + errs.join(' · ') : '✓ Đã xử lý: ' + ok.join(' · '));
+  }, 1200);
 }
 function hm_tonPop() { hm_loader._open = !hm_loader._open; hm_loader(); if (hm_loader._open && tonSource === 'sheet' && typeof tonInitSheetPanel === 'function') { tonInitSheetPanel(false); setTimeout(hm_loader, 900); } }
 /* Tồn đầu kỳ ở trang chủ điều khiển chính ô chọn trong “Nhập dữ liệu kho” → hai nơi luôn khớp nhau */
