@@ -7726,6 +7726,14 @@ const HM_LOAD = [
   { k: 'import', ic: '📥', t: 'Nhập / Trả', multi: true, has: () => typeof importWB !== 'undefined' && !!importWB, fn: 'fn-import' },
   { k: 'ton', ic: '📦', t: 'Tồn đầu kỳ', multi: false, has: () => typeof tonWB !== 'undefined' && !!tonWB, fn: 'fn-ton' }
 ];
+const HM_DZ = { 'dz-export': 'export', 'dz-xuat': 'export', 'dz-sed-export': 'export', 'dz-import': 'import', 'dz-nhap': 'import', 'dz-sed-import': 'import', 'dz-ton': 'ton' };
+let hm_ld = {};   /* loại file đang đọc: { export: thời điểm bắt đầu, … } */
+function hm_toast(t, ms) {   /* toast riêng (hàm toast gốc nằm trong phạm vi khác nên không gọi được từ đây) */
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:99998;max-width:92vw;background:#0f172a;color:#fff;padding:10px 16px;border-radius:16px;font:600 13px/1.4 inherit;box-shadow:0 8px 24px rgba(0,0,0,.35);text-align:center';
+  el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), ms || 3600);
+}
+function hm_cleanName(t) { return (t || '').replace(/^\s*✓\s*/, '').replace(/\s*\(từ [^)]*\)\s*$/, '').replace(/[<>&"]/g, '').trim(); }
 function hm_loader() {
   const box = document.getElementById('hm-files'); if (!box) return;
   const hero = document.querySelector('#home .nx-hero');
@@ -7736,30 +7744,47 @@ function hm_loader() {
     const st = document.createElement('style');
     st.textContent = '#hm-ico{position:absolute;top:10px;right:12px;display:flex;gap:5px;z-index:2}' +
       '.hm-ib{position:relative;width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;cursor:pointer;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);color:#fff;padding:0;margin:0;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}' +
-      '.hm-ib.on:after{content:"";position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid #fff}' +
-      '.hm-ib.act{background:rgba(255,255,255,.4)}.hm-ib input{display:none}.hm-ib.go{background:#fff;border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}' +
+      '.hm-ib.on{background:rgba(34,197,94,.55);border-color:#bbf7d0}.hm-ib.on:after{content:"✓";position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:#22c55e;border:1.5px solid #fff;font-size:9px;font-weight:900;line-height:11px;text-align:center;color:#fff}' +
+      '.hm-ib.ld{animation:hmpulse 1s infinite}@keyframes hmpulse{50%{opacity:.45}}' +
+      '.hm-ib.act{background:rgba(255,255,255,.4)}.hm-ib.go{background:#fff;border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}' +
+      '#hm-st{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;font-size:11px;font-weight:600}' +
+      '#hm-st span{background:rgba(255,255,255,.2);border-radius:99px;padding:2px 9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#hm-st span.no{opacity:.6;background:rgba(255,255,255,.1)}' +
       '.hm-pop{background:#fff;border:1px solid #e3e8f0;border-radius:14px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:#475569;box-shadow:0 6px 18px rgba(15,23,42,.08)}' +
       '@media(max-width:350px){.hm-ib{width:28px;height:28px;font-size:14px}#hm-ico{gap:4px}}';
     document.head.appendChild(st);
+    /* ô chọn file cố định (không bị vẽ lại khi cập nhật giao diện) */
+    ['export', 'import', 'ton'].forEach(k => {
+      const i = document.createElement('input'); i.type = 'file'; i.id = 'hm-in-' + k; i.accept = '.xlsx,.xls,.csv'; if (k !== 'ton') i.multiple = true;
+      i.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0'; i.addEventListener('change', () => hm_pick(k, i)); hero.appendChild(i);
+    });
+    const stl = document.createElement('div'); stl.id = 'hm-st'; hero.appendChild(stl);
   }
   const row = hero.parentElement; if (row && row.nextElementSibling !== box) row.after(box);   /* ô chọn tồn nằm ngay dưới thẻ đồng hồ */
   let ico = document.getElementById('hm-ico'); if (!ico) { ico = document.createElement('div'); ico.id = 'hm-ico'; hero.appendChild(ico); }
-  const nm = d => { const e = document.getElementById(d.fn); return e ? (e.textContent || '').replace(/^\s*✓\s*/, '').trim() : ''; };
+  const nm = d => { const e = document.getElementById(d.fn); return e ? hm_cleanName(e.textContent) : ''; };
   const sel = document.getElementById('cloud-ton-month');
+  const selTxt = sel && sel.value ? hm_cleanName((sel.options[sel.selectedIndex] || {}).text).replace(/[⭐★]/g, '').trim() : '';
   const tonOn = tonSource === 'file' ? HM_LOAD[2].has() : !!(sel && sel.value);
-  const fileIb = d => { const on = d.has(), n = on ? nm(d) : ''; const tip = (d.t + (n ? ': ' + n : ' — bấm để chọn file')).replace(/"/g, '');
-    return '<label class="hm-ib' + (on ? ' on' : '') + '" title="' + tip + '" aria-label="' + tip + '">' + d.ic + '<input type="file" accept=".xlsx,.xls,.csv"' + (d.multi ? ' multiple' : '') + ' onchange="hm_pick(\'' + d.k + '\',this)"></label>'; };
+  const ldNow = k => !!hm_ld[k] && Date.now() - hm_ld[k] < 90000;
+  const fileIb = d => { const on = d.has(), ld = ldNow(d.k) && !on, n = on ? nm(d) : ''; const tip = (d.t + (ld ? ': đang đọc file…' : n ? ': ' + n : ' — bấm để chọn file')).replace(/"/g, '');
+    return '<button class="hm-ib' + (on ? ' on' : '') + (ld ? ' ld' : '') + '" onclick="hm_choose(\'' + d.k + '\')" title="' + tip + '" aria-label="' + tip + '">' + (ld ? '⏳' : d.ic) + '</button>'; };
   ico.innerHTML = fileIb(HM_LOAD[0]) + fileIb(HM_LOAD[1]) +
-    '<button class="hm-ib' + (tonOn ? ' on' : '') + (hm_loader._open ? ' act' : '') + '" onclick="hm_tonPop()" title="Tồn đầu kỳ (' + (tonSource === 'sheet' ? 'Google Sheet' : 'File') + ')" aria-label="Tồn đầu kỳ">📦</button>' +
+    '<button class="hm-ib' + (tonOn ? ' on' : '') + (hm_loader._open ? ' act' : '') + (ldNow('ton') && !tonOn ? ' ld' : '') + '" onclick="hm_tonPop()" title="Tồn đầu kỳ (' + (tonSource === 'sheet' ? 'Google Sheet' : 'File') + ')" aria-label="Tồn đầu kỳ">📦</button>' +
     '<button class="hm-ib go" onclick="hm_processAll()" title="Xử lý tất cả: Thẻ kho · Sổ trả vỏ · Seduxen" aria-label="Xử lý tất cả">⚡</button>' +
     '<button class="hm-ib" onclick="fsClearAll()" title="Xóa file đã nhớ" aria-label="Xóa file đã nhớ">🗑️</button>';
+  /* dòng nội dung đã nạp */
+  const item = (d, label) => { const on = d.has(), ld = ldNow(d.k) && !on; return '<span class="' + (on ? '' : 'no') + '" title="' + (on ? nm(d) : '') + '">' + d.ic + ' ' + (ld ? 'đang đọc…' : on ? nm(d) : label) + '</span>'; };
+  const tonItem = tonSource === 'sheet'
+    ? '<span class="' + (selTxt ? '' : 'no') + '">📦 ☁️ ' + (selTxt || 'chưa chọn tháng tồn') + '</span>'
+    : '<span class="' + (HM_LOAD[2].has() ? '' : 'no') + '">📦 ' + (ldNow('ton') && !HM_LOAD[2].has() ? 'đang đọc…' : HM_LOAD[2].has() ? nm(HM_LOAD[2]) : 'chưa nạp tồn') + '</span>';
+  document.getElementById('hm-st').innerHTML = item(HM_LOAD[0], 'chưa nạp xuất kho') + item(HM_LOAD[1], 'chưa nạp nhập / trả') + tonItem;
   if (!hm_loader._open) { box.innerHTML = ''; home_fit(); return; }
   const seg = (m, txt) => '<button onclick="hm_tonSrc(\'' + m + '\')" style="margin:0;border:1px solid ' + (tonSource === m ? '#7c3aed' : '#cbd5e1') + ';background:' + (tonSource === m ? '#7c3aed' : '#fff') + ';color:' + (tonSource === m ? '#fff' : '#334155') + ';font:700 12px inherit;padding:5px 10px;border-radius:99px;cursor:pointer">' + txt + '</button>';
   let h = '<div class="hm-pop"><b style="color:#0f172a">📦 Tồn đầu kỳ:</b>' + seg('sheet', '☁️ Google Sheet') + seg('file', '📁 File');
   if (tonSource === 'file') {
     const d = HM_LOAD[2], on = d.has(), n = on ? nm(d) : '';
-    h += '<label style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-weight:700;' + (on ? 'background:#dcfce7;border:1px solid #86efac;color:#166534' : 'background:#fff;border:1px dashed #94a3b8;color:#334155') + '">' + (on ? '✓ ' : '📂 ') + 'Chọn file tồn' +
-      (n ? '<span style="font-weight:500;opacity:.8;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"> · ' + n.replace(/[<>&]/g, '') + '</span>' : '') + '<input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="hm_pick(\'ton\',this)"></label>';
+    h += '<button onclick="hm_choose(\'ton\')" style="margin:0;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font:700 12px inherit;' + (on ? 'background:#dcfce7;border:1px solid #86efac;color:#166534' : 'background:#fff;border:1px dashed #94a3b8;color:#334155') + '">' + (on ? '✓ ' : '📂 ') + 'Chọn file tồn' +
+      (n ? '<span style="font-weight:500;opacity:.8;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"> · ' + n + '</span>' : '') + '</button>';
   } else if (!cloudConfigured()) h += '<span style="color:#b45309">Chưa cấu hình Google Sheet — vào ⚙ Cài đặt.</span>';
   else h += '<select id="hm-ton-month" onchange="hm_tonMonth(this.value)" style="height:30px;border:1px solid #cbd5e1;border-radius:99px;padding:0 10px;font:600 12px inherit;max-width:230px">' + (sel ? sel.innerHTML : '<option value="">— Chọn tháng —</option>') + '</select>' +
     '<button onclick="hm_tonRefresh()" title="Tải lại danh sách tháng" style="margin:0;border:1px solid #cbd5e1;background:#fff;color:#334155;font:700 12px inherit;padding:5px 9px;border-radius:99px;cursor:pointer">🔄</button>';
@@ -7767,28 +7792,42 @@ function hm_loader() {
   const hs = document.getElementById('hm-ton-month'); if (hs && sel) hs.value = sel.value;
   home_fit();
 }
+function hm_choose(k) { const i = document.getElementById('hm-in-' + k); if (i) { i.value = ''; i.click(); } }
 /* ⚡ Xử lý tất cả: chạy đúng các bước “Kiểm tra & chọn ngày → Xử lý” của Thẻ kho, “Xử lý” của Sổ trả vỏ & Seduxen; chỉ chạy khi bấm nút */
 function hm_processAll() {
   const has = { tk: !!(xuatWB && nhapWB), bb: !!(exportWB && importWB), sed: typeof sedExportWB !== 'undefined' && !!(sedExportWB && sedImportWB) };
-  if (!has.tk && !has.bb && !has.sed) { toast('Chưa nạp đủ file Xuất kho và Nhập / Trả.'); return; }
+  if (!has.tk && !has.bb && !has.sed) {
+    const miss = []; if (!(exportWB || xuatWB)) miss.push('Xuất kho'); if (!(importWB || nhapWB)) miss.push('Nhập / Trả');
+    hm_toast('Chưa nạp đủ file: thiếu ' + (miss.join(' và ') || 'Xuất kho / Nhập-Trả') + '.'); return;
+  }
   const tm = document.getElementById('cloud-ton-month');
-  if (has.tk && tonSource === 'sheet' && cloudConfigured() && !(tm && tm.value)) { hm_loader._open = true; hm_loader(); toast('Hãy chọn tháng tồn đầu kỳ (📦) rồi bấm ⚡ lại.'); return; }
+  if (has.tk && tonSource === 'sheet' && cloudConfigured() && !(tm && tm.value)) { hm_loader._open = true; hm_loader(); hm_toast('Hãy chọn tháng tồn đầu kỳ (📦) rồi bấm ⚡ lại.'); return; }
+  hm_toast('⚡ Đang xử lý…', 1500);
   const errs = [], ok = [], names = { showErr: 'Thẻ kho', bbhv_showError: 'Sổ trả vỏ', sed_showError: 'Seduxen' }, orig = {};
   Object.keys(names).forEach(k => { orig[k] = window[k]; window[k] = function (m) { errs.push(names[k] + ': ' + m); return orig[k].apply(this, arguments); }; });
+  const restore = () => Object.keys(orig).forEach(k => { window[k] = orig[k]; });
   try {
     if (has.tk) {
       const f = document.getElementById('tk-date-from'), t = document.getElementById('tk-date-to'), pf = f.value, pt = t.value;
       tk_autoDetectDates();                                   /* lấy khoảng ngày của file */
-      if (pf && pt && typeof tkFileMin !== 'undefined' && pf >= f.value && pt <= t.value) { f.value = pf; t.value = pt; }   /* giữ khoảng bạn đã chọn nếu còn nằm trong file */
+      if (pf && pt && pf >= f.value && pt <= t.value) { f.value = pf; t.value = pt; }   /* giữ khoảng bạn đã chọn nếu còn nằm trong file */
       processData(); ok.push('Thẻ kho');
     }
     if (has.bb) { processAll(); ok.push('Sổ trả vỏ'); }
     if (has.sed) { sed_processAll(); ok.push('Seduxen'); }
   } catch (e) { errs.push(e.message); }
-  setTimeout(() => {
-    Object.keys(orig).forEach(k => { window[k] = orig[k]; });
-    toast(errs.length ? '⚠️ ' + errs.join(' · ') : '✓ Đã xử lý: ' + ok.join(' · '));
-  }, 1200);
+  /* đợi Thẻ kho dựng xong (có thể phải đọc Google Sheet) rồi mới báo */
+  const t0 = Date.now(), done = () => {
+    const tkDone = !has.tk || errs.some(e => e.indexOf('Thẻ kho') === 0) || (document.getElementById('sc-the-kho') || {}).classList && (document.getElementById('sc-the-kho').classList.contains('active') || document.getElementById('sc-ton').classList.contains('active'));
+    if (!tkDone && Date.now() - t0 < 9000) { setTimeout(done, 400); return; }
+    restore();
+    const needTon = has.tk && document.getElementById('sc-ton') && document.getElementById('sc-ton').classList.contains('active');
+    if (errs.length) hm_toast('⚠️ ' + errs.join(' · '), 6000);
+    else if (needTon) hm_toast('Thẻ kho cần nhập tồn đầu kỳ bằng tay (mở Nhập dữ liệu kho). Đã xử lý: ' + ok.filter(x => x !== 'Thẻ kho').join(' · '), 6000);
+    else hm_toast('✓ Đã xử lý: ' + ok.join(' · '), 4000);
+    hm_loader();
+  };
+  setTimeout(done, 900);
 }
 function hm_tonPop() { hm_loader._open = !hm_loader._open; hm_loader(); if (hm_loader._open && tonSource === 'sheet' && typeof tonInitSheetPanel === 'function') { tonInitSheetPanel(false); setTimeout(hm_loader, 900); } }
 /* Tồn đầu kỳ ở trang chủ điều khiển chính ô chọn trong “Nhập dữ liệu kho” → hai nơi luôn khớp nhau */
@@ -7800,10 +7839,26 @@ function hm_tonRefresh() { cloudRefreshMonths(true); [600, 1800, 3500].forEach(t
   window.setTonSource = function (m) { try { localStorage.setItem('ton_src', m); } catch (e) {} const r = o.apply(this, arguments); if (document.getElementById('hm-files')) setTimeout(hm_loader, 0); return r; };
 })();
 function hm_pick(k, inp) {
-  const fl = Array.from(inp.files || []); inp.value = ''; if (!fl.length) return;
-  try { if (k === 'ton') loadWB(fl[0], 'ton'); else bbhv_loadFile(fl, k); } catch (e) { alert('Không nạp được file: ' + e.message); return; }
-  [500, 1500, 3500].forEach(t => setTimeout(hm_loader, t));   /* nạp bất đồng bộ → cập nhật trạng thái vài nhịp */
+  const fl = Array.from(inp.files || []); if (!fl.length) return;
+  hm_ld[k] = Date.now(); hm_loader();                           /* hiện ⏳ ngay: đã nhận file, đang đọc */
+  try { if (k === 'ton') loadWB(fl[0], 'ton'); else bbhv_loadFile(fl, k); } catch (e) { delete hm_ld[k]; hm_loader(); hm_toast('Không nạp được file: ' + e.message, 5000); return; }
+  setTimeout(() => { if (hm_ld[k]) { const d = HM_LOAD.filter(x => x.k === k)[0]; if (!d.has()) hm_toast('Chưa đọc xong file ' + d.t + ' — file lớn có thể mất vài giây.', 4000); hm_loader(); } }, 12000);
 }
+/* cập nhật icon + dòng nội dung NGAY khi bất kỳ chỗ nào nạp xong file (kể cả từ tab con) */
+(function () {
+  ['markLoaded', 'markDZ', '_syncMarkLoaded', '_syncMarkDZ'].forEach(n => {
+    const o = window[n]; if (typeof o !== 'function') return;
+    window[n] = function (dz, fn, name) {
+      const r = o.apply(this, arguments), k = HM_DZ[dz];
+      if (k) {
+        delete hm_ld[k];
+        const d = HM_LOAD.filter(x => x.k === k)[0];
+        if (d && !d.has()) hm_toast('⚠️ Không đọc được file ' + (name || '') + ' — hãy kiểm tra đúng file Excel.', 5000);
+      }
+      setTimeout(hm_loader, 0); return r;
+    };
+  });
+})();
 function home_fit() {
   const h = document.getElementById('home'); if (!h || !h.classList.contains('on')) return;
   const W = h.querySelector('.hm-wrap').clientWidth - 24;
