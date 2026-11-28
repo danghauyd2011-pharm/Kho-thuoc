@@ -542,6 +542,24 @@ table.prev-tbl tr:last-child td,#preview-table tr:last-child td { border-bottom:
 .tk-table th{text-align:center;font-weight:bold;background:#f5f5f5;white-space:nowrap}
 .tk-table td.ctr{text-align:center}.tk-table td.r{text-align:right;font-weight:700}.tk-table td.kk{font-style:italic;color:#555}
 .tk-row-kk{background:#fafafa}.tk-row-nhap{background:#f0fff8}.tk-row-phongmo{background:#f5f0ff}.tk-row-tra{background:#fff8ec}
+/* ── Thẻ kho: xem trước phân biệt dòng RÕ (CHỈ trên màn hình; in PDF / Excel dùng mẫu riêng nên không đổi) ── */
+#a4-page .tk-table tbody{counter-reset:tkr}
+#a4-page .tk-table tbody tr{counter-increment:tkr}
+#a4-page .tk-table tbody tr td{background-color:#fff!important;padding:9px 6px;cursor:pointer;border:1px solid #64748b;border-bottom:2px solid #334155}
+#a4-page .tk-table tbody tr:nth-child(even) td{background-color:#dbe8fb!important}
+#a4-page .tk-table tbody tr td.r{font-size:12.5px}
+#a4-page .tk-table tbody tr td:first-child{position:relative;padding-left:24px}
+#a4-page .tk-table tbody tr td:first-child::before{content:counter(tkr);position:absolute;left:5px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:800;color:#64748b}
+/* vạch màu bên trái theo loại dòng: nhập kho xanh · tủ trực cam · phòng mổ tím · tồn đầu xám */
+#a4-page .tk-table tbody tr.tk-row-nhap td:first-child{box-shadow:inset 7px 0 0 #16a34a}
+#a4-page .tk-table tbody tr.tk-row-tra td:first-child{box-shadow:inset 7px 0 0 #f59e0b}
+#a4-page .tk-table tbody tr.tk-row-phongmo td:first-child{box-shadow:inset 7px 0 0 #8b5cf6}
+#a4-page .tk-table tbody tr.tk-row-kk td:first-child{box-shadow:inset 7px 0 0 #94a3b8}
+@media (hover:hover){#a4-page .tk-table tbody tr:hover td{background-color:#fff1b8!important}}
+#a4-page .tk-table tbody tr.tk-sel td{background-color:#ffd24d!important;color:#000;font-weight:800;border-top:2px solid #b45309;border-bottom:2px solid #b45309}
+#a4-page .tk-table tbody tr.tk-sel td:first-child{box-shadow:inset 7px 0 0 #b45309}
+#a4-page .tk-table tbody tr.tk-sel td:first-child::before{content:"▶";color:#b45309;font-size:10px}
+
 #app-tt20 .tt20-card{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:18px;box-shadow:0 2px 8px rgba(13,27,64,.05)}
 #app-tt20 h1{color:var(--t1);font-size:1.1rem;margin-bottom:6px;font-family:var(--f);font-weight:800}
 #app-tt20 .subtitle{color:var(--t2);font-size:.85rem;margin-bottom:14px;border-bottom:2px solid var(--border);padding-bottom:12px;font-family:var(--f)}
@@ -1464,6 +1482,28 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
 .ug-hero{background:linear-gradient(100deg,var(--bd),var(--bm) 60%,oklch(.56 .16 calc(var(--h) + 90 * var(--sp))))}
 }
 </style>
+<script>try{localStorage.removeItem('app_skin')}catch(e){}</script>
+<style id="skin-cards">
+/* ═══ Thẻ chức năng trang chủ kiểu “category card”: nền gradient rực, chữ trắng đậm, gạch ngắn dưới tiêu đề, biểu tượng lớn mờ bên phải, bóng màu (giao diện Cổ điển) ═══ */
+html:not([data-skin]) #home .hm-g .hm-t{position:relative;overflow:hidden!important;border:0!important;border-radius:22px!important;color:#fff;background:var(--cg,linear-gradient(135deg,#7a4dff,#8f78f5))!important;
+  box-shadow:0 12px 22px -8px var(--cs,rgba(122,77,255,.55))!important;padding:14px 16px 14px 18px!important;align-items:flex-start;justify-content:center;transition:transform .18s ease,box-shadow .18s ease}
+html:not([data-skin]) #home .hm-g .hm-t:hover{transform:translateY(-3px);box-shadow:0 16px 28px -8px var(--cs,rgba(122,77,255,.6))!important}
+html:not([data-skin]) #home .hm-g .hm-t:active{transform:scale(.97)}
+html:not([data-skin]) #home .hm-g .hm-t[data-c="0"]{--cg:linear-gradient(135deg,#7a4dff,#9a85f7);--cs:rgba(122,77,255,.55)}
+html:not([data-skin]) #home .hm-g .hm-t[data-c="1"]{--cg:linear-gradient(135deg,#f59a0a,#f7bf10);--cs:rgba(245,154,10,.55)}
+html:not([data-skin]) #home .hm-g .hm-t[data-c="2"]{--cg:linear-gradient(135deg,#ea2ba3,#f562e0);--cs:rgba(234,43,163,.5)}
+html:not([data-skin]) #home .hm-g .hm-t[data-c="3"]{--cg:linear-gradient(135deg,#1e8fff,#14b8f7);--cs:rgba(30,143,255,.5)}
+html:not([data-skin]) #home .hm-g .hm-t[data-c="4"]{--cg:linear-gradient(135deg,#f08a12,#f3c40c);--cs:rgba(240,138,18,.55)}
+html:not([data-skin]) #home .hm-g .hm-t[data-c="5"]{--cg:linear-gradient(135deg,#2ed06a,#52e1a3);--cs:rgba(46,208,106,.5)}
+/* biểu tượng lớn, mờ, nằm bên phải (bóng tối của emoji → giống hình minh họa tông đậm) */
+html:not([data-skin]) #home .hm-g .hm-t .hm-i{position:absolute!important;right:6px;top:50%;width:auto!important;height:auto!important;transform:translateY(-50%) rotate(-8deg);font-size:58px!important;line-height:1;background:none!important;box-shadow:none!important;border-radius:0!important;
+  filter:brightness(0);opacity:.17;pointer-events:none;flex:none}
+html:not([data-skin]) #home .hm-g .hm-t .hm-x{position:relative;z-index:1;max-width:calc(100% - 8px)}
+html:not([data-skin]) #home .hm-g .hm-t .hm-n{color:#fff!important;font-size:15.5px!important;font-weight:800!important;letter-spacing:-.1px;text-shadow:0 1px 2px rgba(0,0,0,.14)}
+html:not([data-skin]) #home .hm-g .hm-t .hm-x:after{content:"";display:block;width:18px;height:3px;border-radius:2px;background:rgba(255,255,255,.6);margin-top:7px}
+html:not([data-skin]) #home .hm-g .hm-t .hm-b{background:rgba(255,255,255,.26)!important;color:#fff!important;border:1px solid rgba(255,255,255,.5);margin-top:4px}
+html:not([data-skin]) #home .hm-g .hm-t .hm-b.w{background:rgba(255,255,255,.34)!important}
+</style>
 </head>
 <body>
 <div id="zoom-root">
@@ -2265,7 +2305,7 @@ body,#home{background:linear-gradient(180deg,oklch(.955 .03 var(--h)),oklch(.985
       </div>
 
       <div class="prev-wrap">
-        <div class="prev-hdr">Xem trước thẻ kho</div>
+        <div class="prev-hdr">Xem trước thẻ kho <small style="font-weight:600;opacity:.8;margin-left:6px">· chạm vào dòng để đánh dấu (↑ ↓ chuyển dòng) · vạch màu: <span style="color:#16a34a">■</span> nhập kho <span style="color:#f59e0b">■</span> tủ trực <span style="color:#8b5cf6">■</span> phòng mổ</small></div>
         <div class="prev-scroll" id="prev-scroll">
           <div class="a4-scaler" id="a4-scaler">
             <div class="a4-page" id="a4-page">
@@ -7713,7 +7753,8 @@ function home_render() {
     h += '<div class="hm-sec">' + s.sec + '</div><div class="hm-g">' + its.map(([it, j]) => {
       let live = '';
       if (it.live === 'nopbb' && typeof SDB !== 'undefined') { const r = Object.values(SDB.rows).filter(x => x.month === SDB.month); if (r.length) { const d = r.filter(x => x.nop).length; live = '<span class="hm-b' + (d < r.length ? ' w' : '') + '">' + d + '/' + r.length + ' khoa đã nộp</span>'; } }
-      return '<button class="hm-t" onclick="homeGo(' + i + ',' + j + ')"><span class="hm-i" style="background:' + s.bg + '">' + it.ic + '</span><span class="hm-x"><span class="hm-n">' + it.t + '</span><span class="hm-d">' + it.d + '</span>' + live + '</span></button>';
+      const ci = (HOME.slice(0, i).reduce((a, x) => a + x.items.length, 0) + j) % 6;
+      return '<button class="hm-t" data-c="' + ci + '" onclick="homeGo(' + i + ',' + j + ')"><span class="hm-i" style="background:' + s.bg + '">' + it.ic + '</span><span class="hm-x"><span class="hm-n">' + it.t + '</span><span class="hm-d">' + it.d + '</span>' + live + '</span></button>';
     }).join('') + '</div>';
   });
   g.innerHTML = h || '<div class="hm-d" style="padding:20px">Không có chức năng nào khớp.</div>';
@@ -8861,6 +8902,26 @@ window.bcxnt_excel = async function () {
     setBtn(true);
     pip.addEventListener('pagehide', () => { pip = null; timer = null; setBtn(false); try { window.focus(); } catch (e) {} });
   };
+})();
+</script>
+<script>
+/* Thẻ kho (xem trước): chạm / bấm vào một dòng để tô nổi bật, bấm lại để bỏ; phím ↑ ↓ chuyển dòng đang đánh dấu */
+(function () {
+  const pg = document.getElementById('a4-page'); if (!pg) return;
+  const rows = () => Array.from(pg.querySelectorAll('.tk-table tbody tr'));
+  const mark = tr => { pg.querySelectorAll('tr.tk-sel').forEach(r => r.classList.remove('tk-sel')); if (tr) tr.classList.add('tk-sel'); };
+  pg.addEventListener('click', e => {
+    if (window.getSelection && String(window.getSelection()).length > 0) return;   /* đang bôi đen chữ để sao chép → không đổi dòng */
+    const tr = e.target.closest && e.target.closest('.tk-table tbody tr'); if (!tr) return;
+    mark(tr.classList.contains('tk-sel') ? null : tr);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    const t = e.target, tag = t && t.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+    const cur = pg.querySelector('tr.tk-sel'); if (!cur) return;
+    const r = rows(), i = r.indexOf(cur), n = r[i + (e.key === 'ArrowDown' ? 1 : -1)];
+    if (!n) return; e.preventDefault(); mark(n); n.scrollIntoView({ block: 'nearest' });
+  });
 })();
 </script>
 </body>
